@@ -1,0 +1,141 @@
+\begin{thebibliography}{99}
+
+\bibitem{agamennoni2012approximate}
+G.~Agamennoni, J.~I.~Nieto, and E.~M.~Nebot, ``Approximate inference in state-space models with heavy-tailed noise," \textit{IEEE Transactions on Signal Processing}, vol.~60, no.~10, pp.~5024-5037, 2012.
+
+\bibitem{bai2021novel}
+M.~Bai, Y.~Huang, Y.~Zhang, and F.~Chen, ``A novel heavy-tailed mixture distribution based robust Kalman filter for cooperative localization," \textit{IEEE Transactions on Industrial Informatics}, vol.~17, no.~5, pp.~3671-3681, 2021.
+
+\bibitem{blei2017variational}
+D.~M.~Blei, A.~Kucukelbir, and J.~D.~Mcauliffe, ``Variational inference: a review for statisticians," \textit{Journal of the American Statistical Association}, vol.~112, no.~518, pp.~859--877, 2017.
+
+\bibitem{chang1984application}
+C.~Chang, and J.~Tabaczynski, ``Application of state estimation to target tracking," \textit{IEEE Transactions on Automatic Control}, vol.~29, no.~2, pp.~98--109, 1984.
+
+\bibitem{chen2011kalman}
+S.~Y.~Chen, ``Kalman filter for robot vision: a survey," \textit{IEEE Transactions on Industrial Electronics}, vol.~59, no.~11, pp.~4409--4420, 2011.
+
+\bibitem{chen2019distributed}
+B.~Chen, G.~Hu, D.~W.~Ho, and L.~Yu, ``Distributed Kalman filtering for time-varying discrete sequential systems," \textit{Automatica}, vol.~99, pp.~228--236, 2019.
+
+\bibitem{chen2003bayesian}
+Z.~Chen et al., ``Bayesian filtering: from Kalman filters to particle filters, and beyond," \textit{Statistics}, vol.~182, no.~1, pp.~1--69, 2003.
+
+\bibitem{cheng2024survey}
+G.~Cheng, Y.~Lin, A.~Abur, A.~Gómez-expósito, and W.~Wu, ``A survey of power system state estimation using multiple data sources: PMUs, SCADA, AMI, and beyond," \textit{IEEE Transactions on Smart Grid}, vol.~15, no.~1, pp.~1129-1151, 2024.
+
+\bibitem{denzler2002information}
+J.~Denzler, and C.~M.~Brown, ``Information theoretic sensor data selection for active object recognition and state estimation," \textit{IEEE Transactions on Pattern Analysis and Machine Intelligence}, vol.~24, no.~2, pp.~145--157, 2002.
+
+\bibitem{doucet2001particle}
+A.~Doucet, N.~J.~Gordon, and V.~Krishnamurthy, ``Particle filters for state estimation of jump Markov linear systems," \textit{IEEE Transactions on Signal Processing}, vol.~49, no.~3, pp.~613--624, 2001.
+
+\bibitem{doucet2009tutorial}
+A.~Doucet, A.~M.~Johansen et al., ``A tutorial on particle filtering and smoothing: fifteen years later," \textit{Handbook of Nonlinear Filtering}, vol.~12, no.~656-704, pp.~3, 2009.
+
+\bibitem{ganguly2021introduction}
+A.~Ganguly, and S.~W.~Earp, ``An introduction to variational inference," \textit{arXiv Preprint arXiv:2108.13083}, 2021.
+
+\bibitem{gustafsson2002particle}
+F.~Gustafsson, F.~Gunnarsson, N.~Bergman, U.~Forssell, J.~Jansson, R.~Karlsson, and P.~J.~Nordlund, ``Particle filters for positioning, navigation, and tracking," \textit{IEEE Transactions on Signal Processing}, vol.~50, no.~2, pp.~425--437, 2002.
+
+\bibitem{hashim2023uwb}
+H.~A.~Hashim, A.~E.~Eltoukhy, and K.~G.~Vamvoudakis, ``UWB ranging and IMU data fusion: overview and nonlinear stochastic filter for inertial navigation," \textit{IEEE Transactions on Intelligent Transportation Systems}, vol.~25, no.~1, pp.~359--369, 2023.
+
+\bibitem{hu2012extended}
+J.~Hu, Z.~Wang, H.~Gao, and L.~K.~Stergioulas, ``Extended Kalman filtering with stochastic nonlinearities and multiple missing measurements," \textit{Automatica}, vol.~48, no.~9, pp.~2007--2015, 2012.
+
+\bibitem{huang2024recursive}
+Y.~B.~Huang, Z.~Wang, Y.~He, and M.~Wu, ``Recursive state estimation for discrete-time nonlinear systems with binary sensors: a locally minimized variance approach," \textit{IEEE Transactions on Automatic Control}, 2024.
+
+\bibitem{ljung1979asymptotic}
+L.~Ljung, ``Asymptotic behavior of the extended Kalman filter as a parameter estimator for linear systems," \textit{IEEE Transactions on Automatic Control}, vol.~24, no.~1, pp.~36--50, 1979.
+
+\bibitem{lopes2011particle}
+H.~F.~Lopes, and R.~S.~Tsay, ``Particle filters and Bayesian inference in financial econometrics," \textit{Journal of Forecasting}, vol.~30, no.~1, pp.~168--209, 2011.
+
+\bibitem{ma2018multiple}
+Y.~Ma, S.~Zhao, and B.~Huang, ``Multiple-model state estimation based on variational Bayesian inference," \textit{IEEE Transactions on Automatic Control}, vol.~64, no.~4, pp.~1679--1685, 2018.
+
+\bibitem{meng2017overview}
+J.~Meng, M.~Ricco, G.~Luo, M.~Swierczynski, D.~I.~Stroe, A.~I.~Stroe, and R.~Teodorescu, ``An overview and comparison of online implementable SOC estimation methods for lithium-ion battery," \textit{IEEE Transactions on Industry Applications}, vol.~54, no.~2, pp.~1583--1591, 2017.
+
+\bibitem{moon2021discrete}
+J.~Moon, ``Discrete-time modeling of transition noise dominant channels and study of detection performance," \textit{IEEE Transactions on Magnetics}, vol.~27, no.~6, pp.~4573-4578, 1991.
+
+\bibitem{murphy2012machine}
+K.~P.~Murphy, ``Machine learning: a probabilistic perspective," \textit{MIT Press}, 2012.
+
+\bibitem{perera2012maritime}
+L.~P.~Perera, P.~Oliveira, and C.~G.~Soares, ``Maritime traffic monitoring based on vessel detection, tracking, state estimation, and trajectory prediction," \textit{IEEE Transactions on Intelligent Transportation Systems}, vol.~13, no.~3, pp.~1188--1200, 2012.
+
+\bibitem{rigatos2009particle}
+G.~G.~Rigatos, ``Particle filtering for state estimation in nonlinear industrial systems," \textit{IEEE Transactions on Instrumentation and Measurement}, vol.~58, no.~11, pp.~3885--3900, 2009.
+
+\bibitem{rigatos2011derivative}
+G.~G.~Rigatos, ``A derivative-free Kalman filtering approach to state estimation-based control of nonlinear systems," \textit{IEEE Transactions on Industrial Electronics}, vol.~59, no.~10, pp.~3987--3997, 2011.
+
+\bibitem{sarkka2007unscented}
+S.~Sarkka, ``On unscented Kalman filtering for state estimation of continuous-time nonlinear systems," \textit{IEEE Transactions on Automatic Control}, vol.~52, no.~9, pp.~1631--1641, 2007.
+
+\bibitem{schenato2008optimal}
+L.~Schenato, ``Optimal estimation in networked control systems subject to random delay and packet drop," \textit{IEEE Transactions on Automatic Control}, vol.~53, no.~5, pp.~1311--1317, 2008.
+
+\bibitem{schon2005marginalized}
+T.~Schon, F.~Gustafsson, and P.~J.~Nordlund, ``Marginalized particle filters for mixed linear/nonlinear state-space models," \textit{IEEE Transactions on Signal Processing}, vol.~53, no.~7, pp.~2279--2289, 2005.
+
+\bibitem{shannon1948mathematical}
+C.~E.~Shannon, ``A mathematical theory of communication," \textit{The Bell System Technical Journal}, vol.~27, no.~3, pp.~379--423, 1948.
+
+\bibitem{shi2010kalman}
+L.~Shi, M.~Epstein, and R.~M.~Murray, ``Kalman filtering over a packet-dropping network: a probabilistic perspective," \textit{IEEE Transactions on Automatic Control}, vol.~55, no.~3, pp.~594--604, 2010.
+
+\bibitem{shi2014set}
+D.~Shi, T.~Chen, and L.~Shi, ``On set-valued Kalman filtering and its application to event-based state estimation," \textit{IEEE Transactions on Automatic Control}, vol.~60, no.~5, pp.~1275--1290, 2014.
+
+\bibitem{sun2008optimal}
+S.~Sun, L.~Xie, W.~Xiao, and Y.~C.~Soh, ``Optimal linear estimation for systems with multiple packet dropouts," \textit{Automatica}, vol.~44, no.~5, pp.~1333--1342, 2008.
+
+\bibitem{van2011localized}
+C.~P.~Van hinsbergen, T.~Schreiter, F.~S.~Zuurbier, J.~Van lint, and H.~J.~Van zuylen, ``Localized extended Kalman filter for scalable real-time traffic state estimation," \textit{IEEE Transactions on Intelligent Transportation Systems}, vol.~13, no.~1, pp.~385--394, 2011.
+
+\bibitem{wang2019variational}
+G.~Wang, X.~Wang, and Y.~Zhang, ``Variational Bayesian IMM-filter for jmss with unknown noise covariances," \textit{IEEE Transactions on Aerospace and Electronic Systems}, vol.~56, no.~2, pp.~1652--1661, 2019.
+
+\bibitem{wang2024distributed}
+G.~Wang, Z.~Zhu, C.~Yang, L.~Ma, W.~Dai, and X.~Chen, ``Distributed multi-kernel maximum correntropy state-constrained Kalman filter under deception attacks," \textit{IEEE Transactions on Network Science and Engineering}, 2024.
+
+\bibitem{wang2024state}
+Z.~Wang, P.~Wang, J.~Wang, P.~Lou, and J.~Li, ``State estimation for measurement-saturated memristive neural networks with missing measurements and mixed time delays subject to cyber-attacks: a non-fragile set-membership filtering framework.," \textit{Applied Sciences (2076-3417)}, vol.~14, no.~19, 2024.
+
+\bibitem{zhang2015survey}
+X.~Zhang, Q.~Han, and X.~Yu, ``Survey on recent advances in networked control systems," \textit{IEEE Transactions on Industrial Informatics}, vol.~12, no.~5, pp.~1740--1752, 2015.
+
+\bibitem{zhang2018advances}
+C.~Zhang, J.~B{\"u}tepage, H.~Kjellstr{\"o}m, and S.~Mandt, ``Advances in variational inference," \textit{IEEE Transactions on Pattern Analysis and Machine Intelligence}, vol.~41, no.~8, pp.~2008--2026, 2018.
+
+\bibitem{zhang2024direct}
+G.~Zhang, W.~Yi, M.~Matthaiou, and P.~K.~Varshney, ``Direct target localization with low-bit quantization in wireless sensor networks," \textit{IEEE Transactions on Signal Processing}, 2024.
+
+\bibitem{zhang2024quantization}
+N.~Zhang, G.~Chen, J.~Xia, J.~H.~Park, and X.~Xie, ``Quantization-based adaptive fuzzy consensus for multiagent systems under sensor deception attacks: a novel compensation mechanism," \textit{IEEE Transactions on Cybernetics}, 2024.
+
+\bibitem{zhao2017robust}
+J.~Zhao, and L.~Mili, ``Robust unscented Kalman filter for power system dynamic state estimation with unknown noise statistics," \textit{IEEE Transactions on Smart Grid}, vol.~10, no.~2, pp.~1215--1224, 2017.
+
+\bibitem{zheng2021novel}
+Y.~Zheng, S.~Li, K.~Xing, and X.~Zhang, ``A novel noise reduction method of UAV magnetic survey data based on ceemdan, permutation entropy, correlation coefficient and wavelet threshold denoising," \textit{Entropy}, vol.~23, no.~10, pp.~1309, 2021.
+
+\bibitem{zhou2020empirical}
+Y.~Zhou, B.~W.~K.~Ling, X.~Mo, Y.~Guo, and Z.~Tian, ``Empirical mode decomposition-based hierarchical multiresolution analysis for suppressing noise," \textit{IEEE Transactions on Instrumentation and Measurement}, vol.~69, no.~4, pp.~1833-1845, 2020.
+
+\bibitem{zhu2021adaptive}
+H.~Zhu, G.~Zhang, Y.~Li, and H.~Leung, ``An adaptive Kalman filter with inaccurate noise covariances in the presence of outliers," \textit{IEEE Transactions on Automatic Control}, vol.~67, no.~1, pp.~374--381, 2021.
+
+\bibitem{zhu2021novel}
+H.~Zhu, G.~Zhang, Y.~Li, and H.~Leung, ``A novel robust Kalman filter with unknown non-stationary heavy-tailed noise," \textit{Automatica}, vol.~127, pp.~109511, 2021.
+
+\bibitem{zhu2021vb}
+H.~Zhu, J.~Mi, Y.~Li, K.~V.~Yuen, and H.~Leung, ``VB-Kalman based localization for connected vehicles with delayed and lost measurements: theory and experiments," \textit{IEEE/ASME Transactions on Mechatronics}, vol.~27, no.~3, pp.~1370--1378, 2021.
+
+\end{thebibliography}

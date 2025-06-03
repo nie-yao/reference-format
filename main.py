@@ -10,7 +10,9 @@ import re
 import os
 
 
-PROPER_NOUNS = {"Kalman", "Markov", "AUV", "AUVs", "GPS"}
+TERM = {'Kalman', 'Markov', 'Bayesian'}
+ABBR = {'UAV', 'GPS', 'VB', 'PMU', 'SCADA', 'AMI', 'UWB', 'IMU', 'SOC', 'IMM'}
+UPPER_WORDS = set.union(TERM, ABBR)
 ORG_NAMES = {"IEEE", "ACM", "CAA", "MIT"}
 LOWER_WORDS = {"of", "in", "on", "for", "the", "a", "an", "and"}
 
@@ -97,7 +99,7 @@ def format_title(title):
             continue
         
         # 检查是否是专有名词
-        if word in PROPER_NOUNS:
+        if any(substring in word for substring in UPPER_WORDS):
             formatted_words.append(word)
             continue
         
@@ -114,12 +116,12 @@ def format_title(title):
 
 def format_authors(author_str):
     # Step 1: 用 'and' 分割成多个作者
-    authors = [a.strip() for a in author_str.split('and')]
+    authors = [a.strip() for a in author_str.split(' and ')]
     
     formatted_authors = []
     for author in authors:
         if author == 'others':
-            formatted_authors.append('et al.')
+            formatted_authors.append(author)
             continue
             
         # Step 2: 用 ',' 分割姓和名
@@ -133,9 +135,10 @@ def format_authors(author_str):
             last_name = last_name[0].upper() + last_name[1:].lower()
         
         # 名（缩写为首字母加 '.'）
-        first_names = []
-        for name in parts[1:]:
-            first_names.append(name[0].upper() + '.')
+        first_names = parts[1].replace('-',' ')
+        first_names = [a.strip() for a in first_names.split(' ')]
+        for i, name in enumerate(first_names):
+            first_names[i] = name[0].upper() + '.'
         
         # 组合：名缩写~姓（如 T.~Ba{\c{s}}ar）
         formatted_name = '~'.join(first_names + [last_name])
@@ -147,8 +150,8 @@ def format_authors(author_str):
     
     if len(formatted_authors) == 1:
         return formatted_authors[0]
-    elif formatted_authors[-1] == 'et al.':
-        return ', '.join(formatted_authors[:-1]) + ' ' + formatted_authors[-1]
+    elif formatted_authors[-1] == 'others':
+        return ', '.join(formatted_authors[:-1]) + ' et al.'
     else:
         return ', '.join(formatted_authors[:-1]) + ', and ' + formatted_authors[-1]
 
