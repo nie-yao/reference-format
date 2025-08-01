@@ -8,15 +8,16 @@ Created on Tue May 27 19:15:23 2025
 
 import re
 import os
+import glob
 
 
-TERM = {'Kalman', 'Markov', 'Bayesian'}
-ABBR = {'UAV', 'GPS', 'VB', 'PMU', 'SCADA', 'AMI', 'UWB', 'IMU', 'SOC', 'IMM'}
+TERM = {'Kalman', 'Markov', 'Bayesian', 'Gaussian'}
+ABBR = {'UAV', 'GPS', 'VB', 'PMU', 'SCADA', 'AMI', 'UWB', 'IMU', 'SOC', 'IMM', 'CPS'}
 UPPER_WORDS = set.union(TERM, ABBR)
 ORG_NAMES = {"IEEE", "ACM", "CAA", "MIT"}
 LOWER_WORDS = {"of", "in", "on", "for", "the", "a", "an", "and"}
 
-def extract_bibitems_from_file(file_path):
+def extract_bibitems(file_path):
     """
     从文件中提取所有的bibitem条目
     
@@ -50,6 +51,13 @@ def extract_bibitems_from_file(file_path):
         print(f"读取文件时出错：{e}")
         return []
 
+
+def extract_main_text(file_path):
+    # 读取论文内容
+    with open(file_path, 'r', encoding='utf-8') as file:
+        content = file.read()
+
+    return content
 
 def parse_bibtex_entry(s):
     # 使用正则表达式匹配 entry 类型（如 article, book 等）和 label
@@ -101,6 +109,7 @@ def format_title(title):
         # 检查是否是专有名词
         if any(substring in word for substring in UPPER_WORDS):
             formatted_words.append(word)
+            print(word)
             continue
         
         # 处理第一个单词（首字母大写，其余小写）
@@ -135,7 +144,7 @@ def format_authors(author_str):
             last_name = last_name[0].upper() + last_name[1:].lower()
         
         # 名（缩写为首字母加 '.'）
-        first_names = parts[1].replace('-',' ')
+        first_names = parts[1].replace('-', ' ')
         first_names = [a.strip() for a in first_names.split(' ')]
         for i, name in enumerate(first_names):
             first_names[i] = name[0].upper() + '.'
@@ -220,15 +229,15 @@ def process_single_bibitem(bibitem):
     bib_info += bibitem['author'] + ', '
     
     # 添加题目
-    # bib_info += bibitem['title'] + ', '
-    bib_info += '``' + bibitem['title'] + '," '
+    bib_info += bibitem['title'] + ', '
+    # bib_info += '``' + bibitem['title'] + '," '
     
     # 添加刊名、会议名
     if bibitem['type'] == 'article':
         bib_info += '\\textit{' + bibitem['journal'] + '}'
     elif bibitem['type'] == 'inproceedings':
         bib_info += '\\textit{' + bibitem['booktitle'] + '}'
-    elif bibitem['type'] == 'book':
+    elif bibitem['type'] == 'book' or bibitem['type'] == 'misc':
         bib_info += '\\textit{' + bibitem['publisher'] + '}'
     bib_info += ', '
     
@@ -287,14 +296,9 @@ def sort_bibitems(bibitems_list):
         )
     )
 
-    return bibitems_list
 
+def remove_uncited(content, bibitems_list):
 
-def remove_uncited(bibitems_list):
-    # 读取论文内容
-    with open('main.tex', 'r', encoding='utf-8') as file:
-        content = file.read()
-            
     for i, bibitem in enumerate(bibitems_list):
         label = bibitem['meta']['label']
         if label not in content:
@@ -326,21 +330,31 @@ def remove_duplicates(bibitems_list):
     return unique_list
 
 
-def process_bibitems(bibitems_list):
-    """
-    批量处理bibitem条目列表
+if __name__ == "__main__":
+    import sys
     
-    Args:
-        bibitems_list (list): 包含bibitem条目的字符串列表
+    argv = sys.argv[1:]
+    print(argv)
+    # if len(sys.argv) != 2:
+    #     print("Usage: python rename.py <directory>")
+    #     sys.exit(1)
     
-    Returns:
-        list: 处理后的结果列表
-    """    
+    # directory = sys.argv[1]
+    # if not os.path.isdir(directory):
+    #     print(f"Error: {directory} is not a valid directory")
+    #     sys.exit(1)
+
+    main_path = glob.glob('*.tex')[0]
+    main_text = extract_main_text(main_path)
+
+    bib_path = glob.glob('*.bib')[0]
+    bibitems = extract_bibitems(bib_path)
+    
     processed_results = []
     
-    print(f"开始处理 {len(bibitems_list)} 个bibitem条目...")
+    print(f"开始处理 {len(bibitems)} 个bibitem条目...")
     
-    for i, bibitem in enumerate(bibitems_list, 1):
+    for i, bibitem in enumerate(bibitems, 1):
         try:
             # 调用处理函数处理单个条目
             processed_result = process_single_bibitem(bibitem)
@@ -352,25 +366,18 @@ def process_bibitems(bibitems_list):
             processed_results.append(f"ERROR: {bibitem}")
     
     print(f"格式化完成。共处理 {len(processed_results)} 个条目。")
-    
-    processed_results = sort_bibitems(processed_results)
-    print("排序完成。")
-    
-    processed_results = remove_uncited(processed_results)
-    print(f"已删除未引用的条目！剩余 {len(processed_results)} 个条目。")
 
     processed_results = remove_duplicates(processed_results)
     print(f"已删除重复的条目！剩余 {len(processed_results)} 个条目。")
-    
-    return processed_results
 
-
-if __name__ == "__main__":
-    file_path = "ref.bib"
-    bibitems = extract_bibitems_from_file(file_path)
-    processed_results = process_bibitems(bibitems)
+    processed_results = sort_bibitems(processed_results)
+    print("排序完成。")
     
-    name, ext = os.path.splitext(file_path)
+    if '-rd' in argv:
+        processed_results = remove_uncited(main_text, processed_results)
+        print(f"已删除未引用的条目！剩余 {len(processed_results)} 个条目。")
+    
+    name, ext = os.path.splitext(bib_path)
     output_path = f"{name}_cleaned.txt"
     with open(output_path, 'w', encoding='utf-8') as f:
         # 写入文件头

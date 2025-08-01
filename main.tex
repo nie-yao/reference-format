@@ -1,1125 +1,1056 @@
-%!PN
+%\documentclass[onecolumn]{IEEEtran} %!PN
+%\documentstyle[twocolumn]{IEEEtran}
 %\documentstyle[9pt,twocolumn,technote,twoside]{IEEEtran}
 %\documentstyle[11pt,twoside,draft]{IEEEtran}
 %\documentclass[12pt,letter,dvips]{IEEEtran}
-\documentclass[10pt,twocolumn,twoside]{IEEEtran}
+\documentclass[twocolumn]{IEEEtran}
 %\documentclass[10pt,onecolumn,twoside]{IEEEtran}
-
-%% Useful packages
+\usepackage{algorithmic}
 \usepackage{bbm,color}
-\usepackage{amsthm,amsmath,amssymb}
-\usepackage{mathtools}
-\usepackage{mathrsfs}
-\usepackage[mathscr]{euscript}
+\usepackage{amsthm}
 \usepackage{amsfonts}
-\usepackage{upgreek}
-\usepackage{graphicx}
-% \usepackage{epstopdf}
-% \epstopdfsetup{update} % re-render pdf only when eps changed
-\usepackage{bm}
-\usepackage[colorlinks=true, allcolors=blue]{hyperref}
-\usepackage{algorithm}
-\usepackage{algpseudocode}
+\usepackage{amssymb}
+\usepackage{mathtools}
+\usepackage[mathscr]{euscript}
+%\usepackage{mathrsfs} %!PN
+\usepackage{epsfig}
+\usepackage{amsmath}
+\usepackage[ruled]{algorithm2e}
+%\usepackage[ruled,linesnumbered]{algorithm2e}
+\usepackage{color}
 \usepackage{cite}
-\DeclareGraphicsRule{.eps}{pdf}{.pdf}{`epstopdf #1}
-
-%% New Environments
+\usepackage{graphicx}
+\usepackage[T1]{fontenc}
+\usepackage{subfigure}
+\usepackage{stfloats}
+\usepackage{enumerate}
+\usepackage{booktabs}
+\usepackage{makecell}
+\usepackage{multirow}
+\usepackage{threeparttable}
+\DeclareGraphicsRule{.jpg}{eps}{.bb}{}
 \newtheorem{theorem}{Theorem}
 \newtheorem{corollary}{Corollary}
 \newtheorem{definition}{Definition}
 \newtheorem{lemma}{Lemma}
 \newtheorem{proposition}{Proposition}
 \newtheorem{assumption}{Assumption}
-\newtheorem{problem}{Problem}
 \newtheorem{remark}{Remark}
-
-% For convenience, define
-%% Fonts:
-\newcommand{\rmnum}[1]{\romannumeral #1} % For lowercase Roman numerals
-\newcommand{\Rmnum}[1]{\uppercase\expandafter{\romannumeral #1}} % For uppercase Roman numerals
-%% Notations:
-\newcommand{\tsum}{{\textstyle\sum}} % For narrow sum
-\newcommand{\diag}[1]{{\rm diag}\{#1\}}
+\newtheorem{condition}{Condition}
+\newcommand{\diag}{{\rm diag}}
+\providecommand{\keywords}[1]{\textbf{\textit{Index terms---}} #1}
+\makeatletter
 \newcommand{\tr}{{\rm tr}}
-\newcommand{\e}[1]{\exp\left\{#1\right\}}
-\newcommand{\argmax}[1]{{\mathop{\arg\max}_{#1}~}}
-\newcommand{\argmin}[1]{{\mathop{\arg\min}_{#1}~}}
-\DeclareMathOperator{\atantwo}{atan2}
-\DeclareMathOperator{\arctantwo}{arctan2}
-\newcommand{\E}[2][]{ \mathbb{E}_{#1}\left[#2\right] } % expectation (with respect to certain distribution)
-\newcommand{\Var}[1]{\mathbb{D}\left[#1\right]} % variance
-\newcommand{\Cov}[1]{\mathrm{Cov}\left[#1\right]} % covariance
-\newcommand{\Dir}{{ \mathrm{Dir} }}
-\newcommand{\cm}{\text{,}} % comma
-\newcommand{\fs}{\text{.}} % full stop
+\newcommand{\removelatexerror}{\let\@latex@error\@gobble}
+\makeatother
+\setcounter{MaxMatrixCols}{20}
+%\renewcommand{\baselinestretch}{1.4}
+%\setlength{\textwidth}{162mm}
+%\setlength{\leftmargin}{34mm}
+%\setlength{\evensidemargin}{15pt}
+%\usepackage{tikz}
+%\usetikzlibrary{
+%	arrows.meta,
+%	chains,
+%	matrix,
+%	positioning,
+%}
+\usepackage{etoolbox}
+\allowdisplaybreaks
+\makeatletter
+\patchcmd{\@makecaption}
+  {\scshape}
+  {}
+  {}
+  {}
+\makeatother
 
-%% Algorithms:
-\renewcommand{\algorithmicrequire}{\textbf{Input:}}  % Use Input in the format of Algorithm  
-\renewcommand{\algorithmicensure}{\textbf{Output:}} % Use Output in the format of Algorithm  
-%% Colors:
-\newcommand{\red}[1]{{\color{red}#1}}  % For red text
-\newcommand{\blue}[1]{{\color{blue}#1}}  % For blue text
-\newcommand{\green}[1]{{\color{green}#1}}  % For green text
-%% Styles:
-\newcommand{\non}{\nonumber}
-\newcommand{\noi}{\noindent}
-
-% In this paper:
-\newcommand{\x}{{ \bm{x} }}
-\newcommand{\y}{{ \bm{y} }}
-\newcommand{\z}{{ \bm{z} }}
-% \renewcommand{\theta}{\bm{\uptheta}}
-% \renewcommand{\phi}{\bm{\upphi}}
-
+%\def\BibTeX{{\rm B\kern-.05em{\sc i\kern-.025em b}\kern-.08em
+		%\tau\kern-.1667em\lower.7ex\hbox{E}\kern-.125emX}}
 
 \begin{document}
 
-% The first letter of each word should be capitalized, including prepositions (e.g. of, for, with) and articles (e.g. the, a, an)
-
-\title{{Variational Particle Filter For Nonlinear Systems With Dynamic Noise-Dominant Regions: A State-Dependent Case
-}\thanks{This work was supported in part by the National Key Research and Development Program of China under Grant 2022YFB4501704, in
-part by the National Science Foundation of China under Grants
-62222312 and 62473285, in part by the Shanghai Science and Technology Innovation Action Plan Project of China under Grant 22511100700, in part by Fundamental Research Funds for the Central Universities, in part by the Royal Society of the U.K., and in part by the Alexander von Humboldt Foundation of Germany. {\it (Corresponding author: Qinyuan Liu)}}
+% Expectation-Maximum
+\title{{Relay Allocation Scheme for Distributed Filtering in Cyber-Physical Systems: A Deep Reinforcement Learning Approach
 }
+\thanks{This work was supported in part by the European Union's Horizon 2020 Research and Innovation Programme under Grant 820776 (INTEGRADDE), the Engineering and Physical Sciences Research Council (EPSRC) of the UK, the Royal Society of the UK, and the Alexander von Humboldt Foundation of Germany.}}
 
-\author{Yao Nie, ~Zidong Wang, ~and ~Qinyuan Liu
-\thanks{Yao Nie and Qinyuan Liu are with the Department of Computer Science and Technology, Tongji University, Shanghai 201804, China; with the Key Laboratory of Embedded System and Service Computing, Ministry of Education, Tongji University, Shanghai 200092, China; and also with the Shanghai Artificial Intelligence Laboratory, Shanghai, China. (Email: {\tt liuqy@tongji.edu.cn}).}
+\author{Ziye Wang, ~Zidong Wang, ~and ~Qinyuan Liu
+\thanks{Ziye Wang and Qinyuan Liu are with the Department of Computer Science and Technology, Tongji University, Shanghai 201804, China; with the Key Laboratory of Embedded System and Service Computing, Ministry of Education, Tongji University, Shanghai 200092, China; and also with the Shanghai Artificial Intelligence Laboratory, Shanghai, China. (Email: {\tt liuqy@tongji.edu.cn}).}
 \thanks{Zidong Wang is with the Department of Computer Science, Brunel University London, Uxbridge, Middlesex, UB8 3PH, United Kingdom. (Email: {\tt Zidong.Wang@brunel.ac.uk}).}
 }
 
-\markboth{\it Submitted} {} \maketitle
+\markboth{{\it submitted}} {Lei: Using the style file IEEEtran.sty} \maketitle
 
-% Within 200 words
-% No abbreviations
 \begin{abstract}
-This paper investigates the state estimation problem for nonlinear systems subject to dynamic noise-dominant regions where the observations are corrupted by state-dependent heavy-tailed noise. In real-world scenarios, the target states may move into specific regions with elevated noise levels compared to normal regions, resulting in outlier observations. However, this information remains unknown to the observer, leading to significant estimation challenges. To address this issue, we model the observation noise using a state-dependent Gaussian-Gamma mixture distribution and formulate a joint hidden variable representation that enables applying the variational Bayesian framework. Under the mean-field assumption, we propose a variational particle filter that integrates variational inference with the importance sampling technique to iteratively refine state estimates. Theoretical analysis guarantees the stability of the variational estimator while maintaining computational complexity comparable to that of standard particle filters. Experimental results from a target tracking task demonstrate that the proposed filter outperforms conventional methods by effectively mitigating outlier effects.
+This paper addresses the relay allocation problem for distributed state estimation in wireless sensor networks. Each sensor operates a state estimator to generate local predictions, which are then transmitted to its neighboring sensors over a shared network with a limited number of relays. When the sensor receives predictions from neighbors, it employs the Kalman-like consensus filter to conduct state estimate while accounting for channel uncertainties. Given the constrained availability of relays, only a subset of sensors can utilize them at any given time. To enhance the overall estimation performance, an allocation mechanism is implemented to dynamically allocate relays to selected sensors. This allocation problem is formulated as a Markov decision process, and a Deep Q-Network (DQN) algorithm is developed to solve it efficiently in a scalable and model-free manner. The proposed approach is capable of handling large-scale sensor networks and adapting to varying network conditions. Finally, an illustrative example is provided to demonstrate that the proposed approach achieves superior estimation performance and more effective relay utilization.
+%selected sensor对嘛？想说分配到原有信道上
 \end{abstract}
+\begin{keywords}
+Distributed estimation, Consensus filter, Kalman
+filter,  Relay allocation, Fading channel, Markov decision process, Deep reinforcement learning  
+\end{keywords}
 
-% The 1st keyword: Capitalize the first letter
-% The last keywords: lowercase
-\begin{IEEEkeywords}
-State estimation, nonlinear systems, dynamic noise-dominant regions, variational inference, particle filter, state-dependent
-\end{IEEEkeywords}
+\section{Introduction}
+Cyber-physical systems (CPSs), which integrate communication networks with physical infrastructures such as sensors, controllers, and actuators \cite{xing2023optimal}, have garnered substantial attention due to their transformative role in bridging computational algorithms and physical processes. CPSs empower advanced applications such as autonomous vehicles, healthcare robotics, industrial automation, precision agriculture and so on, which enabling real-time monitoring, adaptive decision-making, and dynamic optimization \cite{schutze2018sensors}. The analysis and synthesis of dynamical systems over CPSs encompass, but are not limited to, control \cite{ji2023adaptive, xi2025expert, priya2025dynamic}, synchronization \cite{zhang2024synchronization, hannon2021distributed}, and filtering \cite{jin2023distributed, li2024improving, xing2022dynamic, zheng2022distributed}.
 
-\section{Introduction} \label{sec:intro}
-Over the past decades, state estimation theory has been extensively applied in various industrial scenarios and academic studies, such as target tracking, traffic monitoring, object recognition, automation processes, financial econometrics, and so on\cite{chang1984application,perera2012maritime,denzler2002information,zhang2015survey,lopes2011particle,chen2019distributed}. One of the fundamental challenges in the state estimation problem is designing appropriate filtering algorithms to denoise the observation data and then reconstruct the target state. Substantial effective filters for diverse dynamic systems have been developed, with notable examples including the Kalman Filter (KF)\cite{rigatos2011derivative,shi2014set}, Extended Kalman Filter (EKF)\cite{ljung1979asymptotic,van2011localized}, Unscented Kalman Filter (UKF)\cite{sarkka2007unscented,zhao2017robust}, Particle Filter (PF)\cite{gustafsson2002particle,doucet2001particle,rigatos2009particle}, etc. However, the observation process may be affected by a range of practical factors (e.g., communication delays\cite{schenato2008optimal,wang2024state}, resource constraints\cite{zhang2024direct,huang2024recursive}, data packet dropouts\cite{sun2008optimal,shi2010kalman,hu2012extended}, and external attacks\cite{zhang2024quantization,wang2024distributed}), resulting in outlier observation data. The occurrence of outlier observations significantly impairs the performance of the filtering algorithms. Consequently, the study of estimator design under outlier conditions has been emerging as a hotspot that is attracting significant interest from researchers.
+In particular, the distributed filtering problem has been extensively studied within the framework of networked systems due to its broad applicability across various domains. As a particularly suitable technique for dynamical systems (over CPSs), distributed filtering utilizes the collaborative capabilities of sensor nodes to process data efficiently while reducing communication overhead. Distributed filtering is widely employed in critical applications demanding accurate state estimation in real time, including vehicle tracking, indoor localization, environmental monitoring, orbit determination, and navigation. Its primary objective lies in estimating unknown system states by leveraging local sensor measurements and collaborative interactions among neighboring nodes within specified network topologies, thereby ensuring both robustness and scalability. For comprehensive discussions and foundational methodologies, see \cite{zhou2024finite, song2024robust, li2024distributed, fu2024distributed, feng2022enhanced} and associated references.
 
-One of the challenges posed by these conditions is the degradation of state estimation performance due to the observation data with high noise levels, often referred to as noise-dominant signals\cite{zheng2021novel,zhou2020empirical,moon2021discrete}. Noise-dominant signals are defined as signals that comprise a mixture of noise and weak signal components, where noise dominates but some residual signals may still exist. In practical scenarios, noise-dominant signals typically occur in specific dynamic areas subject to environmental disturbances. This phenomenon is commonly observed in target tracking tasks, particularly when vehicles enter moving clouds or are obscured by buildings, as illustrated in Fig. \ref{fig:DNDR}. These specific dynamic areas, where observations are likely to become outliers due to intense additive noise, are hereafter referred to as {\it Dynamic Noise-Dominant Regions} (DNDRs).
+The widely employed distributed filtering approaches can be broadly categorized into distributed extended Kalman filtering \cite{shen2023distributed, chen2022information}, distributed particle filtering \cite{xia2020direct, liu2023mesh}, distributed cubature filtering \cite{zhou2024robust}, distributed $H\infty$ filtering \cite{ding2015distributed}, and other variants, each tailored to handle distinct system complexities and operational constraints. Among these methodologies, distributed Kalman-type filtering algorithms maintain their core status in both academia and industry owing to their theoretical rigor, engineering practicality, and continuous evolvability, continuing to be a prominent research focus, necessitating continuous theoretical refinements, practical enhancements, and innovative implementations to advance their performance in diverse applications. The Distributed Kalman Filter (DKF) leverages localized Kalman filters to establish consensus among all the sensor estimates \cite{olfati2007distributed,olfati2005distributed}. Each sensor aggregates measurements shared by the neighboring nodes, then integrate these data to refine its local estimate. Through this collaborative process, the sensor network achieves a collective observation of the system state. The introduction of such distributed estimation paradigms has significantly enhanced network scalability while substantially lowering deployment costs.
+%广泛使用的分布式滤波方法可以被大致分为。。。在这些方法中，分布式卡尔曼滤波算法因其理论深度、工程友好性及持续演进能力，在学术界与工业界保持核心地位，需要不断的理论改进、实践增强和创新实现，以提高其在各种应用中的性能。
 
-\begin{figure}[htbp]
-    \centering
-    \includegraphics[width=0.85\linewidth]{img/DNDR.eps}
-    \caption{In an urban autonomous driving scenario, both vehicles A (equipped with a radar sensor) and B are in motion. When a building obstructs the line-of-sight between them, vehicle B falls within the DNDR due to signal attenuation. As a result, vehicle A's received signal exhibits significant uncertainty, potentially leading to outlier data.}
-    \label{fig:DNDR}
-\end{figure}
+Current literature almost operates under the widely accepted assumption of sensors possessing unlimited signal transmission range. However, this idealized assumption is not always correct because of practical engineering constraints arising from finite transmission capacity and channel fading phenomena \cite{li2022event, liu2021distributed}. Such limitations degrade estimation precision and control efficacy, particularly in energy-constrained systems or extensive network deployments. An effective resolution to overcome these transmission challenges is to implement single or multi-tier relay architectures between sensor node pairs \cite{ behbahani2012linear, lloyd2006relay, leong2015kalman, khajehnouri2007distributed, tan2020robust, sahebdel2011relay}. Relay architectures are typically categorized by their signal processing strategies, such as amplify-and-forward (AF), decode-and-forward, compress-and-forward, compute-and-forward, and filter-and-forward schemes \cite{liu2022auxiliary},\cite{lloyd2006relay},\cite{pang2021false},\cite{qu2022probabilistic},\cite{quevedo2012state}. Among these, the AF relay, which amplifies and rebroadcasts received signals without decoding, has shown particular promise in improving fusion estimation performance. By enhancing signal-to-noise ratios at the estimator, AF relays enable higher-quality state reconstruction \cite{han2023recursive}, making them a compelling focus for CPS applications.
 
-Disturbances from DNDRs are essentially characterized as Heavy-Tailed Noise (HTN), meaning that the noise follows a probability distribution with tails that decay more slowly than those of a light-tailed (e.g., normal) distribution, thereby increasing the likelihood of extreme values or outliers. Agamennoni et al. \cite{agamennoni2012approximate} have proposed a novel approximate inference approach for state estimation under HTN, in which the covariance of the measurement noise has been modeled by an inverse Wishart distribution. In \cite{zhu2021novel,zhu2021adaptive}, the HTN distribution has been modeled by a Gaussian-Gamma Mixture (GGM) model. In order to address the inaccuracies of noise covariances, adaptive filters for linear systems have been developed via variational Bayesian methods. Bai et al. \cite{bai2021novel} have investigated the cooperative localization problem for autonomous underwater vehicles and have proposed a robust Kalman filter to handle heavy-tailed and nonstationary noise, where the HTN has been characterized using a normal-Gamma-inverse-Wishart formulation. These works formulated the HTN distribution as a Gamma or an inverse Wishart function, which is independent of the state variable. As a result, these modeling strategies cannot describe the statistical properties of signals within DNDRs accurately, motivating us to explore more appropriate methods to resolve the problem with the {\it State-Dependent Heavy-Tailed Noise} (SDHTN).
+Critically, in real-world engineering, communication resources (e.g., spectrum availability and transmission power) are intrinsically constrained. These limitations render ubiquitous relay access for all sensors in large-scale CPSs infeasible. This will induce data collisions and degraded estimation accuracy \cite{cheng2021observer}. To counteract this, relay allocation strategies have been developed to dynamically allocate relays to sensors, maximizing diversity gain while mitigating contention issues in cooperative networks \cite{s2020review}. Notwithstanding that relay assignment has been rigorously investigated for wireless architectures \cite{lyu2023source, shi2008optimal, wang2016relay, xie2013optimal, zhang2011relay}, its integration with distributed filtering in CPSs persists as an underexplored domain, despite its crucial role in practical industrial scenarios. For example, \cite{han2023recursive} investigates distributed filtering in discrete time-varying systems employing amplify-and-forward relays within binary sensor networks. However, the relay resource constraint has not been considered in this paper, so it does not conduct relay scheduling.
 
-Both varying parameters of the DNDRs and outlier covariances of the HTN are unknown to the estimator and can be regarded as {\it hidden variables} (similar to system states). Variational Inference (VI) is an effective approach to handle estimation and learning problems involving hidden variables\cite{blei2017variational,zhang2018advances}. Several studies have applied VI theory in the field of state estimation\cite{ma2018multiple,wang2019variational,zhu2021novel,zhu2021adaptive,zhu2021vb}.
-Ma et al. \cite{ma2018multiple} and Wang et al. \cite{wang2019variational} have developed multiple-model filters for linear Markov jump systems, addressing scenarios with known and unknown noise covariances, respectively. In particular, Zhu et al. \cite{zhu2021novel,zhu2021adaptive} have proposed novel filtering algorithms for HTN using variational inference techniques. These works augment the state vector with the unknown system parameters (e.g., noise covariances) as a single joint hidden variable and obtain the approximate functions of the posterior distribution using variational Bayesian inference, offering a novel insight for state estimation. Nevertheless, these methods remain confined to addressing independent random hidden variables, thereby necessitating further advancements to recover states from observations in which the noise is dynamically coupled with the states.
+Except for relay scheduling complexities, the scalability challenge in CPSs is amplified by the combinatorial explosion of system components. The exponential growth of sensors and relays generates high-dimensional Markov Decision Processes (MDPs) characterized by intractably prohibitive state and action spaces. Traditional reinforcement learning (RL) approaches, exemplified by Q-learning, face fundamental limitations due to the dimensionality curse inherent in tabular value function representations \cite{bertsekas2012dynamic}. Deep reinforcement learning (DRL), particularly Deep Q-Networks (DQN) \cite{guo2023reinforcement, mnih2013playing, mnih2015human}, addresses this limitation by employing neural networks as function approximators to enable scalable and model-free solutions for complex scheduling tasks\cite{sutton1998reinforcement}. While relay assignment strategies offer a means to optimize sensor-to-relay allocation, recent studies \cite{alali2024deep, jung2023optimized, leong2020deep} have applied DRL to sensor scheduling without considering two critical aspects: the role of relays in enhancing transmission reliability and the integration of distributed wireless sensor network for state estimation.
 
-On the other hand, studies mentioned above mostly focus on basic linear systems, leaving the state estimation problem for nonlinear systems largely unresolved. Nonlinear system state estimation is crucial for accurately modeling and controlling real-world dynamic systems. It enables the reconstruction of unobservable states (e.g., battery health parameters\cite{meng2017overview}) and handles inherent uncertainties that destabilize systems like robotics, GPS navigation, and power grids.\cite{chen2011kalman,hashim2023uwb,cheng2024survey}. Although the PF based on the Importance Sampling (IS) technique serves as a prevailing nonlinear estimation technique \cite{chen2003bayesian,doucet2009tutorial,schon2005marginalized}, the conventional PF lacks an interpretable formulation for handling the state-dependent noise. Therefore, it is necessary to integrate these two approaches (VI and IS), which have been relatively underexplored in existing research.
+The above challenges of relay resource constraints in CPSs motivate the development of a dynamic relay allocation algorithm suitable for distributed state estimation, in which only partial sensor subsets can access relays at each time step due to limited availability. Our objective focuses on minimizing the sum of estimation error covariances of each sensor by optimally selecting sensors for relay-assisted transmission. It is assumed that intelligent sensors, equipped with embedded Kalman-like filters, can compute local state estimates and transmit them to neighbors. The core problem is cast as an MDP, where states are defined by the estimation error covariance of each sensor. The core contributions of this work can be summarized as follows: (1) Under the established comprehensive model considering the effects of random fading channel and relays, an optimal distributed state estimation algorithm over switching topology caused by relay allocation is derived, which uses the Kalman consensus filtering logic in conjunction with weighted directed graphs; (2)The large-scale relay allocation problem for distributed state estimation is formulated as a high-dimensional MDP, which is to minimize the average estimation error covariance over the infinite time horizon.
+(3) The DQN algorithm is designed to solve the MDP to seek optimal policies through a scalable and model-free approach.
 
-Building on the previous discussion, this paper aims to explore state estimation within the VI framework by incorporating outlier noise covariances and the features of DNDRs as hidden state variables. This integration seeks to improve state estimation accuracy and explainability during the system passes through DNDRs. The main contributions of this paper can be summarized as follows:
-\begin{enumerate}{\it
-    \item To mitigate the impact of outlier data induced by dominant noise, we model the heavy-tailed observation noise distribution as a state-dependent GGM model. To the best of our knowledge, this is one of the first works that establishes a connection between the noise and the state.
-    \item To address the complex nonlinearity introduced by the SDHTN, we develop a filter utilizing the variational Bayesian theory to solve the state estimation problem for nonlinear systems, which provides more interpretability than the conventional PF.
-    \item We design a paradigm for integrating the importance sampling technique into the VI framework. A recursive structure combining empirical measure with analytically tractable expression is also provided. 
-    \item A theoretical proof is provided to demonstrate the stability of the proposed filter, ensuring that the mean estimation error remains bounded as time approaches infinity. Furthermore, we investigate its computational complexity and show that it is of the same order as that of the traditional PF.}
-\end{enumerate}
-
-The paper is structured as follows.
-Section \ref{sec:model} introduces the dynamic nonlinear system and the observation scheme that is influenced by DNDRs. 
-Section \ref{sec:main} describes the derivation of the Variational Particle Filter (VPF) and discusses the properties of the proposed algorithm.
-In Section \ref{sec:analysis}, we present a proof of stability and analyze the computational complexity.
-As an illustrative example, we consider a target tracking task within DNDRs in Section \ref{sec:experiment}.
-Finally, the main contributions and innovations of the paper are summarized in Section \ref{sec:conclusion}.
-For the sake of readability, the proofs of the main results are collected in the Appendix.
-% The proofs of some intermediate results are omitted here for space constraint
+The remainder of this paper is organized as follows. The system model, transmission model, and scheduling model are provided in Section \ref{sec:formulation}. Then, we present the development of the proposed distributed state estimation algorithm over switching topologies in Section \ref{sec:algorithm}. The relay allocation problem and the corresponding MDP are described in Section \ref{sec:DQN}, along with the deep reinforcement learning approach for allocation. Numerical studies are conducted in Section \ref{sec:experiment} to demonstrate the performance of the proposed algorithm. Finally, we conclude the paper and discuss some future work in Section \ref{sec:conclusion}.
 
 {\bf Notations:}
-The notation $\mathbb{R}^n$ denotes the $n$-dimensional Euclidean space. The matrix inequality $\bm{A}>\bm{B}$ ($\bm{A}\geq\bm{B}$, respectively) represents that $\bm{A}-\bm{B}$ is a positive definite matrix (positive semi-definite matrix, respectively).
-$\bm{A}^\top\bm{A}$ is denoted by $\Vert\bm{A}\Vert^2$ and $\bm{A}^\top\bm{B}\bm{A}$ is denoted by $\Vert\bm{A}\Vert^2_{\bm{B}}$. The notation $(\cdot)^\top$ denotes the transpose operator. Notations $\E{\cdot|\cdot}$, $p(\cdot)$, and $p(\cdot|\cdot)$ describe the conditional expectation operator, probability measure, and conditional probability measure, respectively. The Probability Density Function (PDF) of a Gaussian random variable $\x\in\mathbb{R}^n$ is denoted as $\mathcal{N}(\bm{x};\bm\mu,\bm\Sigma)$ where
-$$
-\mathcal{N}(\bm{x};\bm\mu,\bm\Sigma) \coloneqq \frac{1}{\sqrt{(2\pi)^n\vert\bm\Sigma\vert}}\e{-\frac{1}{2}(\bm{x}-\bm\mu)\bm\Sigma^{-1}(\bm{x}-\bm\mu)^\top}\fs
-$$
-% $\mathbb{I}_{A}$ means an indicator function, which is equal to $1$ when event $A$ occurs and $0$ otherwise.
+$\mathbb{R}$ represents the set of real numbers, $\mathbb{R}^n$ is the set of all real $n$-dimension vectors, and $\mathbb{R}^{n\times m}$ means the set of all real $n\times m$ matrices. For a matrix $A$, $A > 0(A \geq 0)$ indicates that $A$ is a positive definite (positive semi-definite) matrix. $\tr(A)$ denotes the trace of matrix $A$, $A^{\top}$ is the transpose of matrix $A$ and $A^{-1}$ designates the inverse of matrix $A$. $\mathbb{E}\{\cdot\}$ and $\mathbb{E}\{\cdot|\cdot\}$ refer to the expectation operator and conditional expectation operator, respectively. The notation $\circ$ denotes the Hadamard product. $\mathbf{1}$ stands for an all-ones matrix with appropriate dimensions.
+\section{Problem Formulation} \label{sec:formulation}
+\subsection{Sensor Network with Relays}
+The communication topology of a sensor network considered in this paper is expressed as a weighted directed graph $\mathcal{G}=(\mathcal{V},\mathcal{E})$(See Fig.\ref{fig1}). The set of vertices $\mathcal{V} \triangleq \mathcal{V}_s\cup\mathcal{V}_r$, where $\mathcal{V}_s\triangleq\{s_1,s_2,\cdots,s_N\}$ and $\mathcal{V}_r\triangleq\{r_1,r_2,\cdots,r_M\}$ denote the sets of sensors and the relays, respectively. $s_i(i=1,2,\cdots,N)$ and $r_d(d=1,2,\cdots,M)$ denote the $i$-th sensor and the $d$-th relay, respectively.
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.85\linewidth]{fig/topology.eps}
+    \caption{The weighted directed topology with relays.}
+    \label{fig1}
+\end{figure}
 
-\section{Problem Formulation and Preliminaries} \label{sec:model}
+The set of edges is denoted as $\mathcal{E}\subseteq\mathcal{V}\times\mathcal{V}$, where an edge of $\mathcal{G}$ is denoted by the ordered pair of two vertices. $s_j$ is called a neighbor of $s_i$ if $(s_i,s_j)\in \mathcal{E}$ (i.e., $s_j$ can directly send information to $s_i$) or $\{(s_i,r_d),(r_d,s_j)\}\subset\mathcal{E}$(i.e., $s_j$ can send information to $s_i$ via a relay $r_d$). For $s_i$, the sets of direct and indirect neighbors are, respectively, designated as $\mathcal{N}_{i1}\triangleq\{s_j|(s_i,s_j)\in\mathcal{E},s_j\neq s_i\}$ and $\mathcal{N}_{i2}\triangleq\{s_j|\{(s_i,r_d),(r_d,s_j)\}\subset\mathcal{E},s_j\neq s_i\}$. Moreover, the set of neighbors of $s_i$ is expressed as $\mathcal{N}_i\triangleq\mathcal{N}_{i1}\cup\mathcal{N}_{i2}$. For simplicity, we assume $\mathcal{N}_{i1}\cap\mathcal{N}_{i2}=\emptyset$, where $\emptyset$ is the empty set; if $s_j\in \mathcal{N}_{i2}$, then there exists only one relay to achieve the communications from $s_j$ to $s_i$.
+
+%不知道这段有没有用，然后上面respectively太多了，得改一下；再加上H_{ij}、G_{ij}的解释
 
 \subsection{System Model}
-The State Space Model (SSM) is formulated as:
-\begin{equation} \label{eq:SSM} % state space model
-\x_{t+1} = f(\x_t) + \bm{w}_t
+A wireless sensor network consisting of N sensor nodes and M relays is considered in this paper, such as the one depicted in \ref{fig1}. The target dynamical system to be estimated is modeled as a linear time-varying discrete-time system:
+%参考Analysis of the Compressed Distributed Kalman Filter over Markovian Switching Topology
+\begin{equation}\label{target}
+\begin{split}
+        x_{k+1} = A x_k + w_k 
+\end{split}
 \end{equation}
-where $\x_t\in\mathbb{R}^{n}$ is the state variable, $\bm{w}_t\in\mathbb{R}^n$ is a Gaussian white noise with zero mean and covariance $\bm{Q}>0$, and $f(\cdot):\mathbb{R}^n\mapsto\mathbb{R}^n$ is a nonlinear function. The initial condition $\x_0$ is a Gaussian random variable with mean $\bm{\mu}_{\x}$ and covariance $\bm{\Sigma}_{\x}>0$.
-
-It is assumed that the DNDR at time $t$ can be characterized by the variable $\bm\phi_t$ (maybe including the shape, size, position, etc. of the DNDR) and is specified as $\mathcal{R}(\bm\phi_t)$. The dynamic characteristic model is formulated as:
-\begin{equation} \label{eq:DCM} % observation-denied region model
-\bm\phi_{t+1} = g(\bm\phi_t) + \bm\varepsilon_t
+where $x_k \in \mathbb{R}^{n}$ is the state vector,  $w_k \in \mathbb{R}^{n}$ is the system noise. The initial state $x_{0}$ is a zero-mean Gaussian random vector with covariance $\Sigma_{0}\geq0$. The observation model of each sensor is
+\begin{equation}\label{measurement}
+\begin{split}
+     y^{i}_{k}= C_{k}^{i} x_k + v^{i}_{k} \text{,}~ i = 1, 2, \dots, N
+\end{split}
 \end{equation}
-where $\bm\phi_{t}\in\mathbb{R}^r$ is the characteristic variable,  $\bm{\varepsilon}_t\in\mathbb{R}^r$ is a Gaussian white noise with zero mean and covariance $\bm{\Psi}>0$, and $g(\cdot):\mathbb{R}^r\mapsto\mathbb{R}^r$ is a nonlinear function. The initial condition $\bm\phi_0$ is a Gaussian random variable with mean $\bm{\mu}_{\bm\phi}$ and covariance $\bm{\Sigma}_{\bm\phi}>0$.
-
-The model of the observation data is described as:
-\begin{equation} \label{eq:OM} % observation model
-\y_t = h(\x_t) + \bm{v}_t
-\end{equation}
-where $\y_t\in\mathbb{R}^m$ is the data variable, and $h(\cdot):\mathbb{R}^n\mapsto\mathbb{R}^m$ is a nonlinear function. $\bm{v}_t\in\mathbb{R}^m$ is the unknown SDHTN, which is given as:
-$$
-p(\bm{v}_t) \sim \gamma_t\mathcal{N}(\bm{v}_t;\bm{0},\bm{R}) + (1-\gamma_t)\tilde{p}(\bm{v}_t)
-% p(\bm{v}_t) \sim (1-\gamma_t)\mathcal{N}(\bm{v}_t;\bm{0},\bm{R}) + \gamma_t\tilde{p}(\bm{v}_t)
-$$
-where $\mathcal{N}(\bm{v}_t;\bm{0},\bm{R})$ is the Gaussian distribution with zero mean and covariance $\bm{R}>0$, $\tilde{p}(\bm{v}_t)$ denotes the distribution of outliers, and $\gamma_t\in\{0,1\}$ is a binary variable as follows: 
-\begin{equation} \label{eq:gamma}
-\gamma_t = \begin{cases}
-0, & \x_t \in \mathcal{R}(\bm\phi_t) \\
-1, & \x_t \notin \mathcal{R}(\bm\phi_t)
-\end{cases} \fs
-\end{equation}
-If the state at time $t$ lies within the DNDR $\mathcal{R}(\bm\phi_t)$, then $\gamma_t=0$, rendering the observation drowned out by elevated noise. In this paper, the outlier distribution $\tilde{p}(\bm{v}_t)$ is modeled by $\mathcal{N}(\bm{v}_t;\bm{0},\tilde{\bm{R}})$ where $\tilde{\bm{R}}=\bm{R}/\lambda_t$. The outlier coefficient $\lambda_t$ is a scalar random variable with mean $0<\E{\lambda_t}\ll1$, indicating that DNDRs usually amplify the observation noise. The statistical properties of $\lambda_t$ are modeled by a mixture of Gamma distributions:
-\begin{equation} \label{eq:outlier-coe-pdf}
-    p(\lambda_t) = \sum_{k=1}^K\pi_k\Gamma(\lambda_t;\alpha_k,\beta_k)
-\end{equation}
-where $\Gamma(\cdot;\alpha_k,\beta_k)$ represents the Gamma distribution with shape parameter $\alpha_k$ and rate parameter $\beta_k$, $K$ denotes the number of Gamma mixture components, and $\pi_k$ stands for the mixing weights of the $k$th component, satisfying $\pi_k\geq0$ and $\sum_{k=1}^K\pi_k=1$.
-
-\begin{assumption} \label{A1}
-The initial conditions $\x_0$ and $\bm\phi_0$ are mutually independent.
-\end{assumption}
-
-\begin{assumption} \label{A2}
-For each time $t$, the state noise $\bm{w}_t$, the characteristic noise $\bm{\varepsilon}_t$, and the observation noise $\bm{v}_t$ are mutually independent.
-\end{assumption}
-
-\begin{assumption} \label{A3}
-The outlier coefficient $\lambda_t$ is independent of state $\x_s$ and characteristic $\bm\phi_s$ ($\forall s>0$), as well as $\lambda_s$ ($\forall s\neq t$).
-\end{assumption}
-
-\begin{assumption} \label{A4}
-For an arbitrary vector $\x\in\mathbb{R}^{n}$, the process function $f(\cdot)$ satisfies
-$$
-\Vert f(\x)\Vert \leq \alpha\Vert\x\Vert+\beta 
-$$
-where $0\leq\alpha<1$ and $\beta>0$.
-\end{assumption}
-
-\begin{assumption} \label{A5}
-The $L_2$-norm of the process noise $\bm{w}_t$ is bounded, i.e.,
-$$
-\Vert\bm{w}_t\Vert < \nu
-$$
-where $0<\nu<\infty$ is a finite constant.
-\end{assumption}
-
-Since the state and the characteristic of the DNDR obey independent Markov processes respectively, we treat them as a single variable $\z_t\coloneqq[\x_t^\top,\bm\phi_t^\top]^\top$ with the following transition equation:
-\begin{equation} \label{eq:z-transition-1}
-    \z_{t+1} = \begin{bmatrix}
-        f(\x_t) \\
-        g(\bm\phi_t)
-    \end{bmatrix} + \begin{bmatrix}
-        \bm{w}_t \\
-        \bm\varepsilon_t
-    \end{bmatrix} \fs
-\end{equation}
-By defining $\overline{f}(\z_t)\coloneqq[f(\x_t)^\top,g(\bm\phi_t)^\top]^\top$ and $\bm\eta_t\coloneqq[\bm{w}_t^\top,\bm\varepsilon_t^\top]^\top$, \eqref{eq:z-transition-1} can be written as
-\begin{equation} \label{eq:z-transition-2}
-    \z_{t+1} = \overline{f}(\z_t) + \bm\eta_t \fs
-\end{equation}
-Based on Assumption \ref{A2}, $\bm\eta_t\in\mathbb{R}^{\overline{n}}$ where $\overline{n}=n+r$ is a Gaussian white noise with zero mean and covariance $\overline{\bm{Q}}>0$ where $\overline{\bm{Q}}$ is an augmented matrix:
-$$
-\overline{\bm{Q}} = \begin{bmatrix}
-    \bm{Q} & \bm{0} \\
-    \bm{0} & \bm{\Psi}
-\end{bmatrix} \fs
-$$
-Correspondingly, the initial value $\z_0$ is a Gaussian random variable with mean $\bm\mu=[\bm\mu_\x^\top,\bm\mu_{\bm\phi}^\top]^\top$ and covariance $\bm\Sigma>0$ where $\bm\Sigma=\diag{\bm\Sigma_\x,\bm\Sigma_{\bm\phi}}$.
-
-For simplicity of presentation, we denote all unknown variables as a hidden variable $\bm\theta_t\coloneqq\{\x_t,\bm\phi_t,\lambda_t\}$, and we denote the observation data sequence as $\y_{1:t}\coloneqq\{\y_1,\cdots,\y_t\}$.
-
-
-\subsection{Information Entropy and Kullback-Leibler Divergence} \label{sec:KLD}
-In information theory, the entropy of a random variable quantifies the average uncertainty or information associated with its potential states. Claude Shannon defined the entropy of a random variable $X$ distributed with $p$ as
-$$
-H(p) = \E{I(X)} = -\int{p(x)\log p(x)}\,\mathrm{d}x
-$$
-in \cite{shannon1948mathematical}, where $I(X) = -\log{p(X)}$ represents the information content of $X$.
-Following this, the cross-entropy between two probability distributions $p$ and $q$, defined over the same set of events, is given by 
-$$
-H(p, q) = \E[p]{-\log q(X)} = -\int{p(x)\log{q(x)}}\,\mathrm{d}x \cm 
-$$  
-which represents the average number of bits required to encode an event when using a coding scheme optimized for an {\it unnatural} distribution $q$ instead of the {\it true} distribution $p$.
-
-Based on these concepts, Kullback-Leibler (KL) divergence (also called relative entropy) is a type of statistical distance that measures how much an unnatural probability distribution $q$ is different from a true probability distribution $p$. Mathematically, it is defined as:
-$$
-D_{\rm KL}(p\Vert q) = \E[p]{\log\frac{p(X)}{q(X)}} = \int{p(x)\log\frac{p(x)}{q(x)}}\,\mathrm{d}x \fs
-$$
-Alternatively, the KL divergence can be expressed in terms of entropy and cross-entropy as
-$$
-D_{\rm KL}(p\Vert q) = H(p,q) - H(p) \cm
-$$
-highlighting its interpretation as a measure of how far the distribution $q$ is from the distribution $p$.
-
-% \begin{remark}
-% It is noted that the KL-divergence is non-symmetric, i.e.
-% $$
-% D_{\rm KL}(p\Vert q) \neq D_{\rm KL}(q\Vert p) \fs
-% $$    
-% \end{remark}
-
-
-\subsection{Objective}
-Our objective is to select an approximate probability distribution $q$ from a family of tractable probability distributions $\mathcal{Q}$. Each $q(\bm\theta_t)\in\mathcal{Q}$ serves as a candidate approximation of the true posterior distribution $p(\bm\theta_t|\y_{1:t})$, and our goal is to seek the one that minimizes the KL divergence. This can be formulated as the following optimization problem:
+where $y^{i}_{k} \in \mathbb{R}^{m_i}$ is the measurement made by sensor $s_{i}$ at time $k$; $C_{k}^{i}$ is a known time-varying matrix with appropriate dimension and $v^{i}_{k} \in \mathbb{R}^{m_i}$ is the measurement noise. $w_k$ and $v^{i}_{k}$ both are independent zero-mean Gaussian noises with covariance matrix $Q > 0$ and $R_{i}> 0$. Given the history of measurements made by sensor $s_{i}$, $Y^{i}_{k}\triangleq\{y^{i}_{0},y^{i}_{1},\cdots,y^{i}_{k}\}$, we define:
 \begin{equation}
-    \hat{q}(\bm\theta_t) = \argmin{q(\bm\theta_t)\in\mathcal{Q}}D_{\rm KL}(q(\bm\theta_t)\Vert p(\bm\theta_t|\y_{1:t})) \fs
+\begin{split}
+\hat{x}^{i}_{k}&=\mathbb{E}[x(k)|Y^{i}_{k}]\\
+\bar{x}^{i}_{k}&=\mathbb{E}[x(k)|Y^{i}_{k-1}]
+\end{split}
 \end{equation}
-In other words, we aim to find an approximation that is closest to the true posterior while remaining computationally feasible.
+where $\hat{x}^{i}_{k}$ and $\bar{x}^{i}_{k}$ are referred to as the state estimation and prediction of the target, respectively. Every sensor can observe the target, and send its prediction to its neighbors through a relay or not.
 
+% 1.We assume that each sensor has sufficient computational capability to run the Kalman filter, and therefore sensor $i$ can compute local state estimates and estimation error covariance matrices using the Kalman filter equations as follows.
+ 
+% 2.We assume that each sensor has the computational capability to run a Kalman filter, i.e., each sensor $i$ can compute local state estimates and estimation error covariance matrices using the Kalman filter equations (Anderson Moore, 1979).
+% % \begin{equation}\label{m2}
+% % \begin{split}
+% %  \hat{x}_{i,k|k-1}&=A\hat{x}_{i,k-1}\\
+% %  P_{i,k|k-1}&=A P_{i,k-1}A^\top+Q\\
+% %  \hat{x}_{i,k}&=\hat{x}_{i,k|k-1}+K_{i,k}(y_{i,k}-C_i\hat{x}_{i,k|k-1})\\
+% %  P_{i,k}&=P_{i,k|k-1}-K_{i,k}C_iP_{i,k|k-1}\\
+% %  K_{i,k}&=P_{i,k|k-1}C_i^\top(C_iP_{i,k|k-1}C_i^\top+R_{i})^{-1}
+% % \end{split}
+% % \end{equation}
+% \begin{equation}\label{m2}
+% \begin{split}
+%  \bar{x}_{i,k}&=A\hat{x}_{i,k-1}\\
+%  \bar{P}_{i,k}&=A P_{i,k-1}A^\top+Q\\
+%  \hat{x}_{i,k}&=\bar{x}_{i,k}+K_{i,k}(y_{i,k}-C_i\bar{x}_{i,k})\\
+%  P_{i,k}&=\bar{P}_{i,k}-K_{i,k}C_i\bar{P}_{i,k}\\
+%  K_{i,k}&=\bar{P}_{i,k}C_i^\top(C_i\bar{P}_{i,k}C_i^\top+R_{i})^{-1}
+% \end{split}
+% \end{equation}
+% where $\hat{x}_{i,k|k-1}$ and $\hat{x}_{i,k}$ are the one-step prediction and the estimation of system $x_k$ at time $k$ and the $P_{i,k|k-1}$ and $P_{i,k}$ are the corresponding estimation error covariance. 
 
-\section{Main Results} \label{sec:main}
-In this section, we will derive the filtering algorithm through variational inference and importance sampling techniques. Some features of the proposed filter will be discussed subsequently.
+\subsection{Direct Transmission and Relay Transmission}
+%原来：Signal Transmission Among Direct and Indirect Neighbors
+\subsubsection{Transmission to Direct Neighbors}
+Sensor $s_j\in \mathcal{N}_{i1}$ directly sends its estimates $\hat{x}_{i,k}$ to sensor $s_i$ through a fading channel. Let $\hat{x}_{k}^{ij}$ be the signal received by sensor $s_i$. Taking the fading effect into consideration, we can model $\hat{x}_{k}^{ij}$ as follows:
+% \begin{equation} \label{xij}
+% \hat{x}_{ij,k}=F_{ij,k}(K_{ij,k}\hat{x}_{j,k}+\tilde{\vartheta}_{ij,k})
+% \end{equation}
+\begin{equation} \label{xij}
+\bar{x}_{k}^{ij}=K_{k}^{ij}\bar{x}_{k}^{j}+\tilde{\vartheta}_{k}^{ij}
+\end{equation}
+where $\tilde{\vartheta}_{k}^{ij}$ denotes the Gaussian noise in the sensor-to-sensor channel with $\mathbb{E}\{\tilde{\vartheta}_{k}^{ij}\}=0$ and $\mathbb{E}\{\tilde{\vartheta}_{k}^{ij}\tilde{\vartheta}_{k}^{ij\top}\}=\tilde{Q}_{k}^{ij}>0$. The channel gain matrix is defined as $K_{k}^{ij}\triangleq \diag\{K_{k}^{ij}(1),...,K_{k}^{ij}(n)\}$, where $K_{k}^{ij}(l)\in \mathbb{R}$ is a random variable with $\mathbb{E}\{K_{k}^{ij}(l)\}= 1$, and therefore one has $\mathbb{E}\{K_{k}^{ij}\}= I$.
+Let $\tilde{K}_{k}^{ij}\triangleq K_{k}^{ij}-I$ with the $l$th diagonal element denoted by $\tilde{K}_{k}^{ij}(l)$, and define
+\begin{equation}
+\tilde{\mathscr{K}}_{k}^{ij}\triangleq\left[\mathbb{E}\{\tilde{K}_{k}^{ij}(m)\tilde{K}_{k}^{ij}(l)\}\right]_{n\times n}
+\end{equation}
 
-\subsection{Development of the Variational Praticle Filter}
-Our objective is to find the Minimum Mean-Square Error (MMSE) estimate of the true state based on historical observation data. This requires minimizing the conditional mean-square error between the true state $\bm\theta_t$ and its estimate $\hat{\bm\theta}_t$ as follows: 
-\begin{problem} \label{prob:MMSE}
-Given observations $\y_{1:t}$, the MMSE estimate of the state $\bm\theta_t$ is given by:
+\subsubsection{Transmission to Indirect Neighbors}
+Sensor $s_j$ first broadcasts $\hat{x}_{k}^{j}$ towards the relay $r_d$ through a fading channel. The estimate received by the relay is denoted as $\hat{x}_{dj,k}$ which is described as follows
+% \begin{equation} \label{xidj1}
+% \hat{x}_{dj,k}=K_{dj,k}\hat{x}_{j,k}+\tilde{\vartheta}_{dj,k}
+% \end{equation}
+\begin{equation} \label{xidj1}
+\bar{x}_{k}^{dj}=K_{k}^{dj}\bar{x}_{k}^{j}+\tilde{\vartheta}_{k}^{dj}
+\end{equation}
+where $\tilde{\vartheta}_{k}^{dj}$ is the Gaussian noise in the sensor-to-relay channel with $\mathbb{E}\{\tilde{\vartheta}_{k}^{dj}\}=0$ and $\mathbb{E}\{\tilde{\vartheta}_{k}^{dj}\tilde{\vartheta}_{k}^{dj\top}\}=\tilde{Q}_{k}^{dj}>0$, and $K_{k}^{dj}$ is the channel gain matrix. Moreover, $K_{k}^{dj}\triangleq \diag\{K_{k}^{dj}(1),...,K_{k}^{dj}(n)\}$, where $K_{k}^{dj}(l)\in \mathbb{R}$ is a random variable with $\mathbb{E}\{K_{k}^{dj}(l)\}= 1$ and therefore one has $\mathbb{E}\{K_{k}^{dj}\}= I$.
+Let $\tilde{K}_{k}^{dj} \triangleq K_{k}^{dj}-I$ with the $l$th diagonal element denoted
+by $\tilde{K}_{k}^{dj}(l)$ and define
+\begin{equation}
+\tilde{\mathscr{K}}_{k}^{dj}\triangleq\left[\mathbb{E}\{\tilde{K}_{k}^{dj}(m)\tilde{K}_{k}^{dj}(l)\}\right]_{n\times n}
+\end{equation}
+Then, relay $r_d$ rebroadcasts the signal vector $\bar{x}_{k}^{dj}$ to sensor $s_i$ through a fading channel. The signal received by sensor $s_i$ is represented as follows:
+\begin{equation} \label{xidj3}
+\bar{x}_{k}^{id_j}=K_{k}^{id_j}\Vec{x}_{k}^{dj}+\tilde{\vartheta}_{k}^{id_j}
+\end{equation}
+where $K_{k}^{id_j}$ is the channel gain matrix and $\tilde{\vartheta}_{k}^{id_j}$ denotes the Gaussian noise in the relay-to-sensor with $\mathbb{E}\{\tilde{\vartheta}_{k}^{id_j}\}= 0$ and $\mathbb{E}\{\tilde{\vartheta}_{k}^{id_j}\tilde{\vartheta}_{k}^{id_j\top}\} =\tilde{Q}_{k}^{id_j}$. Here, $K_{k}^{id_j} \triangleq \diag\{K_{k}^{id_j}(1),K_{k}^{id_j}(2),...,K_{k}^{id_j}(n)\}$, where $K_{k}^{id_j}(l)\in \mathbb{R}$ is a random variable with $\mathbb{E}\{K_{k}^{id_j}(l)\}=1$. Furthermore, let $\tilde{K}_{k}^{id_j} \triangleq K_{k}^{id_j}-I$ with the $l$th diagonal element denoted by $\tilde{K}_{k}^{id_j}(l)$ and define
+\begin{equation}
+\tilde{\mathscr{K}}_{k}^{id_j}\triangleq\left[\mathbb{E}\{\tilde{K}_{k}^{id_j}(m)\tilde{K}_{k}^{id_j}(l)\}\right]_{n\times n}
+\end{equation}
+\begin{remark}
+As a commonly encountered phenomenon in signal transmissions, channel fading is usually occurs due to multi-path propagation and shadowing from obstacles. The occurrence of such kind of fading channels is generally described by a random process. 
+\end{remark}
+\begin{remark}
+In scenarios where sensor nodes communicate with their indirect neighbors, we omit explicit modeling of the signal amplification process at the relay, as the design of relay matrix (with amplification function) is incorporated within the design of consensus gains in the subsequent proposed Kalman-like consensus filter.
+\end{remark}
+%在传感器节点与它的间接邻居通信的这一情况中，我们并没有对信号经过中继被放大的这一过程进行建模，因为具有放大作用的中继矩阵的设计被统一包含在了之后的分布式类卡尔曼滤波算法的一致性增益的设计中
+In light of \eqref{xij},\eqref{xidj1} and \eqref{xidj3}, we design the following Kalman-like distributed filter for each sensor node:
+\begin{align}
+\bar{x}_{k}^{i}&=A\hat{x}_{k-1}^{i} \label{prediction}\\
+% \begin{equation*}
+% \begin{split}
+% \hat{x}_{i,k}&=\bar{x}_{i,k}+K_{i,k}(y_{i,k}-C_{i,k}\bar{x}_{i,k})\\
+% &\quad+\sum_{j\in\mathcal{N}_{i1}}H_{ij,k}(\bar{x}_{i,k}-\bar{x}_{ij,k})+\sum_{j\in\mathcal{N}_{i2}}G_{ij,k}(\bar{x}_{i,k}-\bar{x}_{id_j,k})
+% \end{split}
+% \end{equation*}
+\begin{split}
+\hat{x}_{k}^{i}&=\bar{x}_{k}^{i}+K_{k}^{i}(y_{k}^{i}-C_{k}^{i}\bar{x}_{k}^{i})\\
+&
+\quad+\sum_{j\in\mathcal{N}_{k}^{i1}}H_{k}^{i,j}(\bar{x}_{k}^{i}-\bar{x}_{k}^{ij})+\sum_{j\in\mathcal{N}_{k}^{i2}}G_{k}^{i,j}(\bar{x}_{k}^{i}-\bar{x}_{k}^{id_j})\label{heart}
+\end{split}
+\end{align}
+where $\bar{x}_{k}^{i}$ and $\hat{x}_{k}^{i}$ are the state prediction and estimation of system $x_k$ for sensor $s_{i}$ at time $k$. Detailed information about the original optimal Kalman consensus estimator for weighted directed graphs can refer to \cite{khan2019optimal}.
+
+\subsection{Scheduling Model}
+The sensors transmit their state predictions $\bar{x}_{k}^{i}$ to their neighbors via a relay or not over a shared wireless network with $M$ relays, which aims to estimate the internal state $x_{k}$ of the target plant. In typical applications, the number of relays is significantly less than the number of sensors (i.e., $M<<N$) due to resource constraints. Consequently, at most $M$ of the $N$ sensors can transmit with relays at any given time. At each time step $k$, $M$ relays will be allocated to the corresponding sensors selected by the DQN algorithm, which aims to achieve the best distributed state estimation performance. Noting that each relay may be assigned to a same sensor, due to the instances in which a sensor may have two or more neighbors. Define the decision variables $a_{d,k}$ for $d=1,...,M$ that satisfy $a_{d,k}\triangleq\{i,j\}(j\in \mathcal{N}_{k}^i)$ when the sensor $s_i$ is scheduled to transmit its prediction to its neighbor $s_j$ through relay $r_d$ at time $k$. 
+
+Before proceeding further, let us introduce the following lemmas which will be used later.
+
+\begin{lemma}(\cite{Topic in matrix analysis}~) \label{hada}
+Let $\mathcal{X}=[x_{ij}]_{n\times n}$ be a real-valued matrix and $\mathcal{Y}=
+\operatorname{diag}\{y_1,y_2,...,y_n\}$ be a diagonal random matrix. Then, we have
+\begin{align*}
+\mathbb{E}\{\mathcal{Y}\mathcal{X}\mathcal{Y}^\top \}=\begin{bmatrix}\mathbb{E}\{y_1^2\}&\mathbb{E}\{y_1y_2\}&...&\mathbb{E}\{y_1y_n\}\\\mathbb{E}\{y_2y_1\}&\mathbb{E}\{y_2^2\}&...&\mathbb{E}\{y_2y_n\}\\\vdots&\vdots&\ddots&\vdots\\\mathbb{E}\{y_ny_1\}&\mathbb{E}\{y_ny_2\}&...&\mathbb{E}\{y_n^2\}\end{bmatrix}\circ\mathcal{X} \text{,}
+\end{align*}
+where the symbol $\circ$ represents the Hadamard product defined as $[X\circ Y]_{ij}=x_{ij}y_{ij}$.
+\end{lemma}
+
+\begin{lemma}(\cite{chen2021event}~)\label{derivation}
+Let \( G \), \( H \), \( F \) and \( D \) be matrices with appropriate dimensions. Then, we have
+\begin{align*}
+\frac{\partial \tr(GHF)}{\partial H} &= G^\top F^\top, \\
+\frac{\partial \tr(GHF)}{\partial H^\top} &= FG, \\
+\frac{\partial \tr((GHF)D(GHF)^\top)}{\partial H} &= 2G^\top GHFDF^\top.
+\end{align*}
+\end{lemma}
+
+\section{Algorithm Development} \label{sec:algorithm}
+
+For sensor $s_{i}$, in addition to maintaining its own local prediction, it also may receive predictions from its direct or indirect neighbors. These predictions are subject to channel fading effects and relay interference during wireless transmission. Consequently, there are three corresponding distinct prediction errors:
+%(我们在传感器网络中传输预测值)对于传感器节点i来说，除了具有自身本地的预测值之外，还有可能会收到来自直接邻居或间接邻居的预测值，这些预测值进行传输时会受到衰落信道以及中继的影响。因此，相应地，一共有如下三种情况的预测误差：
+
+\underline{Case 1: Local prediction error}
+
+Denote the prediction error of sensor $s_{i}$ itself as $\bar{\eta}_{k}^{i}\triangleq\bar{x}_{k}^{i}-x_{k}$. Based on \eqref{target} and \eqref{prediction}, we have
 \begin{equation*}
-    \hat{\bm\theta}_t^{\rm MMSE} = \argmin{\hat{\bm\theta}_t}\E{\Vert\bm\theta_t-\hat{\bm\theta}_t\Vert^2|\y_{1:t}} \cm
+\bar{\eta}_{k}^{i}=A\hat{\eta}_{k-1}^{i}-w_{k-1}
 \end{equation*}
-which is equivalent to computing the conditional expectation:
-\begin{equation*}
-    \hat{\bm\theta}_t^{\rm MMSE} = \E{\bm\theta_t|\y_{1:t}} \fs
-\end{equation*}
-\end{problem}
 
-However, computing the conditional expectation of $\bm\theta_t$ requires integrating over the posterior distribution:
-\begin{equation} \label{eq:estimate-MMSE}
-    \hat{\bm\theta}_t = \int{\bm\theta_tp(\bm\theta_t|\y_{1:t})}\,\mathrm{d}\bm\theta_t \fs
+\underline{Case 2: Prediction error from the direct neighbor}
+
+Denote the prediction error under this circumstance as $\bar{\eta}_{k}^{ij}\triangleq\bar{x}_{k}^{ij}-x_{k}$, which reflects the influence of fading channel (from sensor $s_{j}$ to sensor $s_{i}$) on the transmission signal $\bar{x}_{k}^{j}$. Based on \eqref{target}, \eqref{prediction} and \eqref{xij}, we have
+%它表明了/显示了衰落信道对于传输信号x_j的影响
+\begin{equation*}
+\begin{split}
+\bar{\eta}_{k}^{ij}&=(K_{k}^{ij}-I)A\hat{\eta}_{k-1}^{j}+(K_{k}^{ij}-I)Ax_{k-1 }\\
+&\quad+A\hat{\eta}_{k-1}^{j}+\tilde{v}_{k}^{ij}-w_{k-1}
+\end{split}
+\end{equation*}
+
+\underline{Case 3: Prediction error from the indirect neighbor}
+
+Denote the prediction error under this circumstance as $\bar{\eta}_{k}^{id_j}\triangleq\bar{x}_{k}^{id_j}-x_{k}$, which reflects the influence of fading channels (from sensor $s_j$ to relay $r_d$ and from relay $r_d$ to sensor $s_{i}$) and the relay $r_d$ on the transmission signal $\bar{x}_{k}^{j}$. Based on \eqref{target}, \eqref{prediction}, \eqref{xidj1} and \eqref{xidj3}, we have
+\begin{equation*}
+\begin{split}
+\bar{\eta}_{k}^{id_{j}}&=(K_{k}^{id_j}K_{k}^{dj}-I)A\hat{\eta}_{k-1}^{j}+K_{k}^{id_j}\tilde{v}_{k}^{dj}+\tilde{v}_{k}^{id_j}\\
+&\quad+A\hat{\eta}_{k-1}^{j}+(K_{k}^{id_j}K_{k}^{dj}-I)Ax_{k-1}-w_{k-1})
+\end{split}
+\end{equation*}
+Then, subtracting $x_{k}$ from both sides of \eqref{heart} for sensor $s_{i}$, the estimation error $\hat{\eta}_{k}^{i}=\hat{x}_{k}^{i}-x_{k}$ is obtained
+\begin{equation*}
+\begin{split}
+\hat{\eta}_{k}^{i}&=(I-K_{k}^{i}C_{k}^{i})\bar{\eta}_{k}^{i}+\sum_{j\in\mathcal{N}_{k}^{i1}}H_{k}^{i,j}(\bar{\eta}_{k}^{i}-\bar{\eta}_{k}^{ij})\\
+\quad&+\sum_{j\in\mathcal{N}_{k}^{i2}}G_{k}^{i,j}(\bar{\eta}_{k}^{i}-\bar{\eta}_{k}^{id_j})+K_{k}^{i}v_{k}^{i}\text{.}\\
+\end{split}
+\end{equation*}
+The cross covariance matrices of the prediction and estimation errors are represented as:
+\begin{equation}\label{covariancedef}
+\begin{array}{r@{\hspace{0pt}}lr@{\hspace{0pt}}l}
+\vspace{0.5em}
+P_{k}^{m,n}&=\mathbb{E}[\bar{\eta}_{k}^{m}\bar{\eta}_{k}^{n\top}]\text{,} 
+&P_{k}^{pm,qn}&=\mathbb{E}[\bar{\eta}_{k}^{pm}\bar{\eta}_{k}^{qn\top}]\text{,}\\
+\vspace{0.5em}
+P_{k}^{pd_m,qd_n}&=\mathbb{E}[\bar{\eta}_{k}^{pd_m}\bar{\eta}_{k}^{qd_n\top}]\text{,}
+&P_{k}^{m,pn}&=\mathbb{E}[\bar{\eta}_{k}^{m}\bar{\eta}_{k}^{pn\top}]\text{,}\\
+\vspace{0.5em}
+P_{k}^{m,pd_n}&=\mathbb{E}[\bar{\eta}_{k}^{m}\bar{\eta}_{k}^{pd_n\top}]\text{,}
+&P_{k}^{pm,qd_n}&=\mathbb{E}[\bar{\eta}_{k}^{pm}\bar{\eta}_{k}^{qd_n\top}]\text{,}\\
+\vspace{0.5em}
+M_{k}^{m,n}&=\mathbb{E}[\hat{\eta}_{k}^{m}\hat{\eta}_{k}^{n\top}]\text{.}&&
+\end{array}   
 \end{equation}
-To evaluate this integral, we first derive the posterior distribution $p(\bm\theta_t|\y_{1:t})$. According to the Bayesian conditional probability formula, we have
-\begin{equation} \label{eq:p(theta|y)}
-    p(\bm\theta_t|\y_{1:t}) = \frac{p(\bm\theta_t,\y_{1:t})}{p(\y_{1:t})} \fs
-\end{equation}
-The numerator of \eqref{eq:p(theta|y)} can be expanded via the total probability formula by marginalizing over $\theta_{t-1}$:
-$$
-p(\bm\theta_t,\y_{1:t}) = \int p(\bm\theta_t,\bm\theta_{t-1},\y_t,\y_{1:t-1})\,\mathrm{d}\bm\theta_{t-1}
-$$
+
+Then, the following lemmas can be stated.
+\begin{lemma}\label{perror}
+Prediction error covariances under different circumstances are calculated as follows:
+%can be determined as
+\begin{align*}
+&P_{k}^{m,n} =\left\{\begin{array}{cl}%i,j→m,n
+P_{k}^{m}, &\text{if $m=n$}\\
+AM_{k-1}^{m,n}A^\top+Q_{k-1}, &\text{otherwise}
+\end{array}\right.\\
+&P^{pm,qn}_{k} =\left\{\begin{array}{cl}
+P_{k}^{pm}, &\text{if $m=n,p=q$}\\
+AM_{k-1}^{m,n}A^\top+Q_{k-1}, &\text{otherwise}
+\end{array}\right.\\
+&P^{pd_m,qd_n}_{k} =\left\{\begin{array}{cl}
+P_{k}^{pd_m}, &\text{if $m=n,p=q$}\\
+AM_{k-1}^{m,n}A^\top+Q_{k-1}, &\text{otherwise}
+\end{array}\right.\\
+&P^{m,pn}_{k}=P^{m,pd_n}_{k}=P^{pm,qd_n}_{k}=AM_{k-1}^{m,n}A^\top+Q_{k-1}
+\end{align*}
+%和p有关系嘛？表示两个东西相互之间下标中有逗号，没有逗号的下标要么是表示一段路段，要么是表示两个相同的东西之间表达上进行的一个省略
 where
 \begin{equation*}
 \begin{split}
-    &p(\bm\theta_t,\bm\theta_{t-1},\y_t,\y_{1:t-1}) \\
-    % &\quad= p(\y_t|\bm\theta_t,\bm\theta_{t-1},\y_{1:t-1})p(\bm\theta_t|\bm\theta_{t-1},\y_{1:t-1})\\
-    % &\qquad\times p(\bm\theta_{t-1}|\y_{1:t-1})p(\y_{1:t-1}) \\
-    &\quad= p(\y_t|\bm\theta_t)p(\bm\theta_t|\bm\theta_{t-1})p(\bm\theta_{t-1}|\y_{1:t-1})p(\y_{1:t-1}) \fs
+P_{k}^{m}&=AM_{k-1}^{m}A^\top+Q_{k-1}\\
+P_{k}^{pm}&=\mathscr{K}_{k}^{pm}\circ (AM_{k-1}^{m}A^\top)\\
+&\quad+\tilde{\mathscr{K}}_{k}^{pm}\circ(A\Sigma_{k-1}A^\top)+\tilde{Q}_{k}^{pm}+Q_{k-1}\\
+P_{k}^{pd_m}&=\mathscr{K}_{k}^{pd_m}\circ\mathscr{K}_{k}^{dm}\circ(A(M_{k-1}^{m}+\Sigma_{k-1})A^\top)\\
+&\quad-A\Sigma_{k-1}A^\top+\mathscr{K}_{k}^{pd_m}\circ\tilde{Q}_{k}^{dm}+\tilde{Q}_{k}^{pd_m}+Q_{k-1}\\
+\mathscr{K}_{k}^{pm}&=\tilde{\mathscr{K}}_{k}^{pm}+\mathbf{1}\\
+\mathscr{K}_{k}^{pd_m}&=\tilde{\mathscr{K}}_{k}^{pd_m}+\mathbf{1}\\
+\mathscr{K}_{k}^{dm}&=\tilde{\mathscr{K}}_{k}^{dm}+\mathbf{1}\\
+\Sigma_{k}&=A\Sigma_{k-1}A^T+Q.
 \end{split}
 \end{equation*}
-Thus the joint density function of the hidden variable $\bm\theta_t$ and observation data $\y_{1:t}$ can be written as
-\begin{equation} \label{eq:joint-pdf}
-\begin{split}
-    p(\bm\theta_t,\y_{1:t})
-    &= p(\y_{1:t-1})p(\y_t|\bm\theta_t)\\
-    &\quad\times\int p(\bm\theta_t|\bm\theta_{t-1})p(\bm\theta_{t-1}|\y_{1:t-1})\,\mathrm{d}\bm\theta_{t-1} \fs
-\end{split}
-\end{equation}
-According to the Markov properties from model \eqref{eq:z-transition-2} and independence from Assumption \ref{A3}, we obtain
-\begin{equation} \label{eq:transition-pdf}
-\begin{split}
-    p(\bm\theta_t|\bm\theta_{t-1}) &= p(\z_t,\lambda_t|\z_{t-1},\lambda_{t-1}) \\
-    &= p(\z_t|\z_{t-1},\lambda_t,\lambda_{t-1}) p(\lambda_t|\z_{t-1},\lambda_{t-1}) \\
-    &= p(\z_t|\z_{t-1})p(\lambda_t) \fs
-\end{split}
-\end{equation}
-Substituting \eqref{eq:transition-pdf} into \eqref{eq:joint-pdf}, the posterior density can be formulated as
+\end{lemma}
+\begin{proof}
+For the sake of brevity, we only prove the most complicated circumstance $P^{pd_m,qd_n}_{k}$. When $m\neq n$ and $p\neq q$, namely $P_{k}^{pd_m,q
+d_n}$, we have
 \begin{equation*}
 \begin{split}
-    p(\bm\theta_t|\y_{1:t}) &= \frac{p(\y_{1:t-1})}{p(\y_{1:t})}p(\y_t|\z_t,\lambda_t)p(\lambda_t)\\
-    &\quad\times\int{p(\z_t|\z_{t-1})p(\bm\theta_{t-1}|\y_{1:t-1})}\,\mathrm{d}\bm\theta_{t-1} \fs
+\bar{\eta}_{k}^{pd_m}&=(K_{k}^{pd_m}K_{k}^{dm}-I)A\hat{\eta}_{k-1}^{m}+K_{k}^{pd_m}\tilde{v}_{k}^{dm}+\tilde{v}_{k}^{pd_m}\\
+&\quad+A\hat{\eta}_{k-1}^{m}+(K_{k}^{pd_m}K_{k}^{dm}-I)Ax_{k-1}-w_{k-1})\\
+\bar{\eta}_{k}^{qd_n}&=(K_{k}^{qd_n}K_{k}^{dn}-I)A\hat{\eta}_{k-1}^{n}+K_{k}^{qd_n}\tilde{v}_{k}^{dn}+\tilde{v}_{k}^{qd_n}\\
+&\quad+A\hat{\eta}_{k-1}^{n}+(K_{k}^{qd_n}K_{k}^{dn}-I)Ax_{k-1}-w_{k-1})
 \end{split}
 \end{equation*}
-Denote the integral term $\int{p(\z_t|\z_{t-1})p(\bm\theta_{t-1}|\y_{1:t-1})}\mathrm{d}\bm\theta_{t-1}$ as $p^-_{t-1}(\z_t)$, which means the predictive distribution of $\z_t$ given $\y_{1:t-1}$. Then, we obtain
-\begin{equation} \label{eq:posterior}
-    p(\bm\theta_t|\y_{1:t}) \propto p(\y_t|\z_t,\lambda_t)p(\lambda_t)p^-_{t-1}(\z_t) \fs
-\end{equation}
-
-It is noteworthy that obtaining the analytical expression for the integral in $p^-_{t-1}(\z_t)$ is intractable due to the nonlinearity of the function $\overline{f}(\cdot)$ and the coupling among hidden variables in the posterior probability $p(\bm\theta_{t-1}|\y_{1:t-1})$ at the previous time step. Subsequently, obtaining the MMSE estimate becomes difficult, and it is necessary to find an alternative strategy to tackle this problem.
-
-An intuitive approach might involve replacing the intractable posterior $p(\z_t|\y_{1:t})$ with a certain tractable distribution $q(\z_t)$ approximately. This approximate distribution is known as the variational distribution, while the set of variational distributions that share a tractable structure is designated as the variational family. One criterion for selecting the variational distribution is the KL divergence introduced in Section \ref{sec:KLD}. By minimizing the KL divergence between the candidate variational distributions and the posterior distribution, we can determine an appropriate function $\hat{q}(\z_t)$ to approximately describe the probability distribution of the hidden random variable $\bm\theta_t$ under the condition of $\y_{1:t}$. Consequently, the research trajectory can be refocused on solving the following problem:
-\begin{problem} \label{prob:KLD}
-Given observations $\y_{1:t}$, the optimal variational distribution in the minimum KL-divergence sense is
+Noting that $K_{k}^{pd_m}$, $K_{k}^{dm}$, $K_{k}^{qd_n}$, $K_{k}^{dn}$, $\hat{\eta}_{k-1}^{m}\hat{\eta}_{k-1}^{n\top}$ are uncorrelated to each other, and the values of $\mathbb{E}\{K_{k}^{pd_m}\}$, $\mathbb{E}\{K_{k}^{pd_m}\}$, $\mathbb{E}\{K_{k}^{pd_m}\}$, $\mathbb{E}\{K_{k}^{pd_m}\}$ are all equal to $I$, the following is obtained:
 \begin{equation*}
-    \hat{q}(\bm\theta_t) = \argmin{q(\bm\theta_t)\in\mathcal{Q}}D_{\rm KL}(q(\bm\theta_t)\Vert p(\bm\theta_t|\y_{1:t}))
+\begin{split}
+&\mathbb{E}\{((K_{k}^{pd_m}K_{k}^{dm}-I)A\hat{\eta}_{k-1}^{m})\\
+&\quad\times((K_{k}^{qd_n}K_{k}^{dn}-I)A\hat{\eta}_{k-1}^{n})^\top\}\\
+%&=\mathbb{E}\{((K_{pd_m,k}K_{dm,k}-I)\}\mathbb{E}\{A\hat{\eta}_{m,k-1}\hat{\eta}_{n,k-1}^\top A^\top\}\\
+&\quad\times\mathbb{E}\{((K_{k}^{qd_n}K_{k}^{dn}-I)\}\\
+&=(\mathbb{E}\{K_{k}^{pd_m}\}\mathbb{E}\{K_{k}^{dm}\}-I)A\mathbb{E}\{\hat{\eta}_{k-1}^{m}\hat{\eta}_{k-1}^{n\top} \}A^\top\\
+&\quad\times(\mathbb{E}\{K_{qd_n,k}\}\mathbb{E}\{K_{dn,k}\}-I)\\
+&=0
+\end{split}
 \end{equation*}
-where $\mathcal{Q}$ is the variational family and each $q(\bm\theta_t)\in\mathcal{Q}$ is a candidate variational distribution. Then the estimate of state $\bm\theta_t$ is given by:
+From the above equality and the fact that all the noise terms are mutually independent, it follows naturally that
 \begin{equation*}
-    \hat{\bm\theta}_t = \E[\hat{q}]{\bm\theta_t|\y_{1:t}} \fs
+P^{pd_m,qd_n}_{k}=AM_{k-1}^{m,n}A^\top+Q_{k-1}~(m\neq n~ and~p\neq q )
 \end{equation*}
-\end{problem}
-
-\begin{remark}
-    Rather than directly deriving the MMSE estimator (Problem \ref{prob:MMSE}), we strategically reformulate the task as KL-divergence minimization (Problem \ref{prob:KLD}). Reframing the problem space converts intractable integration into a computationally feasible optimization process.
-\end{remark}
-
-We introduce the {\it mean-field theory}\cite{blei2017variational} to construct the variational family. The mean-field theory assumes that components of the hidden variable are mutually independent. Therefore, we have the following assumption.
-\begin{assumption} \label{assump:mean-field}
-The variational distribution has the mean-field structure, i.e.,
-\begin{equation} \label{eq:mean-field}
-    q(\bm\theta_t) = q(\z_t)q(\lambda_t) \fs
-\end{equation}    
-\end{assumption}
-
-\begin{remark}    
-    Generally, in the context of VI, the variational distribution $q(\bm\theta_t)$ is assumed to be not conditioned on the observation data \cite{ganguly2021introduction}. From this perspective, it implies that $\lambda_t$ is independent of the augmented variable $\z_t$, supporting the validity of Assumption \ref{assump:mean-field}.
-\end{remark}
-
-Applying the mean-field family and minimizing the KL divergence $D_{\rm KL}(q(\bm\theta_t)\Vert p(\bm\theta_t|\y_{1:t}))$, the following results are derived:
-\begin{theorem} \label{thm:MFVI} % mean-field variational inference
-Given observations $\y_{1:t}$, the variational distributions in \eqref{eq:mean-field} satisfy:
-\begin{align*}
-    q(\z_t) &\propto \e{\E[q(\lambda_t)]{\log{p(\bm\theta_t,\y_{1:t})}}}\cm \\ 
-    q(\lambda_t) &\propto \e{\E[q(\z_t)]{\log{p(\bm\theta_t,\y_{1:t})}}}\fs
-\end{align*}
-\end{theorem}
-\begin{IEEEproof}
-    For the proof, please refer to \cite{blei2017variational}.
-\end{IEEEproof}
-
-In this paper, $q(\z_t)$ is computed as $q^{(\ell)}(\z_t)$ at the $\ell$th iteration based on $q^{(\ell-1)}(\lambda_t)$, and $q(\lambda_t)$ is computed as $q^{(\ell)}(\lambda_t)$ at the $\ell$th iteration based on $q^{(\ell)}(\z_t)$. Overall, the optimal variational distribution minimizing the KL divergence can be obtained by alternating the following steps:
-\begin{align}
-    q^{(\ell)}(\z_t) &\propto \e{\E[q^{(\ell-1)}(\lambda_t)]{\log{p(\bm\theta_t|\y_{1:t})}}}\cm \label{eq:q(z)} \\
-    q^{(\ell)}(\lambda_t) &\propto \e{\E[q^{(\ell)}(\z_t)]{\log{p(\bm\theta_t|\y_{1:t})}}}\cm \label{eq:q(lambda)}
-\end{align}
-until the Evidence Lower Bound (ELBO) converges\cite{blei2017variational}. By denoting the optimal variational distribution as $\hat{q}(\bm\theta_t)=\hat{q}(\bm\z_t)\hat{q}(\lambda_t)$, the estimate of the state $\hat\x_t$ can be obtained by
-% $$ % Typesetting 1
-% \begin{bmatrix}
-%     \hat\x_t\\
-%     \hat{\bm\phi}_t
-% \end{bmatrix} = \hat\z_t = \int{\z_t\hat{q}(\z_t)}\,\mathrm{d}\z_t \fs
-% $$
-$$ % Typesetting 2
-\hat\z_t = \begin{bmatrix}
-    \hat\x_t\\
-    \hat{\bm\phi}_t
-\end{bmatrix} = \int{\z_t\hat{q}(\z_t)}\,\mathrm{d}\z_t \fs
-$$
-
-
-Naturelly, we adopt the prior distribution $p(\lambda_t)$ as the initial condition of variational inference at time $k$:
-$$
-q^{(0)}(\lambda_t) = \sum_{k=1}^K\pi_{t,k}^{(0)}\Gamma(\lambda_t;\alpha_{t,k}^{(0)},\beta_{t,k}^{(0)})
-$$
-where $\pi_{t,k}^{(0)}=\pi_k$, $\alpha_{t,k}^{(0)}=\alpha_k$ and $\beta_{t,k}^{(0)}=\beta_k$. Since it is expressed as a Gamma mixture function, it is reasonable to assume that $q^{(\ell)}(\lambda_t)$ (for $\ell>0$) is formulated in the same way, as later proved in Proposition \ref{prop:q(lambda)}. Under this assumption, we can derive the expression for \eqref{eq:q(lambda)} and \eqref{eq:q(z)}. The resulting formulations are summarized in the following two propositions.
-
-\begin{proposition} \label{prop:q(z)}
-At time $t$, given observation $\y_t$ and particles $\z_t^i\sim p^-_{t-1}(\z_t)$ where $\z_t^i=\{\x_t^i,\bm\phi_t^i\}$ for $i=1,\dots,N$, suppose that the variational distribution $q^{(\ell)}(\lambda_t)$ takes the form 
-$$q^{(\ell-1)}(\lambda_t)=\sum_{k=1}^K\pi_{t,k}^{(\ell-1)}\Gamma(\lambda_t;\alpha_{t,k}^{(\ell-1)},\beta_{t,k}^{(\ell-1)})\cm$$
-then \eqref{eq:q(z)} is formulated as a weighted sum of Dirac delta functions, i.e.,
-\begin{equation} \label{eq:q(l)(z)}
-    q^{(\ell)}(\z_t) = \sum_{i=1}^{N}\varpi_t^{i,(\ell)}\delta(\z_t-\z_t^i) \fs
+The case of $m\neq n$ or $p\neq q$ is similar with the case of $m\neq n$ and $p\neq q$, and identical results can ultimately be derived for both cases. Now, we are in a position to prove the case of $m=n$ and $p=q$. To establish the expression for $P_{k}^{pd_m}$, the definition of it as $P_{k}^{pd_m}=\mathbb{E}\{\bar{\eta}_{k}^{pd_m}\bar{\eta}_{k}^{pd_m\top}\}$ is utilized. In view of the total expectation formula, the following expression can be calculated as:
+\begin{equation*}
+\begin{split}
+&\mathbb{E}\{(K_{k}^{pd_m}K_{k}^{dm}-I)A\hat{\eta}_{k-1}^{m}\hat{\eta}_{k-1}^{m\top} A^\top(K_{k}^{pd_m}K_{k}^{dm}-I)^\top\}\\
+&=\mathbb{E}\{K_{k}^{pd_m}K_{k}^{dm}-I\}A\mathbb{E}\{\hat{\eta}_{k-1}^{m}\hat{\eta}_{k-1}^{m\top}\}\\ 
+&\quad\times A^\top\mathbb{E}\{(K_{k}^{pd_m}K_{k}^{dm}-I)^\top\} .
+\end{split}
+\end{equation*}
+Given the definition of $K_{k}^{pd_m}$ and $K_{k}^{dm}$, it can be found that:
+\begin{equation}\label{gd}
+\begin{split}
+&\mathbb{E}\{(K_{k}^{pd_m}K_{k}^{dm}-I)AM_{k-1}^{m}A^\top(K_{k}^{pd_m}K_{k}^{dm}-I)^\top\}\\
+ &=\mathbb{E}\{((\tilde{K}_{k}^{pd_m}+I)(\tilde{K}_{k}^{dm}+I)-I)AM_{k-1}^{m}\\
+ &\quad\times A^\top((\tilde{K}_{k}^{pd_m}+I)(\tilde{K}_{k}^{dm}+I)-I)^\top\} .
+\end{split}
 \end{equation}
-Herein, the normalized weights are given by
-$$
-\varpi_t^{i,(\ell)}=\frac{\omega_t^{i,(\ell)}}{\sum_{j=1}^N\omega_t^{j,(\ell)}}
-$$
-with $\omega^{i,(\ell)}_t=\exp\{\zeta^{i,(\ell)}_t\}$ where
-\begin{equation} \label{eq:weights}
-    \zeta^{i,(\ell)}_t = \frac{m}{2}c_t^{(\ell-1)}\tilde\gamma_t^i-\frac{1}{2}(1+\tilde\gamma_t^id_t^{(\ell-1)})\Vert\y_t-h(\x_t^i)\Vert^2_{\bm{R}^{-1}}
-\end{equation}
-%% 排版1
-% \begin{equation} \label{eq:weight}
-% \begin{split}
-%     \omega^{i,(\ell)}_t = \exp\Big\{\frac{m}{2}c_t^{(\ell-1)}\tilde\gamma_t^i - \frac{1}{2}&(1+\tilde\gamma_t^id_t^{(\ell-1)})\\
-%     &\times\Vert\y_t-h(\x_t^i)\Vert^2_{\bm{R}^{-1}}\Big\}
-% \end{split}
-% \end{equation}
-% 排版2
-% \begin{equation} \label{eq:weight}
-% \begin{split}
-%     \omega^{i,(\ell)}_t = \exp\Big\{&\frac{m}{2}c_t^{(\ell-1)}\tilde\gamma_t^i\\
-%     &- \frac{1}{2}(1+\tilde\gamma_t^id_t^{(\ell-1)})\Vert\y_t-h(\x_t^i)\Vert^2_{\bm{R}^{-1}}\Big\}
-% \end{split}
-% \end{equation}
-with
-\begin{equation} \label{eq:~gamma}
-    \tilde\gamma_t^i = \begin{cases}
-        1, & \x_t^i\in\mathcal{R}(\bm\phi_t^{(i)}) \\
-        0, & \x_t^i\notin\mathcal{R}(\bm\phi_t^{(i)}) 
-    \end{cases} \fs
+Since $\tilde{K}_{k}^{pd_m}$ and $\tilde{K}_{k}^{dm}$ are diagonal random matrices with covariance matrices $\tilde{\mathscr{K}}_{k}^{pd_m}$ and $\tilde{\mathscr{K}}_{k}^{dm}$, apply Lemma \ref{hada} to \eqref{gd} and obtain
+\begin{equation*}
+\begin{split}
+&\mathbb{E}\{(K_{k}^{pd_m}K_{k}^{dm}-I)A\hat{\eta}_{k-1}^{m}\hat{\eta}_{k-1}^{m\top} A^\top(K_{k}^{pd_m}K_{k}^{dm}-I)^\top\}\\
+ &=(\tilde{\mathscr{K}}_{k}^{pd_m}+\mathbf{1})\circ(\tilde{\mathscr{K}}_{k}^{dm}+\mathbf{1})\circ(AM_{k-1}^{m}A^\top)-AM_{k-1}^{m}A^\top
+\end{split}
+\end{equation*}
+Similarly, we get
+\begin{equation}
+\begin{split}
+&\mathbb{E}\{(K_{k}^{pd_m}K_{k}^{dm}-I)Ax_{k-1}x_{k-1}^\top A^\top(K_{k}^{pd_m}K_{k}^{dm}-I)^\top\}\\
+&=(\tilde{\mathscr{K}}_{k}^{pd_m}+\mathbf{1})\circ(\tilde{\mathscr{K}}_{k}^{dm}+\mathbf{1})\circ(A\Sigma_{k-1}A^\top)-A\Sigma_{k-1}A^\top
+\end{split}
 \end{equation}
 and
-\begin{align}
-    c_t^{(\ell-1)} &= \sum_{k=1}^K\pi_{t,k}^{(\ell-1)}\left(\psi(\alpha_{t,k}^{(\ell-1)})-\log\beta_{t,k}^{(\ell-1)}\right)\cm \label{eq:c}\\
-    d_t^{(\ell-1)} &= \sum_{k=1}^K\pi_{t,k}^{(\ell-1)}\frac{\alpha_{t,k}^{(\ell-1)}}{\beta_{t,k}^{(\ell-1)}}-1\fs \label{eq:d}
-\end{align}
-In this paper, $\psi(\cdot)$ denotes the {\it digamma function}.
-\end{proposition}
-\begin{IEEEproof}
-    The proof can be seen in Appendix \ref{app:proof-q(z)}.
-\end{IEEEproof}
+\begin{equation*}
+\begin{split}
+&\mathbb{E}\{K_{k}^{pd_m}\tilde{v}_{k}^{dm}\tilde{v}_{k}^{dm\top} K_{k}^{pd_m\top}\}=(\tilde{\mathscr{K}}_{k}^{pd_m}+\mathbf{1})\circ\tilde{Q}_{k}^{dm}
+\end{split}
+\end{equation*}
+According to the above equalities, the covariance $P_{k}^{pd_m}$ can be derived. At this point, the verification of all cases concerning the prediction error covariance $P_{k}^{pd_m,qd_n}$ is formally concluded. Along the similar line, the results of the other covariance matrices can also be established, thus completing the proof. 
+\end{proof}
+Define $\Lambda_{k}^{i} \triangleq I - K_{k}^{i}C_{k}^{i}$ for conciseness. The subsequent lemma is then established:
+\begin{lemma}
+The cross estimation error covariance of sensor $m$ and $n$ evolves as follows:
+\begin{equation}\label{M_ij}
+\begin{split}
+M_{k}^{m,n}&=\Lambda_{k}^{m}P_{k}^{m,n}\Lambda_{k}^{n\top}+K_{k}^{m}R_{k}^{m,n}K_{k}^{n\top}\\
+&+\Lambda_{k}^{m}(\sum_{q\in\mathcal{N}_{k}^{n1}}[(P_{k}^{m,n}-P_{k}^{m,nq})H_{k}^{n,q\top}]\\
+&+\sum_{q\in\mathcal{N}_{k}^{n2}}[(P_{k}^{m,n}-P_{k}^{m,nd_q})G_{k}^{n,q\top}])\\
+\quad&+(\sum_{p\in\mathcal{N}_{k}^{m1}}[H_{k}^{m,p}(P_{k}^{m,n}-P_{k}^{mp,n})]\\
+&+\sum_{p\in\mathcal{N}_{k}^{m2}}[G_{k}^{m,p}(P_{k}^{m,n}-P_{k}^{md_ p,n})])\Lambda_{k}^{n\top}\\
+&+\sum_{p\in\mathcal{N}_{k}^{m1}}\sum_{q\in\mathcal{N}_{k}^{n1}}\Psi_{1,k}^{m,n}+\sum_{p\in\mathcal{N}_{k}^{m1}}\sum_{q\in\mathcal{N}_{k}^{n2}}\Psi_{2,k}^{m,n}\\
+&+\sum_{p\in\mathcal{N}_{k}^{m2}}\sum_{q\in\mathcal{N}_{k}^{n1}}\Psi_{3,k}^{m,n}+\sum_{p\in\mathcal{N}_{k}^{m2}}\sum_{q\in\mathcal{N}_{k}^{n2}}\Psi_{4,k}^{m,n}
+\end{split}
+\end{equation}
+where
+\begin{equation*}
+\begin{split}
+\Psi_{1,k}^{m,n}&=H_{k}^{m,p}(P_{k}^{m,n}-P_{k}^{m,nq}-P_{k}^{mp,n}+P_{k}^{mp,nq})H_{k}^{n,q\top}\\
+\Psi_{2,k}^{m,n}&=H_{k}^{m,p}(P_{k}^{m,n}-P_{k}^{m,nd_q}-P_{k}^{mp,n}+P_{k}^{mp,nd_q})G_{k}^{n,q\top}\\
+\Psi_{3,k}^{m,n}&=G_{k}^{m,p}(P_{k}^{m,n}-P_{k}^{m,nq}-P_{k}^{md_p,n}+P_{k}^{md_p,nq})H_{k}^{n,q\top}\\
+\Psi_{4,k}^{m,n}&=G_{k}^{m,p}(P_{k}^{m,n}-P_{k}^{m,nd_q}-P_{k}^{md_p,n}+P_{k}^{md_p,nd_q})G_{k}^{n,q\top}
+\end{split}
+\end{equation*}
+and when $m=n$, the local estimation error covariance of sensor $s_{m}$ itself $M_{k}^{m}$ satisfies
+\begin{equation*}
+\begin{split}
+M_{k}^{m}&=\Lambda_{k}^{m}P_{k}^{m}\Lambda_{k}^{m\top}+K_{k}^{m}R_{k}^{m}K_{k}^{m\top}\\
+\quad&+\Lambda_{k}^{m}(\sum_{q\in\mathcal{N}_{k}^{m1}}[(P_{k}^{m}-P_{k}^{m,mq})H_{k}^{m,q\top}]\\
+&+\sum_{q\in\mathcal{N}_{k}^{m2}}[(P_{k}^{m}-P_{k}^{m,md_q})G_{k}^{m,q\top}])\\
+&+(\sum_{p\in\mathcal{N}_{k}^{m1}}[H_{k}^{m,p}(P_{k}^{m}-P_{k}^{mp,m})]\\
+&+\sum_{p\in\mathcal{N}_{k}^{m2}}[G_{k}^{m,p}(P_{k}^{m}-P_{k}^{md_ p,m})])\Lambda_{k}^{m\top}\\
+&+\sum_{p\in\mathcal{N}_{k}^{m1}}\sum_{q\in\mathcal{N}_{k}^{m1}}\Psi_{1,k}^{m}+\sum_{p\in\mathcal{N}_{k}^{m1}}\sum_{q\in\mathcal{N}_{k}^{m2}}\Psi_{2,k}^{m}\\
+&+\sum_{p\in\mathcal{N}_{k}^{m2}}\sum_{q\in\mathcal{N}_{k}^{m1}}\Psi_{3,k}^{m}+\sum_{p\in\mathcal{N}_{k}^{m2}}\sum_{q\in\mathcal{N}_{k}^{m2}}\Psi_{4,k}^{m}
+\end{split}
+\end{equation*}
+where
+\begin{equation*}
+\begin{split}
+\Psi_{1,k}^{m}&=H_{k}^{m,p}(P_{k}^{m}-P_{k}^{m,mq}-P_{k}^{mp,m}+P_{k}^{mp,mq})H_{k}^{m,q\top}\\
+\Psi_{2,k}^{m}&=H_{k}^{m,p}(P_{k}^{m}-P_{k}^{m,md_q}-P_{k}^{mp,m}+P_{k}^{mp,md_q})G_{k}^{m,q\top}\\
+\Psi_{3,k}^{m}&=G_{k}^{m,p}(P_{k}^{m}-P_{k}^{m,mq}-P_{k}^{md_p,m}+P_{k}^{md_p,mq})H_{k}^{m,q\top}\\
+\Psi_{4,k}^{m}&=G_{k}^{m,p}(P_{k}^{m}-P_{k}^{m,md_q}-P_{k}^{md_p,m}+P_{k}^{md_p,md_q})G_{k}^{m,q\top}
+\end{split}
+\end{equation*}
+\end{lemma}
 
-\begin{proposition} \label{prop:q(lambda)}
-    At time $t$, given observation $\y_t$, suppose that the variational distribution of $\z_t$ takes the form given by \eqref{eq:q(l)(z)} in Proposition \ref{prop:q(z)} where $\z_t^i\sim p^-_{t-1}(\z_t)$ for $i=1,\dots,N$, then \eqref{eq:q(lambda)} is formulated as a Gamma mixture distribution, i.e.,
-    \begin{equation}
-        q^{(\ell)}(\lambda_t) = \sum_{i=k}^K\pi_t^{k,(\ell)}\Gamma(\lambda_t;\alpha_t^{k,(\ell)},\beta_t^{k,(\ell)}) \fs
-    \end{equation}
-    Herein, the updated shape and rate parameters are given by $\alpha_t^{k,(\ell)}=\alpha_k+a_t^{(\ell)}$ and $\beta_t^{k,(\ell)}=\beta_k+b_t^{(\ell)}$ with
-    \begin{align}
-        a_t^{(\ell)} &= \frac{m}{2}\sum_{i=1}^N\varpi_t^{i,(\ell)}\tilde\gamma_t^i\cm \label{eq:a}\\ 
-        b_t^{(\ell)} &= \frac{1}{2}\sum_{i=1}^N\varpi_t^{i,(\ell)}\tilde\gamma_t^i\Vert\y_t-h(\x_t^i)\Vert^2_{\bm{R}^{-1}} \label{eq:b}
-    \end{align}
-    where $\tilde\gamma_t^i$ is defined in \eqref{eq:~gamma}. The updated weights are given by
-    \begin{equation} \label{eq:pi}
-        \pi_t^{k,(\ell)} = \frac{\pi_kC_{t,k}^{(\ell)}}{\sum_{s=1}^K\pi_sC_{t,s}^{(\ell)}}
-    \end{equation}
-    where
-    $$
-    C_{t,k}^{(\ell)} = \frac{\beta_k^{\alpha_k}}{(\beta_t^{k,(\ell)})^{\alpha_t^{k,(\ell)}}}\frac{\Gamma(\alpha_t^{k,(\ell)})}{\Gamma(\alpha_k)} \fs
-    $$
-\end{proposition}
-\begin{IEEEproof}
-    The proof can be seen in Appendix \ref{app:proof-q(lambda)}.
-\end{IEEEproof}
+\begin{remark}
+Later we will use the estimation error covariance of each sensor (eg. $M_{k}^{i}$ for sensor $s_{i}$) to construct the cost function in Section \ref{MDP}. By optimizing single stage cost, an optimal relay scheduling policy is determined to enhance the distributed estimation performance of the whole relay-assisted sensor network.
+\end{remark}
 
-It is worth noting that the shape and rate parameters of the Gamma distribution must be positive. Simultaneously, the weights of $q^{(\ell)}(\lambda_t)$ should satisfy $\sum_{k=1}^K\pi_t^{k,(\ell)}=1$ and $\pi_t^{k,(\ell)}>0$. Here is a theorem to ensure that the updated $q^{(\ell)}(\lambda_t)$ in Proposition \ref{prop:q(lambda)} remains a distribution of the Gamma mixture.
-\begin{theorem} \label{thm:GMM} % Gamma Mixture Model
-    Let $q^{(\ell)}(\lambda_t)$ be the variational distribution defined in Proposition \ref{prop:q(lambda)}. Then, for each $k=1,\dots,K$, the shape and rate parameters satisfy
-    $$ \alpha_t^{k,(\ell)}>0 \text{~and~} \beta_t^{k,(\ell)}>0\cm $$
-    respectively, and the corresponding weight satisfies
-    $$ \pi_t^{k,(\ell)} > 0\fs $$
-    % Let $q^{(\ell)}(\lambda_t)$ be the variational distribution defined in Proposition \ref{prop:q(lambda)}. Then, for each $k=1,\dots,K$, the shape and rate parameters satisfy $\alpha_t^{k,(\ell)}>0$ and $\beta_t^{k,(\ell)}>0$, respectively, and the corresponding weight satisfies $\pi_t^{k,(\ell)}>0$.
+\begin{theorem}
+The optimal gains (for sensor $s_i$) for the distributed state estimation algorithm that uses the update equation \eqref{heart} and minimizes the mean squared estimation error $\sum_{i=1}^N\mathbb{E}[||\hat{x}^i_{k}-x_{k}||^2]$ are given by:
+\begin{equation}\label{gains}
+\begin{split}
+%原先是q改成j了
+K_{k}^{i}&=(P_{k}^i+\sum_{j \in \mathcal{N}_{k}^{i1}} H_{k}^{i,j}(P_{k}^i - P_{k}^{ij,i})\\
+&\quad~+\sum_{j \in \mathcal{N}_{k}^{i2}} G_{k}^{i,j}(P_{k}^i - P_{k}^{id_j,i}))C_{k}^{i\top}({\Delta_{k}^i})^{-1}\\
+\mathcal{F}_{k}& =\xi_{k}\zeta_{k}^{-1}\\
+\end{split}
+\end{equation}
+where the consensus gains are represented via a linear matrix equality. $\mathcal{F}_{k}=col(\mathcal{F}_{k}(1),\mathcal{F}_{k}(2),\cdots,\mathcal{F}_{k}(|\mathcal{N}^i|))$ and $\xi_{k}=col(\xi_{k}(1),\xi_{k}(2),\cdots,\xi_{k}(|\mathcal{N}^i|))$ are block column matrices, and $\mathcal{W}$, $\mathcal{X}_{k}$, $\mathcal{Y}_{k}$, $\mathcal{Z}_{k}$ and $\zeta_{k}$ are block matrices, of the form
+\begin{equation*}
+\begin{split}
+\mathcal{F}_{k}(s)& =\left\{\begin{array}{cl}
+H_{k}^{i,\mathcal{N}_{k}^{i}(s)}, &\text{if $\mathcal{N}_{k}^{i}(s)\in \mathcal{N}_{i1}$}\\
+G_{k}^{i}(s), &\text{if $\mathcal{N}_{i}(s)\in \mathcal{N}_{k}^{i2}$}
+\end{array}\right.\\
+\xi_{k}(s)&= \left\{\begin{array}{cl}
+\mathcal{A}_{k}(s), &\text{if $\mathcal{N}_{k}^{i}(s)\in \mathcal{N}_{k}^{i1}$}\\
+\mathcal{B}_{k}(s), &\text{if $\mathcal{N}_{k}^{i}(s)\in \mathcal{N}_{k}^{i2}$}
+\end{array}\right.\\
+\mathcal{A}_{k}(s)&=(I - P_k^i C_k^{i\top} \Delta_k^{i-1} C_k^i)(P_k^i - P_k^{i,i\mathcal{N}_{k}^{i}(s)})\\
+\mathcal{B}_{k}(s)&=(I - P_k^i C_k^{i\top} \Delta_k^{i-1} C_k^i)(P_k^i - P_k^{i,id_{\mathcal{N}_{k}^{i}(s)}})
+%不行用J、K
+%\mathcal{C}_r&=(I - P_i C_i^\top \Delta_i^{-1} C_i)(P_{i} - P_{i,\mathcal{N}_{i}(r)})\\
+\end{split}
+\end{equation*}
+\begin{equation*}
+\begin{split}
+\zeta_{k}(s,t)&= \left\{\begin{array}{cl}
+\mathcal{W}_{k}(s,t), &\text{if $\mathcal{N}_{k}^{i}(s)\in \mathcal{N}_{k}^{i1},\mathcal{N}_{k}^{i}(t)\in \mathcal{N}_{k}^{i1}$}\\
+\mathcal{X}_{k}(s,t), &\text{if $\mathcal{N}_{k}^{i}(s)\in \mathcal{N}_{k}^{i2},\mathcal{N}_{k}^{i}(t)\in \mathcal{N}_{k}^{i2}$}\\
+\mathcal{Y}_{k}(s,t), &\text{if $\mathcal{N}_{k}^{i}(s)\in \mathcal{N}_{k}^{i2},\mathcal{N}_{k}^{i}(t)\in \mathcal{N}_{k}^{i1}$}\\
+\mathcal{Z}_{k}(s,t), &\text{if $\mathcal{N}_{k}^{i}(s)\in \mathcal{N}_{k}^{i2},\mathcal{N}_{k}^{i}(t)\in \mathcal{N}_{k}^{i2}$}
+\end{array}\right.\\
+\mathcal{W}_{k}(s,t)&=(P_{k}^i-P_{k}^{i\mathcal{N}_{k}^{i}(s),i}) C_{k}^{i\top} (\Delta_{k}^i)^{-1} C_{k}^i(P_{k}^i-P_{k}^{i,i\mathcal{N}_{k}^{i}(t)})\\
+&\quad~- (P_{k}^{i}- P_{k}^{i,i\mathcal{N}_{k}^{i}(t)} -P_{k}^{i\mathcal{N}_{k}^{i}(s),i} + P_{k}^{i\mathcal{N}_{k}^{i}(s),i\mathcal{N}_{k}^{i}(t)})\\
+\mathcal{X}_{k}(s,t)&=(P_{k}^i-P_{k}^{i\mathcal{N}_{k}^{i}(s),i}) C_{k}^{i\top} (\Delta_{k}^i)^{-1} C_{k}^i(P_{k}^i-P_{k}^{i,id_{\mathcal{N}_{k}^{i}(t)}})\\
+&\quad~- (P_{k}^{i} -P_{k}^{i,id_{\mathcal{N}_{k}^{i}(t)}}-P_{k}^{i\mathcal{N}_{k}^{i}(s),i}+ P_{k}^{id_{\mathcal{N}_{k}^{i}(s)},i\mathcal{N}_{k}^{i}(t)})\\ 
+\mathcal{Y}_{k}(s,t)&=(P_{k}^i-P_{k}^{id_{\mathcal{N}_{k}^{i}(s),i}}) C_{k}^{i\top} (\Delta_{k}^i)^{-1} C_{k}^i(P_{k}^i-P_{k}^{i,i\mathcal{N}_{k}^{i}(t)})\\
+&\quad~- (P_{k}^{i} - P_{k}^{i,i\mathcal{N}_{k}^{i}(t)}-P_{k}^{id_{\mathcal{N}_{k}^{i}(s),i}} + P_{k}^{i{\mathcal{N}_{k}^{i}(s)},id_{\mathcal{N}_{k}^{i}(t)}})\\ 
+\mathcal{Z}_{k}(s,t)&=(P_{k}^i-P_{k}^{id_{\mathcal{N}_{k}^{i}(s),i}}) C_{k}^{i\top} (\Delta_{k}^i)^{-1} C_{k}^i(P_{k}^i-P_{k}^{i,id_{\mathcal{N}_{k}^{i}(t)}})\\
+&\quad~- (P_{k}^{i} - P_{k}^{i,id_{\mathcal{N}_{k}^{i}(t)}}-P_{k}^{id_{\mathcal{N}_{k}^{i}(s),i}} + P_{k}^{id_{\mathcal{N}_{k}^{i}(s)},id_{\mathcal{N}_{k}^{i}(t)}})
+\end{split}
+\end{equation*}
 \end{theorem}
-%% Proof --------------------------------------------------
-\begin{IEEEproof}
-The proof can be seen in Appendix \ref{app:thm-GMM}.
-\end{IEEEproof}
+where $\Delta_{k}^i=C_{k}^iP_{k}^iC_{k}^{i\top}+R_{k}^i$, $\mathcal{N}_{k}^{i(r)}$ is the $r^{th}$ element of the set $\mathcal{N}_{k}^{i}$, and $|\mathcal{N}_{k}^{i}|$ denotes the cardinality of $\mathcal{N}_{k}^{i}$.
 
-Combined with the initial condition and Proposition \ref{prop:q(z)}-\ref{prop:q(lambda)}, we develop a variational particle filter as shown in Algorithm \ref{alg:VPF}.
-\begin{algorithm}[htbp] 
-\label{alg:VPF}
-\caption{Variational Particle Filter}
+\begin{proof}
+First, in light of \eqref{M_ij}, the cross estimation error covariance expression for sensor $s_i$ and its neighbor sensor $s_j$ is
+\begin{equation*}
+\begin{split}
+M_{k}^{i,j}
+=&~\Lambda_{k}^{i}P_{k}^{i,j}\Lambda_{k}^{j\top}+K_{k}^{i}R_{k}^{i,j}K_{k}^{j\top}\\
+&+\Lambda_{k}^{i}\sum_{q\in\mathcal{N}_{k}^{j1}}[(P_{k}^{i,j}-P_{k}^{i,jq})H_{k}^{j,q\top}]\\
+&+\Lambda_{k}^{i}\sum_{q\in\mathcal{N}_{k}^{j2}}[(P_{k}^{i,j}-P_{k}^{i,jd_q})G_{k}^{j,q\top}]\\
+&+\sum_{p\in\mathcal{N}_{k}^{i1}}[H_{k}^{i,p}(P_{k}^{i,j}-P_{k}^{ip,j})]\Lambda_{k}^{j\top}\\
+&+\sum_{p\in\mathcal{N}_{k}^{i2}}[G_{k}^{i,p}(P_{k}^{i,j}-P_{k}^{id_ p,j})]\Lambda_{k}^{j\top}\\
+&+\sum_{p\in\mathcal{N}_{k}^{i1}}\sum_{q\in\mathcal{N}_{k}^{j1}}\Psi_{1,k}^{i,j}+\sum_{p\in\mathcal{N}_{k}^{i1}}\sum_{q\in\mathcal{N}_{k}^{j2}}\Psi_{2,k}^{i,j}\\
+&+\sum_{p\in\mathcal{N}_{k}^{i2}}\sum_{q\in\mathcal{N}_{k}^{{k}^j1}}\Psi_{3,k}^{i,j}+\sum_{p\in\mathcal{N}_{k}^{i2}}\sum_{q\in\mathcal{N}_{k}^{j2}}\Psi_{4,k}^{i,j}
+\end{split}
+\end{equation*}
+
+Substituting the outer product terms with the corresponding covariance matrices in \eqref{covariancedef}, we have the following local estimation error covariance expression
+\begin{equation}\label{M_i}
+\begin{split}
+M_{k}^{i}
+=&~\Lambda_{k}^{i}P_{k}^{i}\Lambda_{k}^{i\top}+K_{k}^{i}R_{k}^{i}K_{k}^{i\top}\\
+&+\Lambda_{k}^{i}\sum_{q\in\mathcal{N}_{k}^{i1}}[(P_{k}^{i}-P_{k}^{i,iq})H_{k}^{i,q\top}]\\
+&+\Lambda_{k}^{i}\sum_{q\in\mathcal{N}_{k}^{i2}}[(P_{k}^{i}-P_{k}^{i,id_q})G_{k}^{i,q\top}]\\
+&+\sum_{p\in\mathcal{N}_{k}^{i1}}[H_{k}^{i,p}(P_{k}^{i}-P_{k}^{ip,i})]\Lambda_{k}^{i\top}\\
+&+\sum_{p\in\mathcal{N}_{k}^{i2}}[H_{k}^{i,p}(P_{k}^{i}-P_{k}^{id_ p,i})]\Lambda_{k}^{i\top}\\
+&+\sum_{p\in\mathcal{N}_{k}^{i1}}\sum_{q\in\mathcal{N}_{k}^{i1}}\Psi_{1,k}^{i}+\sum_{p\in\mathcal{N}_{k}^{i1}}\sum_{q\in\mathcal{N}_{k}^{i2}}\Psi_{2,k}^{i}\\
+&+\sum_{p\in\mathcal{N}_{k}^{i2}}\sum_{q\in\mathcal{N}_{k}^{i1}}\Psi_{3,k}^{i}+\sum_{p\in\mathcal{N}_{k}^{i2}}\sum_{q\in\mathcal{N}_{k}^{i2}}\Psi_{4,k}^{i}
+\end{split}
+\end{equation}
+The total mean squared estimation error equals $\sum_{i=1}^N\mathbb{E}[||\hat{x}^{i}_{k}-x_{k}||^2]$, which is $\sum_{i=1}^N\tr(M^{i}_{k})$. Considering that the gains at sensor $s_i$ only influence the value of $M_{k}^{i}$, the optimal gains $K_{k}^{i}$, $H_{k}^{i,j}$ and $G_{k}^{i,j}$ are the solutions to
+\begin{equation*}
+\begin{split}
+\frac{\partial\tr(M_{k}^{i})}{\partial K_{k}^{i}}=0
+\end{split}
+\end{equation*}
+and
+\begin{equation*}
+\begin{split}
+\frac{\partial\tr(M_{k}^i)}{\partial H_{k}^{i,j}}=0(j\in \mathcal{N}_{k}^{i1}),\quad\frac{\partial\tr(M_{k}^i)}{\partial G_{k}^{i,j}}=0(j\in \mathcal{N}_{k}^{i2})
+\end{split}
+\end{equation*}
+Applying the matrix trace operator $\tr(\cdot)$ to \eqref{M_i}, we get
+\begin{equation}\label{trM_i}
+\begin{split}
+&tr(M_{k}^{i})\\
+&=tr(P_{k}^{i}-P_{k}^{i}C_{k}^{i\top} K_{k}^{i\top}-K_{k}^{i}C_{k}^{i}P_{k}^{i}\\
+\quad&+K_{k}^{i}C_{k}^{i}P_{k}^{i}C_{k}^{i\top} K_{k}^{i\top}+K_{k}^{i}R_{k}^iK_{k}^{i\top})\\
+\quad&+2\tr[(I-K_{k}^{i}C_{k}^{i})\sum_{q\in\mathcal{N}_{k}^{i1}}(P_{k}^{i}-P_{k}^{i,iq})H_{k}^{i,q\top}])\\
+\quad&+2\tr[(I-K_{k}^{i}C_{k}^{i})\sum_{q\in\mathcal{N}_{k}^{i2}}(P_{k}^{i}-P_{k}^{i,id_q})G_{k}^{i,q\top}])\\
+\quad&+\tr(\sum_{p\in\mathcal{N}_{k}^{i1}}\sum_{q\in\mathcal{N}_{k}^{i1}}[H_{k}^{i,p}(P_{k}^{i}-P_{k}^{i,iq}-P_{k}^{ip,i}+P_{k}^{ip,iq})H_{k}^{i,q\top}])\\
+\quad&+\tr(\sum_{p\in\mathcal{N}_{k}^{i2}}\sum_{q\in\mathcal{N}_{k}^{i2}}[G_{k}^{i,p}(P_{k}^{i}-P_{k}^{i,id_q}-P_{k}^{id_p,i}+P_{k}^{id_p,id_q})G_{k}^{i,q\top}])\\
+\quad&+2\tr(\sum_{p\in\mathcal{N}_{k}^{i1}}\sum_{q\in\mathcal{N}_{k}^{i2}}[H_{k}^{i,p}(P_{k}^{i}-P_{k}^{i,id_q}-P_{k}^{ip,i}+P_{k}^{ip,id_q})G_{k}^{i,q\top}])\\
+\end{split}
+\end{equation}
+Taking the partial derivative of $\tr(M_{k}^{i})$ with respect to $K_{k}^i$,
+\begin{equation}\label{K_iqd}
+\begin{split}
+\frac{\partial\tr(M_{k}^i)}{\partial K_{k}^{i}}&=-2P_{k}^{i}C_{k}^{i\top}+2K_{k}^{i}(C_{k}^{i}P_{k}^{i}C_{k}^{i\top})+2K_{k}^{i}R_{k}^{i}\\
+\quad&-2\sum_{q\in\mathcal{N}_{k}^{i1}}[H_{k}^{i,q}(P_{k}^{i}-P_{k}^{iq,i})]C_{k}^{i\top}\\
+\quad&-2\sum_{q\in\mathcal{N}_{k}^{i2}}[G_{k}^{i,q}(P_{k}^{i}-P_{k}^{id_q,i})]C_{k}^{i\top}=0
+\end{split}
+\end{equation}
+From \eqref{K_iqd}, the optimal Kalman gain $K_{k}^i$ in terms of $H_{k}^{i,j}$ is obtained as:
+\begin{equation}\label{K_i}
+\begin{split}
+K_{k}^{i}&=(P_{k}^{i}+\sum_{q\in\mathcal{N}_{k}^{i1}}[H_{k}^{i,q}(P_{k}^{i}-P_{k}^{i,iq})]\\
+\quad&+\sum_{q\in\mathcal{N}_{k}^{i2}}[G_{k}^{i,q}(P_{k}^{i}-P_{k}^{i,id_q})])C_{k}^{i\top}(\Delta_{k}^{i})^{-1}
+\end{split}
+\end{equation}
+%熄灭
+where $\Delta_{k}^{i}=R_{k}^{i}+C_{k}^{i}P_{k}^{i}C_{k}^{i\top}$. Substituting the optimal Kalman gain determined in \eqref{K_i} into \eqref{trM_i}
+% \begin{equation*}
+% \begin{split}
+% tr(M_{i})&=\tr(P_{i})-2\tr(P_{i}\Gamma\sum_{q\in\mathcal{N}_{i1}}[(P_{i}-P_{i,iq})H_{i,q}^\top]\\
+% \quad&+P_{i}\Gamma\sum_{q\in\mathcal{N}_{i2}}[(P_{i}-P_{i,id_q})G_{i,q}^\top])\\
+% \quad&+P_{i}\Gamma(\sum_{q\in\mathcal{N}_{i1}}[(P_{i}-P_{i,iq})H_{i,q}^\top]+\sum_{q\in\mathcal{N}_{i2}}[(P_{i}-P_{i,id_q})G_{i,q}^\top])\\
+% %\quad&+(\sum_{q\in\mathcal{N}_{i1}}[H_{i,q}(P_{i}-P_{i,iq})]+\sum_{q\in\mathcal{N}_{i2}}[G_{i,q}(P_{i}-P_{i,id_q})])\Gamma P_{i}\\
+% \quad&+(P_{i}\Gamma(\sum_{q\in\mathcal{N}_{i1}}[(P_{i}-P_{i,iq})H_{i,q}^\top]+\sum_{q\in\mathcal{N}_{i2}}[(P_{i}-P_{i,id_q})G_{i,q}^\top]))^\top\\
+% \quad&+(\sum_{q\in\mathcal{N}_{i1}}[H_{i,q}(P_{i}-P_{i,iq})]+\sum_{q\in\mathcal{N}_{i2}}[G_{i,q}(P_{i}-P_{i,id_q})])\Gamma(\sum_{q\in\mathcal{N}_{i1}}[H_{i,q}(P_{i}-P_{i,iq})]+\sum_{q\in\mathcal{N}_{i2}}[G_{i,q}(P_{i}-P_{i,id_q})])^\top\\
+% \quad&+\tr(\sum_{p\in\mathcal{N}_{i1}}\sum_{q\in\mathcal{N}_{i1}}[H_{i,p}(P_{i}-P_{i,iq}-P_{ip,i}+P_{ip,iq})H_{i,q}^\top])\\
+% \quad&+\tr(\sum_{p\in\mathcal{N}_{i2}}\sum_{q\in\mathcal{N}_{i2}}[G_{i,p}(P_{i}-P_{i,id_q}-P_{id_p,i}+P_{id_p,id_q})G_{i,q}^\top])\\
+% \quad&+2\tr(\sum_{p\in\mathcal{N}_{i1}}\sum_{q\in\mathcal{N}_{i2}}[H_{i,p}(P_{i}-P_{i,id_q}-P_{ip,i}+P_{ip,id_q})G_{i,q}^\top])\\
+% \end{split}
+% \end{equation*}
+and taking the derivative with respect to $H_{k}^{i,j}$, we have
+\begin{equation}\label{H_ijqd}
+\begin{split}
+&\frac{\partial\tr(M_{k}^i)}{\partial H_{k}^{i,j}}\\
+&=2(I-P_{k}^{i}C_{k}^{i\top}(\Delta_{k}^{i})^{-1}C_{k}^{i})(P_{k}^{i}-P_{k}^{i,ij})\\
+\quad&-2\sum_{q\in\mathcal{N}_{k}^{i1}}[H_{k}^{i,q}(P_{k}^{i}-P_{k}^{iq,i})]C_{k}^{i\top}(\Delta_{k}^{i})^{-1}C_{k}^{i}(P_{k}^{i}-P_{k}^{i,ij})\\
+\quad&-2\sum_{q\in\mathcal{N}_{k}^{i2}}[G_{k}^{i,q}(P_{k}^{i}-P_{k}^{id_q,i})]C_{k}^{i\top}(\Delta_{k}^{i})^{-1}C_{k}^{i}(P_{k}^{i}-P_{k}^{i,ij})\\
+\quad&+2\sum_{q\in\mathcal{N}_{k}^{i1}}H_{k}^{i,q}(P_{k}^{i}-P_{k}^{i,ij}-P_{k}^{iq,i}+P_{k}^{iq,ij})\\
+\quad&+2\sum_{q\in\mathcal{N}_{k}^{i2}}G_{k}^{i,q}(P_{k}^{i}-P_{k}^{i,ij}-P_{k}^{id_q,i}+P_{k}^{id_q,ij})=0
+\end{split}
+\end{equation}
+%怎么在这里补充一下求导结果的细节
+Then, by following a similar derivation, take the derivative with respect to $G_{k}^{i,j}$ and we can get the following result :
+\begin{equation}\label{G_ijqd}
+\begin{split}
+&\frac{\partial\tr(M_{k}^i)}{\partial G_{k}^{i,j}}\\
+&=2(I-P_{k}^{i}C_{k}^{i\top}(\Delta_{k}^{i})^{-1}C_{k}^{i})(P_{k}^{i}-P_{k}^{i,id_j})\\
+\quad&-2\sum_{q\in\mathcal{N}_{k}^{i1}}[H_{k}^{i,q}(P_{k}^{i}-P_{k}^{iq,i})]C_{k}^{i\top}(\Delta_{k}^{i})^{-1}C_{k}^{i}(P_{k}^{i}-P_{k}^{i,id_j})\\
+\quad&-2\sum_{q\in\mathcal{N}_{k}^{i2}}[G_{k}^{i,q}(P_{k}^{i}-P_{k}^{id_q,i})]C_{k}^{i\top}(\Delta_{k}^{i})^{-1}C_{k}^{i}(P_{k}^{i}-P_{k}^{i,id_j})\\
+\quad&+2\sum_{q\in\mathcal{N}_{k}^{i1}}H_{k}^{i,q}(P_{k}^{i}-P_{k}^{i,id_j}-P_{k}^{iq,i}+P_{k}^{iq,id_ j})\\
+\quad&+2\sum_{q\in\mathcal{N}_{k}^{i2}}G_{k}^{i,q}(P_{k}^{i}-P_{k}^{i,id_j}-P_{k}^{id_q,i}+P_{k}^{id_q,id_j})=0
+\end{split}
+\end{equation}
+%拜托
+Equations \eqref{H_ijqd} and \eqref{G_ijqd} are valid for any sensor $s_{j}$ in $\mathcal{N}_{k}^{i}$ at time k. Thus, there are $|\mathcal{N}_{k}^{i}|$ independent linear equations for $|\mathcal{N}_{k}^{i}|$ variables in each equation. The system of equations describing the optimal consensus gains at each sensor can now be rewritten as a linear matrix equation, to arrive at the matrix equality presented in \eqref{gains}. This concludes the proof.
+\end{proof}
+The derived optimal distributed state estimation algorithm over switching topologies caused by relay scheduling is formally presented in Algorithm \ref{filter-algorithm}.
+
+\begin{algorithm}\label{filter-algorithm}
+\caption{Optimal Kalman Consensus Filter for Weighted Directed Graphs (for sensor $s_i$)}
 \begin{algorithmic}[1]
-\Require Variational distribution $q(\z_{t-1}|\y_{1:t-1})$ at last time step, observation $\y_t$, and number of particles $N$.
-\Ensure Estimate $\hat\x_t$.
-% Sample
-\For{$i = 1$ to $N$}
-    \State Sample $\z_t^i$ from $\sum_{i=1}^N\varpi_{t-1}^i\mathcal{N}(\z_t;\overline{f}(\z_{t-1}^i),\overline{\bm{Q}})$\;
-\EndFor
-% Initialization
-\State $\ell \gets 0$\;
-% \State {\bf Initialization} 
-\For{$i = k$ to $K$}
-    \State Set $\pi_t^{k,(\ell)}\gets\pi_k$, $\alpha_t^{k,(\ell)}\gets\alpha_k$, $\beta_t^{k,(\ell)}\gets\beta_k$\;
-\EndFor
-\While{the ELBO has not converged}
-    \State Calculate $c_t^{(\ell-1)}$ and $d_t^{(\ell-1)}$ defined in \eqref{eq:c} and \eqref{eq:d}\;
-    \For{$i = 1$ to $N$}
-        \State Calculate $\omega_t^{i,(\ell)}$ based on $c_t^{(\ell-1)}$ and $d_t^{(\ell-1)}$ as \eqref{eq:weights}\;
-    \EndFor
-    \For{$i = 1$ to $N$}
-        \State Set $\varpi_t^{i,(\ell)} \gets \omega_t^{i,(\ell)} / \sum_{j=1}^N\omega_t^{j,(\ell)}$\;
-    \EndFor
-    \State $q^{(\ell)}(\z_t) \gets \sum_{i=1}^N\varpi_t^{i,(\ell)}\delta(\z_t-\z_t^i)$\;
-    \State Calculate $a_t^{(\ell)}$ and $b_t^{(\ell)}$ defined in \eqref{eq:a} and \eqref{eq:b}\;
-    \For{$k = 1$ to $K$}
-        \State Set $\alpha_t^{k,(\ell)}\gets\alpha_k+a_t^{(\ell)}$, $\beta_t^{k,(\ell)}\gets\beta_k+b_t^{(\ell)}$\;
-        \State Calculate $\pi_t^{k,(\ell)}$ defined in \eqref{eq:pi}\;
-    \EndFor
-    \State $q^{(\ell)}(\lambda_t) \gets \sum_{k=1}^K\pi_t^{k,(\ell)}\Gamma(\lambda_t;\alpha_t^{k,(\ell)},\beta_t^{k,(\ell)})$\;
-    \State Estimate $\x_t^{(\ell)} = \sum_{i=1}^N\varpi_t^{i,(\ell)}\x_t^i$\;\label{line:estimate}
-    \State $\ell \gets \ell+1$\;
-    \If{$\ell\geq L_{\rm max}$}
-    \State break
-    \EndIf
-\EndWhile
-\State \Return $\hat{\x}_t=\x_t^{(\ell)}$\;
+%Given: $M_{i}(0)=M_{0}$, $x(0)=x_{0}$, $\mathcal{N}_{i1}$(the set of direct neighbors of sensor i), $\mathcal{N}_{i2}$(the set of indirect neighbors of sensor i)
+\STATE Obtain measurement $y_{k}^{i}$.
+\STATE Prediction $\bar{x}_{k}^{i}$, estimation error covariance as well as cross error covariance matrices are transmitted to neighbor sensors, i.e., sensors $s_j \in \mathcal{N}_{i1}\bigcup\mathcal{N}_{i2}$.
+\STATE Messages transmitted by the neighboring sensors are received by sensor $s_i$.
+\STATE Assimilate the received information to obtain the Kalman gains and consensus gains according to \eqref{gains}.
+\STATE The optimal gains are used in the estimation update equation \eqref{heart} and cross error covariance update equa\\-tion \eqref{M_ij} to determine the state estimate $\hat{x}_{k}^{i}$ for sensor\\ $s_i$ and the cross error covariance matrices $M_{k}^{i,j}$ for sensor $s_{i}$ and its neighbors $s_{j}$, given by
+\begin{equation*}
+\begin{split}
+M_{k}^{i,j}&=\Lambda_{k}^{i}P_{k}^{i,j}\Lambda_{k}^{j\top}+K_{k}^{i}R_{k}^{i,j}K_{k}^{j\top}\\
+&\quad+\Lambda_{k}^{i}(\sum_{q\in\mathcal{N}_{k}^{j1}}[(P_{k}^{i,j}-P_{k}^{i,jq})H_{k}^{j,q\top}]\\
+&\quad+\sum_{q\in\mathcal{N}_{k}^{j2}}[(P_{k}^{i,j}-P_{k}^{i,jd_q})G_{k}^{j,q\top}])\\
+&\quad+(\sum_{p\in\mathcal{N}_{k}^{i1}}[H_{k}^{i,p}(P_{k}^{i,j}-P_{k}^{ip,j})]\\
+&\quad+\sum_{p\in\mathcal{N}_{k}^{i2}}[G_{k}^{i,p}(P_{k}^{i,j}-P_{k}^{id_ p,i})])\Lambda_{k}^{j\top}\\
+&\quad+\sum_{p\in\mathcal{N}_{k}^{i1}}\sum_{q\in\mathcal{N}_{k}^{j1}}\Psi_{1,k}^{i,j}+\sum_{p\in\mathcal{N}_{k}^{i1}}\sum_{q\in\mathcal{N}_{k}^{j2}}\Psi_{2,k}^{i,j}\\
+&\quad+\sum_{p\in\mathcal{N}_{k}^{i2}}\sum_{q\in\mathcal{N}_{k}^{j1}}\Psi_{3,k}^{i,j}+\sum_{p\in\mathcal{N}_{k}^{i2}}\sum_{q\in\mathcal{N}_{k}^{j2}}\Psi_{4,k}^{i,j}
+\end{split}
+\end{equation*}
+\STATE Update prediction $\bar{x}_{k}^{i}$ according to \eqref{prediction}.
+\STATE Update prediction error covariances $P_{k}^{i,j}$, $P^{pi,qj}_{k}$, $P^{i,pj}_{k}$, $P^{pd_i,qd_j}_{k}$, $P^{i,pd_j}_{k}$ and $P^{pi,qd_j}_{k}$ according to Lemma \ref{perror}.
 \end{algorithmic}
 \end{algorithm}
 
-In this algorithm, the filter initially draws $N$ particles from the approximate prior distribution $p(\z_t|\y_{1:t-1})$. Subsequently, based on newly arrived observation data $\y_t$, the algorithm performs variational iterations until convergence. Prior to the iterative process, the prior distribution of $\lambda_t$ is utilized to initialize the variational distribution $q^{(0)}(\lambda_t)$. At each iteration, the variational distributions $q^{(\ell)}(\z_t)$ and $q^{(\ell)}(\lambda_t)$ are updated alternately, where each distribution is optimized while keeping the other fixed. Finally, the estimate of the state is obtained by the empirical expectation with respect to the converged variational distribution.
+\section{Relay Allocation Methodology}
+\label{sec:DQN}
+%原标题Sensor scheduling using deep reinforcement learning
+\subsection{MDP Formulation} \label{MDP}
+% 要解决的实际问题->序列决策问题的数学表达式->依据什么决策（上一时刻）->可以建模为MDP->三元组的具体解释
+The scheduler wishes to find a scheduling policy to minimize the average sum of the trace of the estimation error covariance matrices across all sensors and all times. We will formulate a MDP to solve the associated sequential decision making problem:
+\begin{equation} \label{ACP}
+    \min_{\{(a^{1}_{k},...,a^{M}_{k})\}}\limsup_{T\to\infty}\frac{1}{T}\mathbb{E}\left[\sum_{k=0}^{T-1}\sum_{i=1}^{N}\mathrm{tr}M^{i}_{k}\right] \text{.}
+\end{equation}
+At time $k$, the scheduler makes the decisions based on the estimation error covariance of each sensor at the previous time step, i.e., $\{P_{1,k-1},$ $\cdots, P_{N,k-1}\}$, which is fully known to the scheduler. Therefore, this sequential decision making problem can be formulated as an MDP with average cost over the infinite time horizon in a triple $(\mathcal{S}, \mathcal{A}, \mathcal{C})$. Each element of the triple is defined as follows:
 
-
-\subsection{Discussion of the Proposed Algorithm}
-In this section, some features of the proposed VPF algorithm are discussed.
-
-\subsubsection{Similarity with Kalman-Type Filters} % Kalman相似性
-The proposed VPF is composed of two parts. The sampling part generates particles at the current time step using the IS-approximated prior PDF $p(\z_t|\y_{1:t-1})$, and the iteration part approximates the posterior PDF $p(\z_t|\y_{1:t})$, which are analogous to the prediction and correction steps in traditional Kalman-type filters, respectively. Furthermore, at each time step, the final variational distribution after multiple iterations retains the same form. Overall, the proposed VPF is similar to Kalman-type filters in terms of its prediction-correction structure and recursive nature.
-
-\subsubsection{Form Invariance} % 形式不变性
-Throughout the variational iteration process, the mathematical forms of the variational distributions demonstrate structural invariance across successive iterations. Specifically, both $q^{(\ell)}(\z_t)$ and $q^{(\ell)}(\lambda_t)$ are observed to maintain identical mathematical forms as those from the previous iteration, namely $q^{(\ell-1)}(\z_t)$ and $q^{(\ell-1)}(\lambda_t)$, respectively. In more detail,
+%yaoyao的信息scheduler
+% 先说状态是什么，再说状态空间是怎么样的
 \begin{itemize}
-    \item $q^{(\ell)}(\z_t)$ retains the form of an empirical measure;
-    \item $q^{(\ell)}(\lambda_t)$ retains an analytically tractable closed-form expression.
+    \item {\it State space}: The MDP state is defined as the set $s_{k}=\{\tr(M_{k-1}^{1,1}),\cdots,\tr (M_{k-1}^{i,j}),\cdots,\tr (M_{k-1}^{N,N})\}$, encompassing traces of prior-step estimation error covariances and cross estimation error covariances. Thus, the state space is $\mathcal{S}=\mathbb{S}_{+}^{n_x}\times\cdots\times\mathbb{S}_{+}^{n_x}$, where $\mathbb{S}_{+}^n$ represents the set of $n$-dimensional positive definite and positive semi-definite matrix.
+    % 先说动作是什么，再说动作空间是怎么样的（一共有几种动作）
+    \item { \it Action space}: A generic element of action space is $a_k=(a^{1}_{k},\cdots,a^{M}_{k})$, corresponding to the $\frac{(\sum_{i=1}^N|\mathcal{N}_i|)!}{(\sum_{i=1}^N|\mathcal{N}_i|-M)!}$ different ways of allocating $M$ relays to $N$ sensors, that is, $\mathcal{A}$ is a finite space.
+    \item {\it Cost function} $\mathcal{C}(s_{k},a_{k})$: The one-step cost $\mathcal{S} \times \mathcal{A} \to \mathbb{R}$, incurred when taking action $a_k$ at state $s_k$, is defined as the summed trace of all sensors' estimation error covariance matrices, $\mathcal{C}(s_{k},a_{k})=\sum_{i=1}^{N}\tr(M_{i,k})$.
+    
 \end{itemize}
-Such form invariance crucially enables stable progression of the iterative optimization by ensuring computational consistency between consecutive updates.
 
-\subsubsection{Explainability} % 可解释性
-At the $\ell$th iteration, the algorithm alternately computes $q^{(\ell)}(\lambda_t)$ and $q^{(\ell)}(\z_t)$. According to the sifting property of the Dirac delta function, the update of $q^{(\ell)}(\z_t)$ is equivalent to computing two updated variational distributions as follows:
+
+
+
+
+
+% MDP问题的目标->数学表达式
+The goal of MDP is to find an optimal policy $\pi^*$ to minimize the expected average cost over the infinite time horizon:
 \begin{equation*}
-\begin{split}
-    q^{(\ell)}(\z_t) &= \sum_{i=1}^N\varpi_t^{i,(\ell)}\delta(\z_t-\z_t^i) \\
-    &= \left(\sum_{i=1}^N\varpi_{\x,t}^{i,(\ell)}\delta(\x_t-\x_t^i)\right)\left(\sum_{i=1}^N\varpi_{\bm\phi,t}^{i,(\ell)}\delta(\bm\phi_t-\bm\phi_t^i)\right) \\
-    &\eqqcolon q^{(\ell)}(\x_t)q^{(\ell)}(\bm\phi_t)
-\end{split}
+    \pi^*=\arg\min_{\pi\in\Pi}\mathcal{J}(\pi,s_0)
 \end{equation*}
-where $\varpi_{\x,t}^{i,(\ell)}\varpi_{\bm\phi,t}^{i,(\ell)}=\varpi_t^{i,(\ell)}$.
-In other words, each iteration updates the approximate PDFs of hidden variables $\lambda_t$, $\bm\phi_t$ and the state $\x_t$ while fixing the others. Specifically, the variable $\lambda_t$ can be regarded as the communication feature of the DNDR, which affects the quality of the measurement signals, while the variable $\bm\phi_t$ can be regarded as the dynamically changing spatial feature of the DNDR. Based on the updated PDFs for the DNDR's communication and spatial features, the posterior distribution of the state $\x_t$ is evaluated, resembling state estimation in environments with complete knowledge. This demonstrates the explainability of the proposed VPF.
-
-
-\section{Performance Analysis} \label{sec:analysis}
-In this section, we will demonstrate the stability of the proposed filter and analyze the computational complexity of Algorithm \ref{alg:VPF}.
-
-\subsection{Stability}
-The stability of the estimator is a significant criterion for evaluating its long-term performance. A common approach to assess stability is through the Mean Squared Error (MSE):
-$$
-\mathrm{MSE}_t \coloneqq \E{\Vert\x_t-\hat\x_t\Vert^2} \fs
-$$
-An estimator is considered stable if its MSE remains bounded as time tends to infinity; otherwise, it is deemed unstable. Accordingly, we investigate the asymptotic behavior of MSE over an infinite time scale.
-
-The MSE quantifies the expected deviation between the estimate and the true state. Naturally, the accuracy of the estimation depends on the gap between the variational distribution and the true posterior distribution, which is depicted by KL-divergence in this paper. The KL-divergence between $\hat{q}(\x_t)$ and $p(\x_t|\y_{1:t})$ can be written as
-\begin{equation*}
-\begin{split}
-    D_{\rm KL}(\hat{q}\Vert p) &= \int{\hat{q}(\x_t)\log\frac{\hat{q}(\x_t)}{p(\x_t|\y_{1:t})}}\,\mathrm{d}\x_t \\
-    % &= \int{\sum_{i=1}^N\varpi_t^i\delta(\x_t-\x_t^i)\log\frac{\sum_{i=1}^N\varpi_t^i\delta(\x_t-\x_t^i)}{p(\x_t|\y_{1:t})}}\,\mathrm{d}\x_t \\
-    &= \sum_{i=1}^N\varpi_t^i\log\frac{\varpi_t^i}{p(\x_t^i|\y_{1:t})} \leq \log{\sum_{i=1}^N\frac{(\varpi_t^i)^2}{p(\x_t^i|\y_{1:t})}} \\
-\end{split}
-\end{equation*}
-where the last line follows from Jensen's Inequality. Since $\sum_{i=1}^N\varpi_t^i=1$, we have
-$$
-\sum_{i=1}^N\frac{(\varpi_t^i)^2}{p(\x_t^i|\y_{1:t})} \leq \frac{1}{p(\x_t^{i_{\rm m}}|\y_{1:t})}
-$$
-where $i_{\rm m}=\arg\min_{i}p(\x_t^i|\y_{1:t})$.
-
-Denote the support of $p(\x_t|\y_{1:t})$ as $\Omega_t$ and the support of $\hat{q}(\x_t)$ as $\Omega_t'$. Based on the {\it zero-forcing} property (i.e., $\hat{q}$ under-estimating $p$) of VI \cite{murphy2012machine}, it is evident that $\Omega_t'\subseteq\Omega_t$. Accordingly, the fact that
-% $$\{\x_t^{i_{\rm m}}\in\Omega_t'\} \Rightarrow \{\x_t^{i_{\rm m}}\in\Omega_t\}$$
-$$\x_t^{i_{\rm m}}\in\Omega_t' \Rightarrow \x_t^{i_{\rm m}}\in\Omega_t$$
-ensures that $p(\x_t^{i_{\rm m}}|\y_{1:t})>0$ holds for any $\y_{1:t}$. This implies that $D_{\rm KL}(\hat{q}\Vert p)<\infty$. Building upon this fact, we present the following lemma.
-\begin{lemma} \label{lem:KLD}
-For any $\y_{1:t}$, there always exists a constant $0<\kappa<\infty$ such that
-$$
-D_{\rm KL}(\hat{q}(\x_t)\Vert p(\x_t|\y_{1:t})) \leq \kappa \fs
-$$
-\end{lemma}
-
-Moreover, under Assumption \ref{A4} and \ref{A5}, we establish the following lemma, which shows that the state space is ultimately confined within a sphere of fixed radius.
-\begin{lemma} \label{lem:x-sup}
-Given $\Vert\x_0\Vert<\infty$, the $L_2$-norm of the state vector $\x_t$ is bounded by a positive constant as time tends to infinity, i.e., 
-$$ \limsup_{t\rightarrow\infty}\Vert\x_t\Vert \leq R $$
-where $R = \frac{\beta+\nu}{1-\alpha}$ and $0<R< \infty$. 
-\end{lemma}
-\begin{IEEEproof}
-    The proof can be seen in Appendix \ref{app:lem-x-sup}.
-\end{IEEEproof}
-
-Due to the independence between $\x_t$ and $\bm\phi_t$, sampling $\x_t^i$ as part of $\{\x_t^i, \bm\phi_t^i\}$ from the joint distribution $\mathcal{N}(\z_t; \overline{f}(\z_{t-1}^i), \overline{\bm{Q}})$ is equivalent to sampling $\x_t^i$ directly from the marginal distribution $\mathcal{N}(\x_t; f(\x_{t-1}^i), \bm{Q})$. As a result, the generation of the $i$th sample at time $t$ can be described as follows:
-$$
-\x_t^i = f(\x_{t-1}^i) + \bm{w}_{t-1}^i \cm
-$$
-which is consistent with the state transition process. Hence, we can derive the following corollary from Lemma \ref{lem:x-sup}.
-\begin{corollary} \label{cor:xi-sup}
-Given $\Vert\x_0^i\Vert<\infty$ for $i=1,\dots,N$, the $L_2$-norm of the sample vector $\x_t^i$ is bounded by a positive constant as time tends to infinity, i.e., 
-$$ \limsup_{t\rightarrow\infty}\Vert\x_t^i\Vert \leq R $$
-where $0<R<\infty$ is defined in \ref{lem:x-sup}. 
-\end{corollary}
-
-Building on the above preliminaries, the following theorem establishes the stability of the proposed estimator.
-\begin{theorem} \label{thm:stability}
-Given $\Vert\x_0^i\Vert<\infty$ for $i=1,\dots,N$ and $\Vert\x_0\Vert<\infty$, the proposed VPF is stable in the sense that the mean squared estimation error remains bounded as time tends to infinity, i.e.,
-$$
-\lim_{t\rightarrow\infty}\E{\Vert\x_t-\hat\x_t\Vert^2} < \bar{M}
-$$
 where
-$$
-\bar{M} = 2R^2\left(1 + R\sqrt{\frac{2^\frac{5}{2}\pi^{\frac{n}{2}}\kappa^\frac{1}{2}}{\Gamma(\frac{n}{2}+1)}}\right) < \infty \fs
-$$
-\end{theorem}
-\begin{IEEEproof}
-    The proof can be seen in Appendix \ref{app:thm-stability}.
-\end{IEEEproof}
-
-This theorem demonstrates the stability of the proposed filter, ensuring that the estimation error stays controlled even as time tends to infinity, which guarantees the long-term reliability of the filtering process. Such stability is of particular importance in practical engineering applications, where systems often operate over extended time horizons and sustained accuracy is critical. The ability to provide theoretical assurance against error divergence significantly enhances the robustness and applicability of the proposed method in real-world scenarios.
-
-\subsection{Computational Complexity}
-The computational complexity of matrix operations is characterized as follows: i) multiplying an $m\times n$ and an $n\times p$ matrix requires $\mathcal{O}(nmp)$ (for general $m$, $n$, $p$), ii) multiplying two $n\times n$ matrices requires $\mathcal{O}(n^3)$, and iii) adding two $m\times n$ matrices requires $\mathcal{O}(mn)$. Additionally, the computational complexity of computing the transpose and inverse of an $n\times n$ matrix demands $\mathcal{O}(n^2)$ and $\mathcal{O}(n^3)$, respectively.
-
-Based on these preliminaries, we consider the computational complexity of Algorithm \ref{alg:VPF}. The sampling step performs $N$ operations, with a computational cost of $\mathcal{O}(N)$. At each iteration, calculating $c_t^{(\ell-1)}$ and $d_t^{(\ell-1)}$ requires $\mathcal{O}(K)$. The calculation of $\omega_t^{i,(\ell)}$ for $k=1,\dots,N$ involves $N$ matrix multiplications, each with $\mathcal{O}(\overline{n}^2)$ complexity. Normalizing the weights requires $\mathcal{O}(N)$. Calculating $a_t^{(\ell)}$ and $b_t^{(\ell)}$ requires $\mathcal{O}(N)$, while calculating all the $\alpha_t^{k,(\ell)}$, $\beta_t^{k,(\ell)}$ and $\pi_t^{k,(\ell)}$ for $k=1,\dots,K$ requires $\mathcal{O}(K)$. The iteration process terminates after up to $L_{\rm max}$ iterations.
-
-The number of particles in IS is typically on the order of $1\times10^3$\cite{schon2005marginalized}, whereas both the number of Gamma mixture components and the maximum number of iterations are typically on the order of single-digit\cite{zhu2021adaptive}. Therefore, it is reasonable to make the following assumption:
-\begin{assumption}
-    Both the number of Gamma mixture components and the maximum number of iterations are much smaller than the number of particles, i.e., $K\ll N$ and $L_{\rm max}\ll N$.
-\end{assumption}
-Under this assumption, the computational complexity of the VPF can be derived as:
 \begin{equation*}
-\begin{split}
-    \mathcal{T}_{\rm VPF} &= \mathcal{O}(N)+L_{\rm max}(\mathcal{O}(K)+\mathcal{O}(N\cdot\overline{n}^2)\\
-    &\quad+ \mathcal{O}(N)+\mathcal{O}(N)+\mathcal{O}(3K))=\mathcal{O}(N\cdot\overline{n}^2) \fs
-\end{split}
+    \mathcal{J}(\pi,s_0)\triangleq\limsup_{T\to\infty}\frac1T\sum_{k=0}^{T-1}\mathbb{E}_\pi[\mathcal{C}(s_k,a_k)|s_0]
 \end{equation*}
-% where we have used the fact that constants and lower-order terms are absorbed by the big-$\mathcal{O}$ notation.
+for any initial state $s_{0}=\{M_{0}^{1},\cdots, M_{0}^{N}\}$. 
+% \begin{equation*}
+%     \pi^*=\arg\min_{\pi\in\Pi}\mathcal{J}(\pi,s_0)\triangleq\limsup_{T\to\infty}\frac1T\sum_{k=1}^\top\mathbb{E}_\pi[\mathcal{C}(s_k,a_k)|s_0]
+% \end{equation*}
+\medskip
 
+\subsection{Solving the Sensor Scheduling Problem Using Deep Reinforcement Learning}
+As mentioned in Section \ref{MDP}, the scheduler's objective is to find a scheduling policy that minimizes the average sum of the trace of all sensors' estimation error covariance matrices, resolving the associated expected average cost problem. In this subsection, we will use reinforcement learning methods to approximate the solution of the expected average cost problem \eqref{ACP} by solving the associated discounted cost problem as follows:
+\begin{equation} \label{DCP1}
+\begin{split}
+\min_{{\{(a_{1,k},...,a_{M,k})\}}}\limsup_{T\to\infty}\mathbb{E}\left[\sum_{k=0}^{T-1}\sum_{i=1}^{N}\delta^{k}\mathrm{tr}P_{i,k}\right]
+\end{split}
+\end{equation}
+where $\delta<1$ is a discount factor. In \cite{hernandez2012discrete}, it is shown that the scheduling policy found by solving the associated discounted cost problem with a discount factor $\delta$ close to $1$ is an $\epsilon$-optimal policy for the average cost problem. 
+
+Problem \eqref{DCP1} is equivalent to the discounted reward maximization problem:
+\begin{equation} \label{DCP2}
+\begin{split}
+\max_{{\{(a_{1,k},...,a_{M,k})\}}}\liminf_{T\to\infty}\mathbb{E}\left[-\sum_{k=0}^{T-1}\sum_{i=1}^{N}\delta^{k}\mathrm{tr}P_{i,k}\right]\text{.}
+\end{split}
+\end{equation}
+In reinforcement learning, the Q-function (also known as the action-value function) is commonly used to represent the expected cumulative reward for a given state-action pair. The Q-function $Q(s,a)$ is typically defined as the expected future total reward by taking an action $a$ at state $s$. Following an optimal policy, the Q-function version of the Bellman equation for problem \eqref{DCP2} is:
+\begin{equation}
+Q^*(s,a)=\mathbb{E}\left[r+\delta\max_{a'}Q^*(s',a')\Big| s,a\right]
+\end{equation}
+where $s'$ represents next state given the current state $s$ and action $a$, and $Q^*(\cdot,\cdot)$ is the optimal Q-function.
+
+Q-learning is a classic method in reinforcement learning that that determines an optimal policy by learning the Q-values associated with state-action pairs. This process enables the system to make optimal decisions based on its understanding of the situation. However, Q-learning is only suitable for small-scale state-action spaces, as the maintenance of the Q-value table becomes impractical as the state-action space grows. In CPS, the large scale of sensors makes it difficult to apply traditional Q-learning to solve scheduling problems due to high memory requirements and the challenge of meeting real-time processing demands.
+
+To address this challenge, function approximation is employed to estimate the Q-function, particularly through the use of deep neural networks. This approach culminates in the development of DQN, which significantly enhance the learning process by efficiently approximating Q-values within high-dimensional state spaces. DQN demonstrates exceptional capability in handling large-scale, complex environments. Building upon DQN, some crucial innovations also have been proposed, including experience replay and target network updates. Experience replay involves storing the agent's interactions and sampling training data randomly, thereby breaking the correlation between consecutive experiences and improving the stability of the training process. Target network updates periodically update the target Q-network, mitigating excessive oscillations in Q-value estimates and further stabilizing the learning process.
+
+Based on the above concepts, we present our approach for solving problem \eqref{DCP2} in Algorithm \ref{MDP-algorithm}. 
+The state $s_k$ is chosen as
+\begin{equation*}
+s_{k}=\{\tr(M_{k-1}^{1,1}),\cdots,\tr (M_{k-1}^{i,j}),\cdots,\tr (M_{k-1}^{N,N})\}.
+\end{equation*}
+The action is set as
+\begin{equation*}
+a_k=(a^{1}_{k},\cdots,a^{M}_{k}) \text{,}
+\end{equation*}
+corresponds to the allocation of the $M$ relays at time $k$, and the single stage reward is given by
+\begin{equation*}
+r_k=\sum_{i=1}^{N}-\tr(P_{i,k}) .
+\end{equation*}
+The information of the hyper-parameters used in Algorithm \ref{MDP-algorithm} can be referred to Section \ref{sec:experiment}.
+
+\begin{algorithm}\label{MDP-algorithm}
+\caption{DQN for Distributed Wireless Relay Allocation}
+\begin{algorithmic}[1]
+\STATE Initialize:
+    \begin{itemize}
+        \item Replay buffer $\mathcal{P}$ with capacity $K$
+        \item Online network $Q$ with random weights $\theta_0$
+        \item Target network $\hat{Q}$ with weights $\theta^- = \theta_0$
+        \item Initial state $s_0$
+    \end{itemize}
+\FOR{time step $k = 0, 1, \dots, T$}
+    \STATE Select action according to the $\epsilon$-greedy policy:
+        \[
+        a_k \gets \begin{cases} 
+            \text{random action} & \text{with probability $\epsilon$}  \\
+            \arg\max_a Q(s_k, a; \theta) & \text{otherwise}
+        \end{cases}
+        \]
+    \STATE Perform $a_k$ to obtain reward $r_k$ and observe next\\ state $s_{k+1}$
+    \STATE Store transition $(s_k, a_k, r_k, s_{k+1})$ in $\mathcal{P}$
+    \STATE Sample random mini-batch of transitions $(s_j, a_j, r_j, s_{j+1})$ from $\mathcal{P}$
+    \STATE Compute target: $z_j = r_j + \delta \max_{a'} \hat{Q}(s_{j+1}, a'; \theta^-)$ \\for each sample in mini-batch
+    \STATE Execute a mini-batch gradient descent step with loss $(z_j - Q(s_j, a_j; \theta_k))^2$ to obtain $\theta_{k+1}$
+    \STATE every $c$ steps set $\theta^- = \theta_k$
+\ENDFOR
+\end{algorithmic}
+\end{algorithm}
 \begin{remark}
-    The proposed VPF has the same order of computational complexity as PF. This is primarily because the most computationally intensive operations in the algorithm involve generating particles and calculating $\tilde\gamma_t^i$ and $\Vert\y_t - h(\x_t^i)\Vert^2_{\bm{R}^{-1}}$. Despite the iterative process, these operations are performed only once per time step, which explains why the overall computational complexity remains at this order of magnitude.  
+
+We know that the deep neural network in Algorithm \ref{MDP-algorithm} needs to be fed with a vector. Drawing inspiration from convolutional neural network architectures for image processing, we modify the state vector by using matrix trace operations, i.e., $s_{k}=\{\tr(M_{k-1}^{1,1}),\cdots,\tr (M_{k-1}^{i,j}),\cdots,\tr (M_{k-1}^{N,N})\}$, which will accelerate the convergence of the algorithm \cite{}. Furthermore, except incorporating each sensor's local estimation error covariance in the state vector, we augment the cross estimation error covariance matrices between each sensor and its neighbors, which we have found could also help giving faster convergence for the algorithm in some cases.
+%此外，我们除了使用各传感器的估计误差协方差的迹作为状态向量，我们还增加了各传感器和邻居之间的估计误差协方差（cross estimation covariance），这也是为了加速算法的收敛，因为这样可以增加状态向量的信息量。
 \end{remark}
 
-\section{Experiment Results} \label{sec:experiment}
-The proposed filter was validated with the help of a target localization synthesis dataset that provides 249 positions and velocities, measurement data obtained from the radar sensor. The Constant Turn Rate and Velocity (CTRV) model is employed to describe the dynamics of the target. The state space is defined by $\x_t = [x_t,y_t,v,\psi_t,\omega]$, where $x_t$ and $y_t$ represent the 2D position coordinates, $v$ is the constant velocity, $\psi_t$ is the yaw angle at time $t$, and $\omega$ is the constant turn rate. The state transition equation is as follows: 
+\begin{remark}
+The efficiency of the algorithm is tested on 2 relays and 6 sensors in the subsequent section, which is a
+consideration of hardware restriction and training time. It is certainly scalable to extend the approach to a significantly larger amount of systems and sensors, provided with sufficient computational capacity.
+\end{remark}
+
+\section{Numerical Studies} \label{sec:experiment}
+In this section, we implement the proposed algorithms to track the state of a dynamic target using a sensor network assisted with relays. An illustrative simulation example is provided to demonstrate the applicability and effectiveness of the distributed filtering algorithm developed in this paper.
+
+We consider a scenario with $N=6$ sensors and $M=2$ relays, where each process has a 2-dimensional state and scalar measurements. The communication topology of the distributed wireless relay-assisted sensor network considered in this paper is described by the digraph (see Fig.\ref{fig1}), where
+\[
+\mathcal{V}_s \triangleq \{ s_1, s_2, s_3, s_4, s_5, s_6 \} \quad \text{and} \quad \mathcal{V}_r \triangleq \{ r_1, r_2 \},
+\]
+the set of edges
 \begin{equation*}
 \begin{split}
-    &\x_{t+1}= \\
-    & \begin{bmatrix} 
-        x_t+\frac{v}{\omega}\sin(\psi_t+\omega\Delta t)-\frac{v}{\omega}\sin(\psi_t)\\
-        y_t-\frac{v}{\omega}\cos(\psi_t+\omega\Delta t)+\frac{v}{\omega}\cos(\psi_t)\\
-        v\\
-        \psi_t+\omega\Delta t\\
-        \omega
-    \end{bmatrix} + \begin{bmatrix}
-        \frac{1}{2}\Delta t^2a_t\cos\psi_t\\
-        \frac{1}{2}\Delta t^2a_t\sin\psi_t\\
-        \Delta t a_t\\
-        \frac{1}{2}\Delta t^2\dot{\omega}_t\\
-        \Delta t\dot{\omega}_t\\
-    \end{bmatrix}
+&\mathcal{E} \triangleq \{( s_1, r_2 ), ( r_2, s_5 ),  ( s_2, s_3 ),  ( s_3, s_6 ),\\
+&( s_4, s_1 ),( s_5, s_4 ),( s_5, r_1 ),
+( s_6, s_5 ), ( r_1, s_2 )\}
 \end{split}
 \end{equation*}
-where $\Delta t$ is the time interval between times $t$ and $t+1$. The radar sensor measures the range (distance to target), the directional angle (horizontal bearing relative to boresight) and the radial velocity (target speed along the line of sight of the sensor). The measurement equation is given by:
-\begin{equation*}
-    h(\x_t) = \begin{bmatrix}
-        \sqrt{x_t^2+y_t^2}\\
-        \arctan_2(x_t,y_t)\\
-        \frac{x_tv\cos\psi_t+y_tv\sin\psi_t}{\sqrt{x_t^2+y_t^2}}
-    \end{bmatrix}
-\end{equation*}
-where the $\arctan_2$ function computes the directional angle of a point $(x,y)$ in Cartesian coordinates, resolving quadrant ambiguity of standard $\arctan$. It ensures full-range angular accuracy $(-\pi,\pi]$ and robustly handles edge cases (e.g., $x=0$).
+Consider the discrete time-varying stochastic system described by \eqref{target} and \eqref{measurement} with the following parameters:
+\[
+A_k = 
+\begin{bmatrix}
+0.92 + 0.45 \sin(0.7k) & -0.1 \sin(k) \\
+0 & -0.85 + 0.35 \sin(0.8k)
+\end{bmatrix},
+\]
 
-The process noises, including the acceleration $a_t$ and the angular acceleration $\dot\omega_t$, are zero-mean Gaussian white noise sequences with standard deviations $\sigma_a=1.0$ and $\sigma_{\dot\omega}=0.3$, respectively. The measurement noise, from the radar sensor's inherent errors, is modeled as a zero-mean Gaussian white noise sequence with a covariance matrix $\bm{R}=\diag{[0.09, 0.0009, 0.09]}$. The initial value $\x_0$ obeys Gaussian distribution with mean $\bm{\mu}_{\x} = [0.86,0.60,5.2,3.5\times 10^{-4},0.0]^\top$ and covariance $\bm{\Sigma}_{\x} = \diag{[0.09,0.09,0.1,3\times 10^{-4},0.01]}$.
+\[
+C^{1}_{k} = 
+\begin{bmatrix}
+1 & 1
+\end{bmatrix},\quad 
+C^{2}_{k} = 
+\begin{bmatrix}
+0.9 & 0.1
+\end{bmatrix},\quad 
+C^{3}_{k} = 
+\begin{bmatrix}
+0.8 & 0.2
+\end{bmatrix},
+\]
 
-The DNDR is modeled as a circle with center $(x_t',y_t')$ and radius $r_t$ at time $t$. The spatiotemporal evolution of the DNDR's center position is governed by the Constant Velocity (CV) model. The DNDR's characteristic vector is defined as $\bm\phi_t=[x_t',y_t',v_x,v_y,r_t]$, where $v_x$ and $v_y$ represent the constant velocities along the $x$- and $y$-axes, respectively. The dynamic equation of the DNDR's characteristic is as follows:
-\begin{equation*}
-    \bm\phi_{t+1} = \begin{bmatrix} 
-        x_t'+v_x\Delta t\\ y_t'+v_y\Delta t\\ v_x\\ v_y\\ r_t
-    \end{bmatrix} + \begin{bmatrix}
-        \frac{1}{2}\Delta t^2a^x_t\\
-        \frac{1}{2}\Delta t^2a^y_t\\
-        \Delta t a^x_t\\
-        \Delta t a^y_t\\
-        a^r_t\\
-    \end{bmatrix}
-\end{equation*}
-where the noise comes from the accelerations $a^x_t$ and $a^y_t$, as well as the $a^r_t$, which are zero-mean Gaussian white noise sequences with standard deviations $\sigma_x=0.3$, $\sigma_y=0.3$ and $\sigma_r=0.1$, respectively. 
-The initial value $\bm\phi_0$ has mean $\bm{\mu}_{\bm\phi}=[20.0,20.-2.0,-1.0,4.0]^\top$ and covariance $\bm{\Sigma}_{\bm\phi}=\diag{[0.09,0.09,0.25,0.25,0.01]}$. Under this scenario, the indicator variable can be written as:
-$$
-\gamma_t = \begin{cases}
-0, & \sqrt{(x_t-x_t')^2+(y_t-y_t')^2}\leq r_t\} \\
-1, & {\rm otherwise}
-\end{cases} \fs
-$$
-When $\gamma_t=0$, the target enters the DNDR, and the noise covariance matrix becomes $\tilde{\bm{R}}=\bm{R}/\lambda_t$. To validate the capability of the GGM to fit real value, the true outlier coefficient is given by $\lambda_t=0.01$, while the shape parameters and rate parameters of the Gamma mixture distribution are set as $\alpha_1=10,\alpha_2=10,\alpha_3=10,\alpha_4=10$ and $\beta_1=10,\beta_2=100,\beta_3=1000,\beta_4=10000$. 
+\[
+C^{4}_{k} = 
+\begin{bmatrix}
+0.7 & 0.3
+\end{bmatrix},\quad 
+C^{5}_{k} = 
+\begin{bmatrix}
+0.6 & 0.4
+\end{bmatrix},\quad 
+C^{6}_{k} = 
+\begin{bmatrix}
+0.5 & 0.5
+\end{bmatrix}.
+\]
+The covariance matrix of $w_k$ and $v_{k}^{i}$ are given as $Q=\diag\{0.01,0.01\}$ and $R_{1}=0.1$, $R_{2}=0.1$, $R_{3}=0.1$, $R_{4}=1$, $R_{5}=0.1$, $R_{6}=0.1$. $M_{0}^{i}$ is chosen as $M_{0}^{i}=\diag\{1,1\}$.
 
-The number of particles is set to $N = 1000$. The maximum iteration number is set to $L_{\rm max}=10$, as well as the iteration termination tolerance set to $\epsilon=1\times10^{-4}$.
+Here, we employ the Relay distribution with unit mean to formulate the fading channels. The parameters of the fading channels are set as $\tilde{\mathscr{K}}_{k}^{ij}=\diag\{1,1\}$, $\tilde{\mathscr{K}}_{k}^{dj}=\diag\{0.01,0.01\}$ and $\tilde{\mathscr{K}}_{k}^{id_j}=\diag\{0.01,0.01\}$. The covariance matrices of the Gaussian noise in the fading channels are chosen as $\tilde{Q}_{k}^{ij}=\diag\{1,1\}$, $\tilde{Q}_{k}^{dj}=\diag\{0.01,0.01\}$, $\tilde{Q}_{k}^{id_j}=\diag\{0.01,0.01\}$, respectively.
+
+The initial system state $x_{0}$ and estimates $\hat{x}_{0}^{i}$ are set to be $x_{0}=[3,3]^\top$, $x^{1}_{0}=[3,3]^\top$, $x^{2}_{0}=[2.9,3.1]^\top$, $x^{3}_{0}=[2.8,3.1]^\top$, $x^{4}_{0}=[2.5,3.5]^\top$, $x^{5}_{0}=[2.8,3.1]^\top$ and $x^{6}_{0}=[3.5,3.5]^\top$, respectively. 
 
 \begin{figure}[htbp]
     \centering
-    \includegraphics[width=0.95\linewidth]{img/trajectory.eps}
-    \caption{The true trajectory and the corresponding estimated trajectories of EKF, PF and VPF.}
-    \label{fig:trajectory}
+	\includegraphics[width=\linewidth]{./fig/trajectory.eps}
+	\caption{The actual state value and the estimate of each sensor.}
+	\label{trajectory}
 \end{figure}
 
 \begin{figure}[htbp]
     \centering
-    \includegraphics[width=1\linewidth]{img/comparison.eps}
-    \caption{The actual state and the corresponding estimation of VPF.}
-    \label{fig:comparison}
+	\includegraphics[width=\linewidth]{./fig/cost.eps}
+	\caption{The empirical average cost over different episodes.}
+	\label{cost}
 \end{figure}
 
-\begin{figure}[htbp]
-    \centering
-    \includegraphics[width=0.9\linewidth]{img/error.eps}
-    \caption{The position estimation errors of the target obtained by EKF, PF, and VPF.}
-    \label{fig:error}
-\end{figure}
-
-The results of the experiment are depicted in Figs.~\ref{fig:trajectory}-\ref{fig:error}. The trajectories of the target (i.e., the $1$st and $2$nd components of $\x_t$) and the corresponding estimated trajectories of PF and the proposed VPF are presented in Fig.~\ref{fig:trajectory} on a 2D plane. The gray-shaded area denotes the DNDR, whose color intensity increases when the system state enters this region. Moreover, the position components of the target states and their estimates are depicted in Fig.~\ref{fig:comparison}. To illustrate the filtering performance, we introduce the position error between estimates and true states as:
+The hyper-parameters for Algorithm \ref{MDP-algorithm} used in our simulations are detailed as follows. The input layer of the deep Q-network architecture has $N^{2}$ nodes, namely the state $s_{k}$ of dimension $N^{2}$ is fed in as input. Two hidden layers(68/124 neurons) and a fully connected output layer generating predictions for all feasible actions are utilized. The action space dimension is given by the permutation formula 
 $$
-e_t^\mathrm{P} = \sqrt{(\x_t(1)-\hat{\x}_t(1))^2+(\x_t(2)-\hat{\x}_t(2))^2}
-$$
-The position errors of the proposed VPF compared to baseline filters are illustrated in Fig.~\ref{fig:error}.
+\frac{(\sum_{i=1}^N|\mathcal{N}_i|)!}{(\sum_{i=1}^N|\mathcal{N}_i|-M)!}=42\text{.}
+$$ 
+The discount factor is set to $\delta=0.99$. The experience replay buffer has a capacity of $K=2000$. The exploration parameter $\epsilon$ (Algorithm \ref{MDP-algorithm}, Step 6) decays exponentially from 1.00 to 0.05 with multiplicative factor 0.9999 per iteration, i.e. $\epsilon \gets \max(0.9999\epsilon,0.05)$. For neural network training (Algorithm \ref{MDP-algorithm}, Step 11), the ADAM optimizer, introduced in \cite{kingma2014adam}, is employed with initial learning rate $10^{-4}$ and minibatch size 64. The target Q-network undergoes periodic updates every $c=1000$ time steps.
 
-It can be seen that the target enters the DNDR during the time intervals of $108<t<123$ and $201<t<208$. In this scenario, the EKF and the standard PF can hardly track the true state accurately due to observations corrupted by noise. In contrast, the proposed VPF demonstrates superior filtering performance. It effectively resists noise interference and tracks the true trajectory with reasonable accuracy, which ensures robustness for state estimation.
-
-\section{Conclusion} \label{sec:conclusion}
-This paper has addressed the critical challenge of state estimation in nonlinear discrete systems operating within DNDRs, where observations are corrupted by the SDHTN. To mitigate the adverse effects of outlier observations caused by high noise levels in specific regions, we proposed a novel VPF framework that synergistically combines the VI theory with the IS technique. The key innovation lies in the formulation of a state-dependent GGM model to characterize the heavy-tailed observation noise, effectively capturing the dynamic coupling between system states and noise statistics. By constructing a joint hidden variable, the proposed VPF iteratively refines state estimates and noise parameters through variational updates under the mean-field assumption. Theoretical guarantees of the VPF's stability were established, and complexity analysis confirmed that the algorithm preserves the scalability of standard PF approaches. Experimental validation on a target tracking task demonstrated significant improvements in estimation accuracy over conventional methods, particularly in scenarios where targets intermittently traverse DNDRs. Future work will focus on extending this framework to distributed multi-sensor systems and investigating adaptive mechanisms for online learning of DNDR characteristics under time-varying environmental conditions.
-
-
-\begin{appendices}
-\section{Proof of Proposition \ref{prop:q(z)}} \label{app:proof-q(z)}
-Using the posterior probability in \eqref{eq:posterior} gives
-\begin{align} \label{eq:propto-z}
-    q^{(\ell)}(\z_t) &\propto \e{\E[q^{(\ell-1)}(\lambda_t)]{\log{p(\bm\theta_t|\y_{1:t})}}} \nonumber\\
-    &\propto \e{\E[q^{(\ell-1)}(\lambda_t)]{\log{p(\y_t|\z_t,\lambda_t)p(\lambda_t)p^-_{t-1}(\z_t)}}} \nonumber\\
-    &= \e{\E[q^{(\ell-1)}(\lambda_t)]{\log{p(\y_t|\z_t,\lambda_t)p^-_{t-1}(\z_t)}}} \nonumber\\
-    &\quad\times \underbrace{\e{\E[q^{(\ell-1)}(\lambda_t)]{\log{p(\lambda_t)}}}}_{\rm Constant} \\
-    &\propto \e{\E[q^{(\ell-1)}(\lambda_t)]{\log{p(\y_t|\z_t,\lambda_t)p^-_{t-1}(\z_t)}}} \nonumber\\
-    &= \e{\E[q^{(\ell-1)}(\lambda_t)]{\log{p(\y_t|\z_t,\lambda_t)}}}p^-_{t-1}(\z_t)\fs \nonumber
-\end{align}
-
-Firstly, based on the observation model \eqref{eq:OM}, the likelihood function is given by:
+With the episode length set to $T=100$, Algorithm \ref{MDP-algorithm} is executed for 200 episodes to train the deep Q-network. The empirical time-averaged cost
 \begin{equation*}
-\begin{split}
-    p(\y_t|\z_t,\lambda_t) &= \gamma_t\mathcal{N}(\y_t;h(\x_t),\bm{R})+(1-\gamma_t)\mathcal{N}(\y_t;h(\x_t),\tilde{\bm{R}}) \\
-    &= \mathcal{N}(\y_t;h(\x_t),(\gamma_t+\tfrac{1-\gamma_t}{\lambda_t})\bm{R})
-\end{split}
+    \frac{1}{T}\sum_{k=1}^T\sum_{i=1}^{N}\mathrm{tr}M^{i}_{k}
 \end{equation*}
-where $\gamma_t$ defined in \eqref{eq:gamma} depends on $\x_t$ and $\bm\phi_t$, that is $\z_t$. Denote $\sigma_t\coloneqq\gamma_t+(1-\gamma_t)/\lambda_t$, we obtain
+is evaluated per episode and depicted in Fig. \ref{cost}.
+% for one randomly generated set of parameters
+
+Training after 200 episodes, we use the trained $Q(\cdot,\cdot;\theta)$ to generate a policy according to
 \begin{equation*}
-\begin{split}
-    \log{p(\y_t|\z_t,\lambda_t)} &= \log\mathcal{N}(\y_t;h(\x_t),(\gamma_t+\tfrac{1-\gamma_t}{\lambda_t})\bm{R}) \\
-    &= -\frac{m}{2}\log{\sigma_t} - \frac{1}{2\sigma_t}\Vert\y_t-h(\x_t)\Vert^2_{\bm{R}^{-1}} + \mathcal{C}_1
-\end{split}
-\end{equation*}
-where $\mathcal{C}_1$ is the constant independent of variables $\z_t$ and $\lambda_t$. For analytical convenience, we introduce $\tilde\gamma_t\coloneqq1-\gamma_t$. It is clear that $\log\sigma_t$ can be written as
-$$
-\log\sigma_t = \begin{cases}
--\log\lambda_t, & \x_t \in \mathcal{R}(\bm\phi_t) \\
-0, & \x_t \notin \mathcal{R}(\bm\phi_t)
-\end{cases} \cm
-$$
-which is equivalent to $-\tilde\gamma_t\log\lambda_t$. Simultaneously, $1/\sigma_t$ can be written as
-$$
-\frac{1}{\sigma_t} = \begin{cases}
-\lambda_t, & \x_t \in \mathcal{R}(\bm\phi_t) \\
-1, & \x_t \notin \mathcal{R}(\bm\phi_t)
-\end{cases} \cm
-$$
-which is equivalent to $1-\tilde\gamma_t+\tilde\gamma_t\lambda_t$. Therefore, the log-likelihood probability is expressed as
-\begin{align}
-\label{eq:log-likelihood}
-    \log{p(\y_t|\z_t,\lambda_t)} &= \frac{m}{2}\tilde\gamma_t\log\lambda_t  \\
-    &\quad- \frac{1}{2}(1-\tilde\gamma_t+\tilde\gamma_t\lambda_t)\Vert\y_t-h(\x_t)\Vert^2_{\bm{R}^{-1}} + \mathcal{C}_1 \fs \nonumber
-\end{align}
-According to the formulation of $q^{(\ell-1)}$ assumed in Proposition \ref{prop:q(z)}, the expectation of $\log{p(\y_t|\z_t,\lambda_t)}$ is derived by
-\begin{equation*}
-\begin{split}
-    &\E[q^{(\ell-1)}(\lambda_t)]{\log{p(\y_t|\z_t,\lambda_t)}}\\
-    &= \int{q^{(\ell-1)}(\lambda_t)\log{p(\y_t|\z_t,\lambda_t)}}\mathrm{d}\lambda_t \\
-    &= \frac{m}{2}\tilde\gamma_t\left(\sum_{k=1}^K\pi_{t,k}^{(\ell-1)}\mathbb{E}^{(\ell-1)}[\log\lambda_t]\right) \\
-    &\quad- \frac{1}{2}\left(1+\tilde\gamma_t\bigg(\sum_{k=1}^K\pi_{t,k}^{(\ell-1)}\mathbb{E}^{(\ell-1)}[\lambda_t]-1\bigg)\right)\\
-    &\qquad\times \Vert\y_t-h(\x_t)\Vert^2_{\bm{R}^{-1}} + \mathcal{C}_1 \fs
-\end{split}
-\end{equation*}
-Denote
-\begin{equation*}
-\begin{split}
-    c_t^{(\ell-1)} &= \sum_{k=1}^K\pi_{t,k}^{(\ell-1)}\mathbb{E}^{(\ell-1)}[\log\lambda_t]\\
-    &= \sum_{k=1}^K\pi_{t,k}^{(\ell-1)}\left(\psi(\alpha_{t,k}^{(\ell-1)})-\log\beta_{t,k}^{(\ell-1)}\right) \cm\\
-    d_t^{(\ell-1)} &= \sum_{k=1}^K\pi_{t,k}^{(\ell-1)}\mathbb{E}^{(\ell-1)}[\lambda_t]-1 = \sum_{k=1}^K\pi_{t,k}^{(\ell-1)}\frac{\alpha_{t,k}^{(\ell-1)}}{\beta_{t,k}^{(\ell-1)}}-1
-\end{split}
-\end{equation*}
-where $\psi(\cdot)$ is the digamma function. Then we obtain
-\begin{equation*}
-\begin{split}
-    &\E[q^{(\ell-1)}(\lambda_t)]{\log{p(\y_t|\z_t,\lambda_t)}} \\
-    &\quad= \frac{m}{2}\tilde\gamma_tc_t^{(\ell-1)} - \frac{1}{2}(1+\tilde\gamma_td_t^{(\ell-1)})\Vert\y_t-h(\x_t)\Vert^2_{\bm{R}^{-1}} + \mathcal{C}_1 \fs
-\end{split}
+    a^*(s) = \arg\max_{a} Q(s,a;\theta) \text{.}
 \end{equation*}
 
-Now we consider the prediction term $p^-_{t-1}(\z_t)$. The posterior probability of the previous time, $p(\bm\theta_{t-1}|\y_{1:t-1})$, is approximated by the variational distribution $\hat{q}(\theta_{t-1})$, that is,
-$$
-p(\bm\theta_{t-1}|\y_{1:t-1}) \approx \hat{q}(\bm\theta_{t-1}) \fs
-$$
-Under Assumption \ref{assump:mean-field}, $p^-_{t-1}(\z_t)$ can be formulated as
-$$
-p^-_{t-1}(\z_t) \approx \int{p(\z_t|\z_{t-1})\hat{q}(\z_{t-1})}\,\mathrm{d}\z_{t-1} \fs
-$$
-Using the IS technique, the variational distribution of $\z_{t-1}$ should be in the following form:
-\begin{equation} \label{eq:var_distribution}
-    \hat{q}(\z_{t-1}) = \sum_{i=1}^N\varpi_{t-1}^i\delta(\z_{t-1}-\z_{t-1}^i)    
-\end{equation}
-where $N$ denotes the sampling number and $\z_{t-1}^i$ denotes the $i$th sample from the proposal distribution. Substituting \eqref{eq:var_distribution} into \eqref{eq:posterior}, we obtain
-$$
-p^-_{t-1}(\z_t) \approx \sum_{i=1}^N\varpi_{t-1}^ip(\z_t|\z_{t-1}^i) \fs
-$$
-It can be seen that
-\begin{equation*}
-    p(\z_t|\z_{t-1}) = \mathcal{N}(\z_t;\overline{f}(\z_{t-1}),\overline{\bm{Q}}) \fs
-\end{equation*}
-Consequently,
-$$
-p^-_{t-1}(\z_t) \approx \sum_{i=1}^N\varpi_{t-1}^i\mathcal{N}(\z_t;\overline{f}(\z_{t-1}^i),\overline{\bm{Q}}) \fs
-$$
+We simulate the process over 50000 time steps using the trained policy and the simulation result is depicted in Fig. \ref{cost}.
 
-By defining
-$$
-\rho^{(\ell)}(\z_t) \coloneqq \e{\E[q^{(\ell-1)}(\lambda_t)]{\log{p(\y_t|\z_t,\lambda_t)}}}p^-_{t-1}(\z_t) \cm
-$$
-the variational distribution can be expressed as 
-$$
-q^{(\ell)}(\z_t) = \frac{\rho^{(\ell)}(\z_t)}{\mathcal{Z}^{(\ell)}_t}
-$$
-where $\mathcal{Z}^{(\ell)}_t$ is a normalization constant:
-$$
-\mathcal{Z}^{(\ell)}_t = \int{\rho^{(\ell)}(\z_t)}\mathrm{d}\z_t \fs
-$$
-By introducing an importance density $r(\z_t)$ from which it is easy to sample, we have the IS identity and constant as following:
-\begin{align}
-    q^{(\ell)}(\z_t) &= \frac{\omega^{(\ell)}(\z_t)r(\z_t)}{\mathcal{Z}^{(\ell)}_t}\cm \label{eq:IS}\\ 
-    \mathcal{Z}^{(\ell)}_t &= \int{\omega^{(\ell)}(\z_t)}r(\z_t)\mathrm{d}\z_t \label{eq:Z}
-\end{align}
-where $\omega^{(\ell)}(\z_t)$ is the unnormalised weight function
-$$
-\omega^{(\ell)}(\z_t) = \frac{\rho^{(\ell)}(\z_t)}{r(\z_t)} \fs
-$$
-We draw $N$ independent samples $\z_t^i\sim r(\z_t)$ for $i=1,\dots,N$. The Monte Carlo approximation of $r(\z_t)$ can be obtained from the empirical measure of $\z_t^i$:
-$$
-r(\z_t) \approx \frac{1}{N}\sum_{i=1}^N\delta(\z_t-\z_t^i) \fs
-$$
-With this approximation, \eqref{eq:IS}-\eqref{eq:Z} can be formulated as
-$$
-\mathcal{Z}^{(\ell)}_t \approx \frac{1}{N}\sum_{i=1}^N\omega^{(\ell)}(\z_t^i)
-$$
-and
-$$
-q^{(\ell)}(\z_t) \approx \sum_{i=1}^N\varpi_t^{i,(\ell)}\delta(\z_t-\z_t^i)
-$$
-where
-$$
-\varpi_t^{i,(\ell)} = \frac{\omega^{(\ell)}(\z_t^i)}{\sum_{j=1}^N\omega^{(\ell)}(\z_t^j)} \fs
-$$
+The actual states and their estimates of each sensor are illustrated in Fig.\ref{trajectory}. It can be seen that the proposed distributed filtering scheme under relays can track each dimension of the actual system states well, demonstrating that it is indeed effective in achieving the desired performance.
 
-A natural selection of the proposal distribution $r(\z_t)$ is the prediction distribution $p_{t-1}^-(\z_t)$, which is a Gaussian mixture distribution that is easy to sample from. With 
-$$r(\z_t) = p_{t-1}^-(\z_t)\cm$$
-the unnormalized weight function takes the form 
-\begin{equation*}
-\begin{split}
-    % \omega^{(\ell)}(\z_t) &= \e{\E[q^{(\ell-1)}(\lambda_t)]{\log{p(\y_t|\z_t,\lambda_t)}}} \\
-    % &\propto \exp\{\tfrac{m}{2}\tilde\gamma_tc_t^{(\ell-1)} - \tfrac{1}{2}(1+\tilde\gamma_td_t^{(\ell-1)})\\
-    % &\times\Vert\y_t-h(\x_t)\Vert^2_{\bm{R}^{-1}}\} \cm
-    &~\quad\omega^{(\ell)}(\z_t) \\
-    &= \e{\E[q^{(\ell-1)}(\lambda_t)]{\log{p(\y_t|\z_t,\lambda_t)}}} \\
-    &\propto \exp\{\tfrac{m}{2}\tilde\gamma_tc_t^{(\ell-1)} - \tfrac{1}{2}(1+\tilde\gamma_td_t^{(\ell-1)})\Vert\y_t-h(\x_t)\Vert^2_{\bm{R}^{-1}}\} \cm
-\end{split}
-\end{equation*}
-and the normalized weight for the $i$th particle can be written as
-$$
-\varpi_t^{i,(\ell)} = \frac{\omega_t^{i,(\ell)}}{\sum_{j=1}^N\omega_t^{j,(\ell)}} \fs
-$$
-where $\omega_t^{i,(\ell)}\coloneqq\omega^{(\ell)}(\z_t^i)$. The proof is complete.
+\section{Conclusion} \label{sec:conclusion} 
+This paper has investigated the relay allocation problem for distributed state estimation in relay-assisted sensor networks, where only a subset of sensors can transmit data through relays at each time step due to resource constraints. An optimal distributed filtering algorithm has been developed using the Kalman consensus filtering logic to process local estimates affected by fading channels and relay transmissions. Relays are dynamically assigned to sensors to optimize the estimation performance of the whole system. The assignment problem has been formulated as an MDP and addressed using a DQN-based approach, enabling scalability to larger sensor networks compared to traditional methods. Numerical examples have been illustrated to demonstrate the efficacy of the proposed algorithm. Future research could extend the proposed scheme to scenarios involving packet losses and asynchronous communication.
 
+\begin{thebibliography}{99}
 
-\section{Proof of Proposition \ref{prop:q(lambda)}} \label{app:proof-q(lambda)}
-Similarly to \eqref{eq:propto-z}, we derive
-\begin{equation} \label{eq:propto-lambda}
-\begin{split}
-    q^{(\ell)}(\lambda_t) \propto \e{\E[q^{(\ell)}(\z_t)]{\log{p(\y_t|\z_t,\lambda_t)}}}p(\lambda_t) \fs
-\end{split}
-\end{equation}
-Using \eqref{eq:log-likelihood}, the expectation of the likelihood probabilty is given by
-\begin{equation*}
-\begin{split}
-    &\E[q^{(\ell)}(\z_t)]{\log{p(\y_t|\z_t,\lambda_t)}} \\
-    &= \int{q^{(\ell)}(\z_t)\log{p(\y_t|\z_t,\lambda_t)}}\mathrm{d}\z_t \\
-    &= \sum_{i=1}^N\varpi_t^{i,(\ell)}\log{p(\y_t|\z_t^i,\lambda_t)}\\
-    &= \left(\frac{m}{2}\sum_{i=1}^N\varpi_t^{i,(\ell)}\tilde\gamma_t^i\right)\log\lambda_t \\
-    &\quad- \left(\frac{1}{2}\sum_{i=1}^N\varpi_t^{i,(\ell)}\tilde\gamma_t^i\Vert\y_t-h(\x_t^i)\Vert^2_{\bm{R}^{-1}}\right)\lambda_t + \mathcal{C}_2 \\
-    &= a_t^{(\ell)}\log\lambda_t - b_t^{(\ell)}\lambda_t + \mathcal{C}_2
-\end{split}
-\end{equation*}
-where $\tilde\gamma_t^i$, $a_t^{(\ell)}$ and $b_t^{(\ell)}$ are defined as \eqref{eq:~gamma}, \eqref{eq:a} and \eqref{eq:b}, and $\mathcal{C}_2$ is the constant irrelevant to $\lambda_t$.
-Rewriting the exponential term of \eqref{eq:propto-lambda} as the function of $\lambda_t$ and omitting the rest terms without $\lambda_t$, we obtain
-\begin{equation} \label{eq:exp-lambda}
-    \e{\E[q^{(\ell)}(\z_t)]{\log{p(\y_t|\z_t,\lambda_t)}}} = \lambda_t^{a_t^{(\ell)}}e^{-b_t^{(\ell)}\lambda_t} \fs    
-\end{equation}
+\bibitem{alali2024deep}
+M.~Alali, A.~Kazeminajafabadi, and M.~Imani, ``Deep reinforcement learning sensor scheduling for effective monitoring of dynamical systems," \textit{Systems Science \& Control Engineering}, vol.~12, no.~1, pp.~2329260, 2024.
 
-Substituting \eqref{eq:exp-lambda} into \eqref{eq:propto-lambda} yields
-\begin{equation*}
-\begin{split}
-    q^{(\ell)}(\lambda_t) &\propto \e{\E[q^{(\ell-1)}(\z_t)]{\log{p(\y_t|\z_t,\lambda_t)}}}p(\lambda_t) \\
-    &= \lambda_t^{a_t^{(\ell-1)}}e^{-b_t^{(\ell-1)}\lambda_t}\sum_{k=1}^K\pi_k\frac{\beta_k^{\alpha_k}}{\Gamma(\alpha_k)}\lambda_t^{\alpha_k-1}e^{-\beta_k\lambda_t} \\
-    &= \sum_{k=1}^K\pi_kC_{t,k}^{(\ell)}\Gamma(\lambda_t;\alpha_t^{k,(\ell)},\beta_t^{k,(\ell)})
-\end{split}
-\end{equation*}
-where $\alpha_t^{k,(\ell)}$ and $\beta_t^{k,(\ell)}$ are defined as in Proposition \ref{prop:q(lambda)} and $C_{t,k}^{(\ell)}$ denotes the normalization factor:
-$$
-C_{t,k}^{(\ell)} = \frac{\beta_k^{\alpha_k}}{(\beta_t^{k,(\ell)})^{\alpha_t^{k,(\ell)}}}\frac{\Gamma(\alpha_t^{k,(\ell)})}{\Gamma(\alpha_k)} \fs
-$$
-Then by normalizing the weights, we obtain
-$$
-q^{(\ell)}(\lambda_t) \propto \sum_{k=1}^K\pi_t^{k,(\ell)}\Gamma(\lambda_t;\alpha_t^{k,(\ell)},\beta_t^{k,(\ell)})
-$$
-where
-$$
-\pi_t^{k,(\ell)} = \frac{\pi_kC_{t,k}^{(\ell)}}{\sum_{s=1}^K\pi_sC_{t,s}^{(\ell)}} \cm
-$$
-which completes the proof.
+\bibitem{behbahani2012linear}
+A.~Behbahani, A.~Eltawil, and H.~Jafarkhani, ``Linear decentralized estimation of correlated data for power-constrained wireless sensor networks," \textit{IEEE Transactions on Signal Processing}, vol.~60, no.~11, pp.~6003--6016, 2012.
 
-\section{Proof of Theorem \ref{thm:GMM}} \label{app:thm-GMM} % Gamma Mixture Model
-Since $m>0$, $\gamma_t^i\in\{0,1\}$, and $\varpi_t^{i,(\ell)}\geq0$ according to Proposition \ref{prop:q(z)}, we have $a_t^{(\ell)}\geq0$. Furthermore, since $\bm{R}$ is a positive definite matrix, $\Vert\y_t-h(\x_t^i)\Vert^2_{\bm{R}^{-1}}>0$, implying that $b_t^{(\ell)}>0$. Therefore, $\alpha_t^{k,(\ell)}=\alpha_k+a_t^{(\ell)}>0$, and $\beta_t^{k,(\ell)}=\beta_k+b_t^{(\ell)}>0$. Building upon this, it is evident that $C_{t,k}^{(\ell)}>0$, implying that $\pi_t^{k,(\ell)}>0$. The proof is then complete.
+\bibitem{bertsekas2012dynamic}
+D.~Bertsekas, ``Dynamic programming and optimal control: volume i," \textit{Athena Scientific}, vol.~4, 2012.
 
-\section{Proof of Lemma \ref{lem:x-sup}} \label{app:lem-x-sup}
-According to Assumption \ref{A4} and \ref{A5}, we can derive that
-\begin{equation*}
-\begin{split}
-    \Vert\x_t\Vert &= \Vert f(\x_{t-1})+\bm{w}_{t-1}\Vert \\
-    &\leq \Vert f(\x_{t-1})\Vert+\Vert\bm{w}_{t-1}\Vert \\
-    &\leq \alpha\Vert\x_{t-1}\Vert+\beta+\nu \\
-    &\leq \dots \\
-    &\leq \alpha^t\Vert\x_0\Vert+(\beta+\nu)\sum_{n=0}^{t-1}\alpha^n \fs
-\end{split}
-\end{equation*}
-Denote $R_t \coloneqq \alpha^t\Vert\x_0\Vert+(\beta+\nu)\sum_{n=0}^{t-1}\alpha^n$. Therefore, we find that $R_t$ is an upper bound of $\Vert\x_t\Vert$'s supremum, i.e.,
-$$
-\sup\Vert\x_t\Vert \leq R_t \fs
-$$
-Given $\Vert\x_0\Vert<\infty$, the upper bound approaches a constant as time tends to infinity:
-\begin{equation*}
-\begin{split}
-    \limsup_{t\rightarrow\infty}\Vert\x_t\Vert &\leq \lim_{t\rightarrow\infty}R_t \\
-    &= \lim_{t\rightarrow\infty}\left(\alpha^t\Vert\x_0\Vert+(\beta+\nu)\frac{1-\alpha^t}{1-\alpha}\right) \\
-    &= \frac{\beta+\nu}{1-\alpha} \eqqcolon R \fs
-\end{split}
-\end{equation*}
+\bibitem{chen2022information}
+S.~Chen, and D.~Ho, ``Information-based distributed extended Kalman filter with dynamic quantization via communication channels," \textit{Neurocomputing}, vol.~469, pp.~251--260, 2022.
 
-\section{Proof of Theorem \ref{thm:stability}} \label{app:thm-stability}
-Using the Law of Total Expectation, the MSE can be expressed as a nested expectation:
-\begin{equation} \label{eq:E[e]}
-    \E{\Vert\x_t-\hat\x_t\Vert^2} = \E{\E{\Vert\x_t-\hat\x_t\Vert^2|\y_{1:t}}} \fs
-\end{equation}
-First, we consider the inner conditional expectation.
+\bibitem{cheng2021observer}
+J.~Cheng, J.~Park, and Z.~Wu, ``Observer-based asynchronous control of nonlinear systems with dynamic event-based try-once-discard protocol," \textit{IEEE Transactions on Cybernetics}, vol.~52, no.~12, pp.~12638--12648, 2021.
 
-Define the conditional MSE as
-$$
-\bar{e}_t \coloneqq \E{\Vert\x_t-\hat\x_t\Vert^2|\y_{1:t}} \cm
-$$
-and the variational MSE as
-$$
-\bar{e}_t' \coloneqq \E[\hat{q}(\x_t)]{\Vert\x_t-\hat\x_t\Vert^2} \fs
-$$
-Then the divergence between the conditional and variational MSE is
-$$
-\Delta_t \coloneqq \bar{e}_t-\bar{e}_t' = \int_{\Omega_t}{(p(\x_t|\y_{1:t})-\hat{q}(\x_t))\Vert\x_t-\hat\x_t\Vert^2}\,\mathrm{d}\x_t
-$$
-where $\Omega_t$ is the support of the true posterior $p(\x_t|\y_{1:t})$. Based on the Cauchy-Schwarz Inequality, we obtain
-\begin{equation} \label{eq:cauchy-schwarz}
-    \Delta_t \leq \sqrt{\int_{\Omega_t}{|p(\x_t|\y_{1:t})-\hat{q}(\x_t)|^2}\,\mathrm{d}\x_t}\sqrt{\int_{\Omega_t}{\Vert\x_t-\hat\x_t\Vert^4}\,\mathrm{d}\x_t} \fs 
-\end{equation}
+\bibitem{ding2015distributed}
+L.~Ding, and G.~Guo, ``Distributed event-triggered $H_{\infty}$ consensus filtering in sensor networks," \textit{Signal Processing}, vol.~108, pp.~365--375, 2015.
 
-Since $0<p(\x_t|\y_{1:t})<1$ and $0<\hat{q}(\x_t)<1$, we have $0\leq|p(\x_t|\y_{1:t})-\hat{q}(\x_t)|<1$ and consequently $|p(\x_t|\y_{1:t})-\hat{q}(\x_t)|^2<|p(\x_t|\y_{1:t})-\hat{q}(\x_t)|$. Therefore, the first integral term of \eqref{eq:cauchy-schwarz} is no greater than the total variation distance between $p$ and $\hat{q}$, that is,
-$$
-\int_{\Omega_t}{|p(\x_t|\y_{1:t})-\hat{q}(\x_t)|^2}\,\mathrm{d}\x_t < V(\hat{q},p)
-$$
-where
-$$
-V(\hat{q},p) \coloneqq \int_{\Omega_t}{|\hat{q}(\x_t)-p(\x_t|\y_{1:t})|}\,\mathrm{d}\x_t \fs
-$$
-By combining Pinsker's Inequality:
-$$
-D_{\rm KL}(\hat{q}\Vert p) \geq \frac{1}{2}V^2(\hat{q},p)
-$$
-with the conclusion given in Lemma \ref{lem:KLD}, we obtain
-\begin{equation} \label{eq:pinsker}
-    \sqrt{\int_{\Omega_t}{|p(\x_t|\y_{1:t})-\hat{q}(\x_t)|^2}\,\mathrm{d}\x_t} < (2\kappa)^\frac{1}{4}
-\end{equation}
+\bibitem{feng2022enhanced}
+Y.~Feng, K.~Dai, and X.~Chen, ``Enhanced distributed consensus filtering over lossy wireless sensor networks with application to target speed tracking," \textit{IEEE Transactions on Industrial Electronics}, vol.~70, no.~9, pp.~9368--9378, 2022.
 
-Consider the second integral term of \eqref{eq:cauchy-schwarz}. As Line \ref{line:estimate} of Algorithm \ref{alg:VPF}, the estimation error can be written as
-$$
-\x_t-\hat\x_t = \x_t-\sum_{i=1}^N\varpi_t^i\x_t^i = \sum_{i=1}^N\varpi_t^i(\x_t-\x_t^i) \cm
-$$
-and the square error satisfies
-\begin{equation*}
-\begin{split}
-    % \Vert\x_t-\hat\x_t\Vert^2 &= \Vert\sum_{i=1}^N\varpi_t^i(\x_t-\x_t^i)\Vert^2 \\
-    \Vert\x_t-\hat\x_t\Vert^2 &= \Big\Vert\sum_{i=1}^N\varpi_t^i(\x_t-\x_t^i)\Big\Vert^2\\
-    % &\leq \left(\sum_{i=1}^N\varpi_t^i\Vert\x_t-\x_t^i\Vert\right)^2 \\
-    &\leq \Big(\sum_{i=1}^N\varpi_t^i(\Vert\x_t\Vert+\Vert\x_t^i\Vert)\Big)^2 \\
-    &\leq \Big(\sup\Vert\x_t\Vert+\sup\Vert\x_t^i\Vert\Big)^2 \fs
-\end{split}
-\end{equation*}
-Thus, we have
-\begin{equation*}
-\begin{split}
-    \sqrt{\int_{\Omega_t}{\Vert\x_t-\hat\x_t\Vert^4}\,\mathrm{d}\x_t} &\leq \sqrt{(\sup\Vert\x_t\Vert+\sup\Vert\x_t^i\Vert)^4\int_{\Omega_t}\,\mathrm{d}\x_t} \\
-    &= (\sup\Vert\x_t\Vert+\sup\Vert\x_t^i\Vert)^2\sqrt{\mathrm{Vol}(\Omega_t)}
-\end{split}
-\end{equation*}
-where $\mathrm{Vol}(\cdot)$ denotes the volume of a certain space. Substituting the above inequality and \eqref{eq:pinsker} into \eqref{eq:cauchy-schwarz}, we obtain 
-\begin{equation} \label{ineq1}
-    \Delta_t < (2\kappa)^\frac{1}{4}(\sup\Vert\x_t\Vert+\sup\Vert\x_t^i\Vert)^2\sqrt{\mathrm{Vol}(\Omega_t)} \fs
-\end{equation}
+\bibitem{fu2024distributed}
+X.~Fu, G.~Wen, M.~Niu, and W.~Zheng, ``Distributed secure filtering against eavesdropping attacks in sinr-based sensor networks," \textit{IEEE Transactions on Information Forensics and Security}, vol.~19, pp.~3483--3494, 2024.
 
-Now consider the upper bound of the variational MSE. It is noted that
-\begin{equation*}
-\begin{split}
-    \bar{e}_t' &= \int_{\Omega_t}{\hat{q}(\x_t)\Vert\x_t-\hat\x_t\Vert^2}\,\mathrm{d}\x_t \\
-    &= \int_{\Omega_t}{\sum_{k=1}^N\varpi_t^k\delta(\x_t-\x_t^k)\Big\Vert\sum_{i=1}^N\varpi_t^i(\x_t-\x_t^i)\Big\Vert^2}\,\mathrm{d}\x_t \\
-    &= \sum_{i=1}^N\sum_{j=1}^N\sum_{k=1}^N\varpi_t^i\varpi_t^j\varpi_t^k(\x_t^k-\x_t^i)^\top(\x_t^k-\x_t^j) \\
-    &= \frac{1}{2}\sum_{i=1}^N\sum_{j=1}^N\varpi_t^i\varpi_t^j\Vert\x_t^i-\x_t^j\Vert^2 \fs
-\end{split}
-\end{equation*}
-Applying the Triangle Inequality, we conclude that
-\begin{equation} \label{ineq2}
-\begin{split}
-    \bar{e}_t' &\leq \frac{1}{2}\sum_{i=1}^N\sum_{j=1}^N\varpi_t^i\varpi_t^j(\Vert\x_t^i\Vert+\Vert\x_t^j\Vert)^2 \\
-    &\leq \frac{1}{2}(\sup\Vert\x_t^i\Vert+\sup\Vert\x_t^j\Vert)^2 \fs
-\end{split}
-\end{equation}
+\bibitem{guo2023reinforcement}
+X.~Guo, Z.~Bi, J.~Wang, S.~Qin, S.~Liu, and L.~Qi, ``Reinforcement learning for disassembly system optimization problems: a survey," \textit{International Journal of Network Dynamics and Intelligence}, pp.~1--14, 2023.
 
-Combining \eqref{ineq1} and \eqref{ineq2} yields 
-$$
-\bar{e}_t < M_t
-$$
-where
-\begin{equation*}
-\begin{split}
-    M_t ={}& \frac{1}{2}(\sup\Vert\x_t^i\Vert+\sup\Vert\x_t^j\Vert)^2 \\
-    &+ (2\kappa)^\frac{1}{4}(\sup\Vert\x_t\Vert+\sup\Vert\x_t^i\Vert)^2\sqrt{\mathrm{Vol}(\Omega_t)} \fs
-\end{split}
-\end{equation*}
-According to Lemma \ref{lem:x-sup} and Corollary \ref{cor:xi-sup}, we know that the limits of $\sup\Vert\x_t\Vert$ and $\sup\Vert\x_t^i\Vert$ exist. Otherwise, supposing that the Hausdorff limit of the support $\Omega_t$ exists and satisfies
-$$
-\lim_{t\rightarrow\infty}\Omega_t = \Omega \cm
-$$
-it follows that
-$$
-\Omega \subseteq \mathcal{B}_R \coloneqq \{\x\in\mathbb{R}^n\mid \Vert\x\Vert\leq R\}
-$$
-where $\mathcal{B}_R$ is the closed ball of radius $R$. Therefore, as time tends to infinity, we have
-\begin{equation*}
-\begin{split}
-    \lim_{t\rightarrow\infty}M_t ={}& (2\kappa)^\frac{1}{4}(\limsup_{t\rightarrow\infty}\Vert\x_t\Vert+\limsup_{t\rightarrow\infty}\Vert\x_t^i\Vert)^2 \\
-    &\times \sqrt{\lim_{t\rightarrow\infty}\mathrm{Vol}(\Omega_t)} + \frac{1}{2}(2\limsup_{t\rightarrow\infty}\Vert\x_t^i\Vert)^2\\
-    \leq{}& 2R^2 + (2\kappa)^\frac{1}{4}4R^2\sqrt{\mathrm{Vol}(\mathcal{B}_R)} \\
-    ={}& 2R^2\left(1 + R\sqrt{\frac{2^\frac{5}{2}\pi^{\frac{n}{2}}\kappa^\frac{1}{2}}{\Gamma(\frac{n}{2}+1)}}\right) \eqqcolon \bar{M}
-\end{split}
-\end{equation*}
-where $R$ has been defined in Lemma \ref{lem:x-sup} and $\Gamma(\cdot)$ is the gamma function. Thus, we can derive that
-$$
-\lim_{t\rightarrow\infty}\bar{e}_t < \lim_{t\rightarrow\infty}M_t \leq \bar{M} \fs
-$$
-It is clear that $\bar{M}$ is a finite constant. According to \eqref{eq:E[e]}, the interested MSE is the expectation of $\bar{e}_t$. Therefore, we have
-$$
-\lim_{t\rightarrow\infty}\E{\Vert\x_t-\hat\x_t\Vert^2} = \E{\lim_{t\rightarrow\infty}\bar{e}_t} < \bar{M} < \infty \cm
-$$
-which completes the proof.
+\bibitem{han2023recursive}
+F.~Han, Z.~Wang, H.~Liu, H.~Dong, and G.~Lu, ``A recursive matrix inequality approach to distributed filtering over binary sensor networks: handling amplify-and-forward relays," \textit{IEEE Transactions on Network Science and Engineering}, vol.~11, no.~1, pp.~1347--1362, 2023.
 
-\end{appendices}
+\bibitem{han2023recursive}
+F.~Han, Z.~Wang, H.~Liu, H.~Dong, and G.~Lu, ``A recursive matrix inequality approach to distributed filtering over binary sensor networks: handling amplify-and-forward relays," \textit{IEEE Transactions on Network Science and Engineering}, vol.~11, no.~1, pp.~1347--1362, 2023.
 
-\bibliographystyle{IEEEtran}
-\bibliography{ref}
+\bibitem{hannon2021distributed}
+C.~Hannon, J.~Yan, and D.~Jin, ``Distributed virtual time-based synchronization for simulation of cyber-physical systems," \textit{ACM Transactions on Modeling and Computer Simulation}, vol.~31, no.~2, pp.~1--24, 2021.
 
-% \vspace{-1cm}
-\begin{IEEEbiography}[{\includegraphics[width=1in,height=1.25in,clip,keepaspectratio]{img/Photo_Yao_Nie.eps}}]
-{\bf Yao Nie} received the B.S. degree in engineering from the Department of Computer Science and Technology, Tongji University, Shanghai, China, in 2022. He is currently working toward the Ph.D. degree in computer science and technology at Tongji University, Shanghai, China. His general research interests are in topics related to filtering theory and stochastic dynamical systems.
+\bibitem{ji2023adaptive}
+Y.~Ji, Q.~Gao, and J.~Liu, ``Adaptive resilient control for cyber-physical systems against unknown injection attacks in sensor networks," \textit{Nonlinear Dynamics}, vol.~111, no.~12, pp.~11105--11114, 2023.
+
+\bibitem{jin2023distributed}
+Y.~Jin, X.~Ma, X.~Meng, and Y.~Chen, ``Distributed fusion filtering for cyber-physical systems under round-robin protocol: a mixed $H_2/H_{\infty}$ framework," \textit{International Journal of Systems Science}, vol.~54, no.~8, pp.~1661--1675, 2023.
+
+\bibitem{jung2023optimized}
+H.~Jung, A.~Pedram, T.~Cuvelier, and T.~Tanaka, ``Optimized data rate allocation for dynamic sensor fusion over resource constrained communication networks," \textit{International Journal of Robust and Nonlinear Control}, vol.~33, no.~1, pp.~237--263, 2023.
+
+\bibitem{khajehnouri2007distributed}
+N.~Khajehnouri, and A.~Sayed, ``Distributed mmse relay strategies for wireless sensor networks," \textit{IEEE Transactions on Signal Processing}, vol.~55, no.~7, pp.~3336--3348, 2007.
+
+\bibitem{khan2019optimal}
+S.~Khan, R.~Deshmukh, and I.~Hwang, ``Optimal kalman consensus filter for weighted directed graphs," \textit{2019 IEEE 58th Conference on Decision and Control (cdc)}, pp.~7832--7837, 2019.
+
+\bibitem{leong2015kalman}
+A.~Leong, and D.~Quevedo, ``Kalman filtering with relays over wireless fading channels," \textit{IEEE Transactions on Automatic Control}, vol.~61, no.~6, pp.~1643--1648, 2015.
+
+\bibitem{leong2020deep}
+A.~Leong, A.~Ramaswamy, D.~Quevedo, H.~Karl, and L.~Shi, ``Deep reinforcement learning for wireless sensor scheduling in cyber--physical systems," \textit{Automatica}, vol.~113, pp.~108759, 2020.
+
+\bibitem{li2022event}
+W.~Li, Y.~Niu, and Z.~Cao, ``Event-triggered sliding mode control for multi-agent systems subject to channel fading," \textit{International Journal of Systems Science}, vol.~53, no.~6, pp.~1233--1244, 2022.
+
+\bibitem{li2022robust}
+M.~Li, J.~Liang, and F.~Wang, ``Robust set-membership filtering for two-dimensional systems with sensor saturation under the round-robin protocol," \textit{International Journal of Systems Science}, vol.~53, no.~13, pp.~2773--2785, 2022.
+
+\bibitem{li2024improving}
+X.~Li, A.~Lei, L.~Zhu, and M.~Ban, ``Improving Kalman filter for cyber physical systems subject to replay attacks: an attack-detection-based compensation strategy," \textit{Applied Mathematics and Computation}, vol.~466, pp.~128444, 2024.
+
+\bibitem{li2024distributed}
+Z.~Li, J.~Wang, H.~Su, C.~Jia, and L.~Shen, ``Distributed consensus filtering in sensor networks considering correlated estimation errors," \textit{Signal Processing}, vol.~222, pp.~109516, 2024.
+
+\bibitem{liu2021distributed}
+L.~Liu, L.~Ma, J.~Zhang, and Y.~Bo, ``Distributed non-fragile set-membership filtering for nonlinear systems under fading channels and bias injection attacks," \textit{International Journal of Systems Science}, vol.~52, no.~6, pp.~1192--1205, 2021.
+
+\bibitem{liu2023mesh}
+Y.~Liu, M.~Coombes, and C.~Liu, ``Mesh-based consensus distributed particle filtering for sensor networks," \textit{IEEE Transactions on Signal and Information Processing Over Networks}, vol.~9, pp.~346--356, 2023.
+
+\bibitem{lloyd2006relay}
+E.~Lloyd, and G.~Xue, ``Relay node placement in wireless sensor networks," \textit{IEEE Transactions on Computers}, vol.~56, no.~1, pp.~134--138, 2006.
+
+\bibitem{lyu2023source}
+T.~Lyu, H.~Xu, L.~Zhang, and Z.~Han, ``Source selection and resource allocation in wireless-powered relay networks: an adaptive dynamic programming-based approach," \textit{IEEE Internet of Things Journal}, vol.~11, no.~5, pp.~8973--8988, 2023.
+
+\bibitem{mnih2013playing}
+V.~Mnih, K.~Kavukcuoglu, D.~Silver, A.~Graves, I.~Antonoglou, D.~Wierstra, and M.~Riedmiller, ``Playing atari with deep reinforcement learning," \textit{arXiv Preprint arXiv:1312.5602}, 2013.
+
+\bibitem{mnih2015human}
+V.~Mnih, K.~Kavukcuoglu, D.~Silver, A.~Rusu, J.~Veness, M.~Bellemare, A.~Graves, M.~Riedmiller, Fidjel, A.~, G.~Ostrovski et al., ``Human-level control through deep reinforcement learning," \textit{Nature}, vol.~518, no.~7540, pp.~529--533, 2015.
+
+\bibitem{olfati2005distributed}
+R.~Olfati-saber, ``Distributed Kalman filter with embedded consensus filters," \textit{Proceedings of the 44th IEEE Conference on Decision and Control}, pp.~8179--8184, 2005.
+
+\bibitem{olfati2007distributed}
+R.~Olfati-saber, ``Distributed Kalman filtering for sensor networks," \textit{2007 46th IEEE Conference on Decision and Control}, pp.~5492--5498, 2007.
+
+\bibitem{pang2021false}
+Z.~Pang, L.~Fan, Z.~Dong, Q.~Han, and G.~Liu, ``False data injection attacks against partial sensor measurements of networked control systems," \textit{IEEE Transactions on Circuits and Systems Ii: Express Briefs}, vol.~69, no.~1, pp.~149--153, 2021.
+
+\bibitem{priya2025dynamic}
+E.~Priya, J.~Roselyn, N.~Vedachalam, and D.~Devaraj, ``A dynamic watermarking integrated with Kalman filter-based cyber attack detection strategy in cyber-physical microgrid," \textit{Security and Privacy}, vol.~8, no.~2, pp.~e479, 2025.
+
+\bibitem{quevedo2012state}
+D.~Quevedo, A.~Ahlen, and K.~Johansson, ``State estimation over sensor networks with correlated wireless fading channels," \textit{IEEE Transactions on Automatic Control}, vol.~58, no.~3, pp.~581--593, 2012.
+
+\bibitem{s2020review}
+M.~S. al-kahtani, ``A review of relay assignment problem in the cooperative wireless sensor networks," \textit{Electronics}, vol.~9, no.~3, pp.~443, 2020.
+
+\bibitem{sahebdel2011relay}
+S.~Sahebdel, and H.~Bakhshi, ``Relay selection schemes for cooperative communications systems sensor networks," \textit{Computer and Information Science}, 2011.
+
+\bibitem{schutze2018sensors}
+A.~Sch{\"u}tze, N.~Helwig, and T.~Schneider, ``Sensors 4.0--smart sensors and measurement technology enable industry 4.0," \textit{Journal of Sensors and Sensor Systems}, vol.~7, no.~1, pp.~359--371, 2018.
+
+\bibitem{shen2023distributed}
+Y.~Shen, and S.~Sun, ``Distributed recursive filtering for multi-rate uniform sampling systems with packet losses in sensor networks," \textit{International Journal of Systems Science}, vol.~54, no.~8, pp.~1729--1745, 2023.
+
+\bibitem{shi2008optimal}
+Y.~Shi, S.~Sharma, Y.~Hou, and S.~Kompella, ``Optimal relay assignment for cooperative communications," \textit{Proceedings of the 9th ACM International Symposium on Mobile Ad Hoc Networking and Computing}, pp.~3--12, 2008.
+
+\bibitem{song2024robust}
+L.~Song, Z.~Jing, P.~Dong, and K.~Shen, ``Robust gaussian process quadrature diffusion filtering for distributed sensor networks," \textit{IEEE Sensors Journal}, 2024.
+
+\bibitem{sutton1998reinforcement}
+R.~Sutton, A.~Barto et al., ``Reinforcement learning: an introduction," \textit{MIT Press Cambridge}, vol.~1, no.~1, 1998.
+
+\bibitem{tan2020robust}
+H.~Tan, B.~Shen, K.~Peng, and H.~Liu, ``Robust recursive filtering for uncertain stochastic systems with amplify-and-forward relays," \textit{International Journal of Systems Science}, vol.~51, no.~7, pp.~1188--1199, 2020.
+
+\bibitem{wang2016relay}
+F.~Wang, S.~Guo, Y.~Yang, and B.~Xiao, ``Relay selection and power allocation for cooperative communication networks with energy harvesting," \textit{IEEE Systems Journal}, vol.~12, no.~1, pp.~735--746, 2016.
+
+\bibitem{xi2025expert}
+M.~Xi, J.~Wen, J.~He, S.~Xiao, and J.~Yang, ``An expert experience-enhanced security control approach for AUVs of the underwater transportation cyber-physical systems," \textit{IEEE Transactions on Intelligent Transportation Systems}, 2025.
+
+\bibitem{xia2020direct}
+W.~Xia, M.~Sun, and Q.~Wang, ``Direct target tracking by distributed gaussian particle filtering for heterogeneous networks," \textit{IEEE Transactions on Signal Processing}, vol.~68, pp.~1361--1373, 2020.
+
+\bibitem{xie2013optimal}
+K.~Xie, J.~Cao, and J.~Wen, ``Optimal relay assignment and power allocation for cooperative communications," \textit{Journal of Computer Science and Technology}, vol.~28, no.~2, pp.~343--356, 2013.
+
+\bibitem{xing2022dynamic}
+M.~Xing, Y.~Wang, Q.~Pang, and G.~Zhuang, ``Dynamic-memory event-based asynchronous attack detection filtering for a class of nonlinear cyber-physical systems," \textit{IEEE Transactions on Cybernetics}, vol.~53, no.~1, pp.~653--667, 2022.
+
+\bibitem{xing2023optimal}
+W.~Xing, X.~Zhao, T.~Ba{\c{s}}ar, and W.~Xia, ``Optimal transmission scheduling for remote state estimation in cpss with energy harvesting two-hop relay networks," \textit{Automatica}, vol.~152, pp.~110963, 2023.
+
+\bibitem{zhang2011relay}
+X.~Zhang, A.~Ghrayeb, and M.~Hasna, ``On relay assignment in network-coded cooperative systems," \textit{IEEE Transactions on Wireless Communications}, vol.~10, no.~3, pp.~868--876, 2011.
+
+\bibitem{zhang2011estimate}
+H.~Zhang, H.~Ma, and X.~Li, ``Estimate aggregation with delay constraints in multihop wireless sensor networks," \textit{2011 IEEE/ACM Second International Conference on Cyber-physical Systems}, pp.~184--193, 2011.
+
+\bibitem{zhang2024synchronization}
+D.~Zhang, P.~Shi, and J.~Chambers, ``Synchronization control of cyber--physical systems with time-varying dynamics under denial-of-service attacks," \textit{Journal of the Franklin Institute}, vol.~361, no.~17, pp.~107243, 2024.
+
+\bibitem{zheng2022distributed}
+X.~Zheng, H.~Zhang, X.~Yang, and H.~Yan, ``Distributed dimensionality reduction filtering for cpss under dos attacks," \textit{IEEE/CAA Journal of Automatica Sinica}, vol.~10, no.~4, pp.~1080--1082, 2022.
+
+\bibitem{zhou2024finite}
+X.~Zhou, G.~Chen, Z.~Zeng, and J.~Hu, ``Finite-time distributed $H_{\infty}$ filtering in sensor networks with switching topology and two-channel stochastic attacks," \textit{IEEE Transactions on Automatic Control}, vol.~69, no.~6, pp.~4158--4165, 2024.
+
+\bibitem{zhou2024robust}
+Y.~Zhou, Z.~Jing, P.~Dong, and J.~Huang, ``Robust median consensus cubature Kalman filter for distributed sensor networks," \textit{Digital Signal Processing}, vol.~153, pp.~104629, 2024.
+
+\end{thebibliography}
+
+\begin{IEEEbiography}[{\includegraphics[width=1in,height=1.25in,clip,keepaspectratio]{fig/Photo_Ziye_Wang.eps}}]
+{\bf Ziye Wang} received the B.S. degree in engineering from the Department of Computer Science and Technology, Lanzhou University, Lanzhou, China, in 2023. She is currently working toward the Ph.D. degree in computer science and technology at Tongji University, Shanghai, China. Hers general research interests are in topics related to filtering theory and Sensor Scheduling.
 \end{IEEEbiography}
 
-% \vspace{-1cm}
-\begin{IEEEbiography}[{\includegraphics[width=1in,height=1.25in,clip,keepaspectratio]{img/Photo_Zidong_Wang.eps}}]
+\begin{IEEEbiography}[{\includegraphics[width=1in,height=1.25in,clip,keepaspectratio]{fig/Photo_Zidong_Wang}}]
 {\bf Zidong Wang} (SM'03-F'14) received the B.Sc.~degree in mathematics in 1986 from Suzhou University, Suzhou, China, and the M.Sc.~degree in applied mathematics in 1990 and the Ph.D.~degree in electrical engineering in 1994, both from Nanjing University of Science and Technology, Nanjing, China.
 
-He is currently Professor of Dynamical Systems and Computing in the Department of Computer Science, Brunel University London, U.K. From 1990 to 2002, he held teaching and research appointments in universities in China, Germany, and the UK. Prof. Wang's research interests include dynamical systems, signal processing, bioinformatics, control theory, and applications. He has published a number of papers in international journals. He is a holder of the Alexander von Humboldt Research Fellowship of Germany, the JSPS Research Fellowship of Japan, and the William Mong Visiting Research Fellowship of Hong Kong.
+He is currently Professor of Dynamical Systems and Computing in the Department of Computer Science, Brunel University London, U.K. From 1990 to 2002, he held teaching and research appointments in universities in China, Germany and the UK. Prof. Wang's research interests include dynamical systems, signal processing, bioinformatics, control theory and applications. He has published a number of papers in international journals. He is a holder of the Alexander von Humboldt Research Fellowship of Germany, the JSPS Research Fellowship of Japan, William Mong Visiting Research Fellowship of Hong Kong.
 
-Prof.~Wang serves (or has served) as the Editor-in-Chief for {\it International Journal of Systems Science}, the Editor-in-Chief for {\it Neurocomputing}, the Editor-in-Chief for {\it Systems Science \& Control Engineering}, and an Associate Editor for 12 international journals including IEEE Transactions on Automatic Control, IEEE Transactions on Control Systems Technology, IEEE Transactions on Neural Networks, IEEE Transactions on Signal Processing, and IEEE Transactions on Systems, Man, and Cybernetics-Part C. He is a Member of the Academia Europaea, a Member of the European Academy of Sciences and Arts, an Academician of the International Academy for Systems and Cybernetic Sciences, a Fellow of the IEEE, a Fellow of the Royal Statistical Society, and a member of program committee for many international conferences.
+Prof.~Wang serves (or has served) as the Editor-in-Chief for {\it International Journal of Systems Science}, the Editor-in-Chief for {\it Neurocomputing}, the Editor-in-Chief for {\it Systems Science \& Control Engineering}, and an Associate Editor for 12 international journals including IEEE Transactions on Automatic Control, IEEE Transactions on Control Systems Technology, IEEE Transactions on Neural Networks, IEEE Transactions on Signal Processing, and IEEE Transactions on Systems, Man, and Cybernetics-Part C. He is a Member of the Academia Europaea, a Member of the European Academy of Sciences and Arts, an Academician of the International Academy for Systems and Cybernetic Sciences, a Fellow of the IEEE, a Fellow of the Royal Statistical Society and a member of program committee for many international conferences.
 \end{IEEEbiography}
 
-% \vspace{-1cm}
-\begin{IEEEbiography}[{\includegraphics[width=1in,height=1.25in,clip,keepaspectratio]{img/Photo_Qinyuan_Liu.eps}}]
-{\bf Qinyuan Liu} received the B.Eng. degree in measurement and control technology and instrumentation from Huazhong University of Science and Technology, Wuhan, China, in 2022, and the Ph.D. degree in control science and engineering from Tsinghua University, Beijing, China, in 2017.
+% \vspace{-10cm}
+\begin{IEEEbiography}[{\includegraphics[width=1in,height=1.25in,clip,keepaspectratio]{fig/Photo_Qinyuan_Liu}}]
+{\bf Qinyuan Liu} received the B.Eng. degree in measurement and control technology and instrumentation from Huazhong University of Science and Technology, Wuhan, China, in 2012, and the Ph.D. degree in control science and engineering from Tsinghua University, Beijing, China, in 2017.
 
-He is currently a Professor in the Department of Computer Science and Technology, Tongji University, Shanghai, China. From Jul.~2015 to Sep.~2016, he was a Research Assistant in the Department of Electronic \& Computer Engineering, Hong Kong University of Science and Technology, Hong Kong. From Jan.~2016 to Jan.~2017, he was an international researcher in the Department of Computer Science, Brunel University London, UK. His research interests include networked control systems, multi-agent systems, and distributed filtering. He is an active reviewer for many international journals.
+He is currently a Professor in the Department of Computer Science and Technology, Tongji University, Shanghai, China. From Jul.~2015 to Sep.~2016, he was a Researcher Assistant in the Department of Electronic \& Computer Engineering, Hong Kong University of Science and Technology, Hong Kong. From Jan.~2016 to Jan.~2017, he was an international researcher in the Department of Computer Science, Brunel University London, UK. His research interests include networked control systems, multi-agent systems, and distributed filtering. He is an active reviewer for many international journals.
 \end{IEEEbiography}
+
+
+
+
 
 \end{document}

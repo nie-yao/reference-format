@@ -1,0 +1,1125 @@
+%!PN
+%\documentstyle[9pt,twocolumn,technote,twoside]{IEEEtran}
+%\documentstyle[11pt,twoside,draft]{IEEEtran}
+%\documentclass[12pt,letter,dvips]{IEEEtran}
+\documentclass[10pt,twocolumn,twoside]{IEEEtran}
+%\documentclass[10pt,onecolumn,twoside]{IEEEtran}
+
+%% Useful packages
+\usepackage{bbm,color}
+\usepackage{amsthm,amsmath,amssymb}
+\usepackage{mathtools}
+\usepackage{mathrsfs}
+\usepackage[mathscr]{euscript}
+\usepackage{amsfonts}
+\usepackage{upgreek}
+\usepackage{graphicx}
+% \usepackage{epstopdf}
+% \epstopdfsetup{update} % re-render pdf only when eps changed
+\usepackage{bm}
+\usepackage[colorlinks=true, allcolors=blue]{hyperref}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+\usepackage{cite}
+\DeclareGraphicsRule{.eps}{pdf}{.pdf}{`epstopdf #1}
+
+%% New Environments
+\newtheorem{theorem}{Theorem}
+\newtheorem{corollary}{Corollary}
+\newtheorem{definition}{Definition}
+\newtheorem{lemma}{Lemma}
+\newtheorem{proposition}{Proposition}
+\newtheorem{assumption}{Assumption}
+\newtheorem{problem}{Problem}
+\newtheorem{remark}{Remark}
+
+% For convenience, define
+%% Fonts:
+\newcommand{\rmnum}[1]{\romannumeral #1} % For lowercase Roman numerals
+\newcommand{\Rmnum}[1]{\uppercase\expandafter{\romannumeral #1}} % For uppercase Roman numerals
+%% Notations:
+\newcommand{\tsum}{{\textstyle\sum}} % For narrow sum
+\newcommand{\diag}[1]{{\rm diag}\{#1\}}
+\newcommand{\tr}{{\rm tr}}
+\newcommand{\e}[1]{\exp\left\{#1\right\}}
+\newcommand{\argmax}[1]{{\mathop{\arg\max}_{#1}~}}
+\newcommand{\argmin}[1]{{\mathop{\arg\min}_{#1}~}}
+\DeclareMathOperator{\atantwo}{atan2}
+\DeclareMathOperator{\arctantwo}{arctan2}
+\newcommand{\E}[2][]{ \mathbb{E}_{#1}\left[#2\right] } % expectation (with respect to certain distribution)
+\newcommand{\Var}[1]{\mathbb{D}\left[#1\right]} % variance
+\newcommand{\Cov}[1]{\mathrm{Cov}\left[#1\right]} % covariance
+\newcommand{\Dir}{{ \mathrm{Dir} }}
+\newcommand{\cm}{\text{,}} % comma
+\newcommand{\fs}{\text{.}} % full stop
+
+%% Algorithms:
+\renewcommand{\algorithmicrequire}{\textbf{Input:}}  % Use Input in the format of Algorithm  
+\renewcommand{\algorithmicensure}{\textbf{Output:}} % Use Output in the format of Algorithm  
+%% Colors:
+\newcommand{\red}[1]{{\color{red}#1}}  % For red text
+\newcommand{\blue}[1]{{\color{blue}#1}}  % For blue text
+\newcommand{\green}[1]{{\color{green}#1}}  % For green text
+%% Styles:
+\newcommand{\non}{\nonumber}
+\newcommand{\noi}{\noindent}
+
+% In this paper:
+\newcommand{\x}{{ \bm{x} }}
+\newcommand{\y}{{ \bm{y} }}
+\newcommand{\z}{{ \bm{z} }}
+% \renewcommand{\theta}{\bm{\uptheta}}
+% \renewcommand{\phi}{\bm{\upphi}}
+
+
+\begin{document}
+
+% The first letter of each word should be capitalized, including prepositions (e.g. of, for, with) and articles (e.g. the, a, an)
+
+\title{{Variational Particle Filter For Nonlinear Systems With Dynamic Noise-Dominant Regions: A State-Dependent Case
+}\thanks{This work was supported in part by the National Key Research and Development Program of China under Grant 2022YFB4501704, in
+part by the National Science Foundation of China under Grants
+62222312 and 62473285, in part by the Shanghai Science and Technology Innovation Action Plan Project of China under Grant 22511100700, in part by Fundamental Research Funds for the Central Universities, in part by the Royal Society of the U.K., and in part by the Alexander von Humboldt Foundation of Germany. {\it (Corresponding author: Qinyuan Liu)}}
+}
+
+\author{Yao Nie, ~Zidong Wang, ~and ~Qinyuan Liu
+\thanks{Yao Nie and Qinyuan Liu are with the Department of Computer Science and Technology, Tongji University, Shanghai 201804, China; with the Key Laboratory of Embedded System and Service Computing, Ministry of Education, Tongji University, Shanghai 200092, China; and also with the Shanghai Artificial Intelligence Laboratory, Shanghai, China. (Email: {\tt liuqy@tongji.edu.cn}).}
+\thanks{Zidong Wang is with the Department of Computer Science, Brunel University London, Uxbridge, Middlesex, UB8 3PH, United Kingdom. (Email: {\tt Zidong.Wang@brunel.ac.uk}).}
+}
+
+\markboth{\it Submitted} {} \maketitle
+
+% Within 200 words
+% No abbreviations
+\begin{abstract}
+This paper investigates the state estimation problem for nonlinear systems subject to dynamic noise-dominant regions where the observations are corrupted by state-dependent heavy-tailed noise. In real-world scenarios, the target states may move into specific regions with elevated noise levels compared to normal regions, resulting in outlier observations. However, this information remains unknown to the observer, leading to significant estimation challenges. To address this issue, we model the observation noise using a state-dependent Gaussian-Gamma mixture distribution and formulate a joint hidden variable representation that enables applying the variational Bayesian framework. Under the mean-field assumption, we propose a variational particle filter that integrates variational inference with the importance sampling technique to iteratively refine state estimates. Theoretical analysis guarantees the stability of the variational estimator while maintaining computational complexity comparable to that of standard particle filters. Experimental results from a target tracking task demonstrate that the proposed filter outperforms conventional methods by effectively mitigating outlier effects.
+\end{abstract}
+
+% The 1st keyword: Capitalize the first letter
+% The last keywords: lowercase
+\begin{IEEEkeywords}
+State estimation, nonlinear systems, dynamic noise-dominant regions, variational inference, particle filter, state-dependent
+\end{IEEEkeywords}
+
+\section{Introduction} \label{sec:intro}
+Over the past decades, state estimation theory has been extensively applied in various industrial scenarios and academic studies, such as target tracking, traffic monitoring, object recognition, automation processes, financial econometrics, and so on\cite{chang1984application,perera2012maritime,denzler2002information,zhang2015survey,lopes2011particle,chen2019distributed}. One of the fundamental challenges in the state estimation problem is designing appropriate filtering algorithms to denoise the observation data and then reconstruct the target state. Substantial effective filters for diverse dynamic systems have been developed, with notable examples including the Kalman Filter (KF)\cite{rigatos2011derivative,shi2014set}, Extended Kalman Filter (EKF)\cite{ljung1979asymptotic,van2011localized}, Unscented Kalman Filter (UKF)\cite{sarkka2007unscented,zhao2017robust}, Particle Filter (PF)\cite{gustafsson2002particle,doucet2001particle,rigatos2009particle}, etc. However, the observation process may be affected by a range of practical factors (e.g., communication delays\cite{schenato2008optimal,wang2024state}, resource constraints\cite{zhang2024direct,huang2024recursive}, data packet dropouts\cite{sun2008optimal,shi2010kalman,hu2012extended}, and external attacks\cite{zhang2024quantization,wang2024distributed}), resulting in outlier observation data. The occurrence of outlier observations significantly impairs the performance of the filtering algorithms. Consequently, the study of estimator design under outlier conditions has been emerging as a hotspot that is attracting significant interest from researchers.
+
+One of the challenges posed by these conditions is the degradation of state estimation performance due to the observation data with high noise levels, often referred to as noise-dominant signals\cite{zheng2021novel,zhou2020empirical,moon2021discrete}. Noise-dominant signals are defined as signals that comprise a mixture of noise and weak signal components, where noise dominates but some residual signals may still exist. In practical scenarios, noise-dominant signals typically occur in specific dynamic areas subject to environmental disturbances. This phenomenon is commonly observed in target tracking tasks, particularly when vehicles enter moving clouds or are obscured by buildings, as illustrated in Fig. \ref{fig:DNDR}. These specific dynamic areas, where observations are likely to become outliers due to intense additive noise, are hereafter referred to as {\it Dynamic Noise-Dominant Regions} (DNDRs).
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.85\linewidth]{img/DNDR.eps}
+    \caption{In an urban autonomous driving scenario, both vehicles A (equipped with a radar sensor) and B are in motion. When a building obstructs the line-of-sight between them, vehicle B falls within the DNDR due to signal attenuation. As a result, vehicle A's received signal exhibits significant uncertainty, potentially leading to outlier data.}
+    \label{fig:DNDR}
+\end{figure}
+
+Disturbances from DNDRs are essentially characterized as Heavy-Tailed Noise (HTN), meaning that the noise follows a probability distribution with tails that decay more slowly than those of a light-tailed (e.g., normal) distribution, thereby increasing the likelihood of extreme values or outliers. Agamennoni et al. \cite{agamennoni2012approximate} have proposed a novel approximate inference approach for state estimation under HTN, in which the covariance of the measurement noise has been modeled by an inverse Wishart distribution. In \cite{zhu2021novel,zhu2021adaptive}, the HTN distribution has been modeled by a Gaussian-Gamma Mixture (GGM) model. In order to address the inaccuracies of noise covariances, adaptive filters for linear systems have been developed via variational Bayesian methods. Bai et al. \cite{bai2021novel} have investigated the cooperative localization problem for autonomous underwater vehicles and have proposed a robust Kalman filter to handle heavy-tailed and nonstationary noise, where the HTN has been characterized using a normal-Gamma-inverse-Wishart formulation. These works formulated the HTN distribution as a Gamma or an inverse Wishart function, which is independent of the state variable. As a result, these modeling strategies cannot describe the statistical properties of signals within DNDRs accurately, motivating us to explore more appropriate methods to resolve the problem with the {\it State-Dependent Heavy-Tailed Noise} (SDHTN).
+
+Both varying parameters of the DNDRs and outlier covariances of the HTN are unknown to the estimator and can be regarded as {\it hidden variables} (similar to system states). Variational Inference (VI) is an effective approach to handle estimation and learning problems involving hidden variables\cite{blei2017variational,zhang2018advances}. Several studies have applied VI theory in the field of state estimation\cite{ma2018multiple,wang2019variational,zhu2021novel,zhu2021adaptive,zhu2021vb}.
+Ma et al. \cite{ma2018multiple} and Wang et al. \cite{wang2019variational} have developed multiple-model filters for linear Markov jump systems, addressing scenarios with known and unknown noise covariances, respectively. In particular, Zhu et al. \cite{zhu2021novel,zhu2021adaptive} have proposed novel filtering algorithms for HTN using variational inference techniques. These works augment the state vector with the unknown system parameters (e.g., noise covariances) as a single joint hidden variable and obtain the approximate functions of the posterior distribution using variational Bayesian inference, offering a novel insight for state estimation. Nevertheless, these methods remain confined to addressing independent random hidden variables, thereby necessitating further advancements to recover states from observations in which the noise is dynamically coupled with the states.
+
+On the other hand, studies mentioned above mostly focus on basic linear systems, leaving the state estimation problem for nonlinear systems largely unresolved. Nonlinear system state estimation is crucial for accurately modeling and controlling real-world dynamic systems. It enables the reconstruction of unobservable states (e.g., battery health parameters\cite{meng2017overview}) and handles inherent uncertainties that destabilize systems like robotics, GPS navigation, and power grids.\cite{chen2011kalman,hashim2023uwb,cheng2024survey}. Although the PF based on the Importance Sampling (IS) technique serves as a prevailing nonlinear estimation technique \cite{chen2003bayesian,doucet2009tutorial,schon2005marginalized}, the conventional PF lacks an interpretable formulation for handling the state-dependent noise. Therefore, it is necessary to integrate these two approaches (VI and IS), which have been relatively underexplored in existing research.
+
+Building on the previous discussion, this paper aims to explore state estimation within the VI framework by incorporating outlier noise covariances and the features of DNDRs as hidden state variables. This integration seeks to improve state estimation accuracy and explainability during the system passes through DNDRs. The main contributions of this paper can be summarized as follows:
+\begin{enumerate}{\it
+    \item To mitigate the impact of outlier data induced by dominant noise, we model the heavy-tailed observation noise distribution as a state-dependent GGM model. To the best of our knowledge, this is one of the first works that establishes a connection between the noise and the state.
+    \item To address the complex nonlinearity introduced by the SDHTN, we develop a filter utilizing the variational Bayesian theory to solve the state estimation problem for nonlinear systems, which provides more interpretability than the conventional PF.
+    \item We design a paradigm for integrating the importance sampling technique into the VI framework. A recursive structure combining empirical measure with analytically tractable expression is also provided. 
+    \item A theoretical proof is provided to demonstrate the stability of the proposed filter, ensuring that the mean estimation error remains bounded as time approaches infinity. Furthermore, we investigate its computational complexity and show that it is of the same order as that of the traditional PF.}
+\end{enumerate}
+
+The paper is structured as follows.
+Section \ref{sec:model} introduces the dynamic nonlinear system and the observation scheme that is influenced by DNDRs. 
+Section \ref{sec:main} describes the derivation of the Variational Particle Filter (VPF) and discusses the properties of the proposed algorithm.
+In Section \ref{sec:analysis}, we present a proof of stability and analyze the computational complexity.
+As an illustrative example, we consider a target tracking task within DNDRs in Section \ref{sec:experiment}.
+Finally, the main contributions and innovations of the paper are summarized in Section \ref{sec:conclusion}.
+For the sake of readability, the proofs of the main results are collected in the Appendix.
+% The proofs of some intermediate results are omitted here for space constraint
+
+{\bf Notations:}
+The notation $\mathbb{R}^n$ denotes the $n$-dimensional Euclidean space. The matrix inequality $\bm{A}>\bm{B}$ ($\bm{A}\geq\bm{B}$, respectively) represents that $\bm{A}-\bm{B}$ is a positive definite matrix (positive semi-definite matrix, respectively).
+$\bm{A}^\top\bm{A}$ is denoted by $\Vert\bm{A}\Vert^2$ and $\bm{A}^\top\bm{B}\bm{A}$ is denoted by $\Vert\bm{A}\Vert^2_{\bm{B}}$. The notation $(\cdot)^\top$ denotes the transpose operator. Notations $\E{\cdot|\cdot}$, $p(\cdot)$, and $p(\cdot|\cdot)$ describe the conditional expectation operator, probability measure, and conditional probability measure, respectively. The Probability Density Function (PDF) of a Gaussian random variable $\x\in\mathbb{R}^n$ is denoted as $\mathcal{N}(\bm{x};\bm\mu,\bm\Sigma)$ where
+$$
+\mathcal{N}(\bm{x};\bm\mu,\bm\Sigma) \coloneqq \frac{1}{\sqrt{(2\pi)^n\vert\bm\Sigma\vert}}\e{-\frac{1}{2}(\bm{x}-\bm\mu)\bm\Sigma^{-1}(\bm{x}-\bm\mu)^\top}\fs
+$$
+% $\mathbb{I}_{A}$ means an indicator function, which is equal to $1$ when event $A$ occurs and $0$ otherwise.
+
+\section{Problem Formulation and Preliminaries} \label{sec:model}
+
+\subsection{System Model}
+The State Space Model (SSM) is formulated as:
+\begin{equation} \label{eq:SSM} % state space model
+\x_{t+1} = f(\x_t) + \bm{w}_t
+\end{equation}
+where $\x_t\in\mathbb{R}^{n}$ is the state variable, $\bm{w}_t\in\mathbb{R}^n$ is a Gaussian white noise with zero mean and covariance $\bm{Q}>0$, and $f(\cdot):\mathbb{R}^n\mapsto\mathbb{R}^n$ is a nonlinear function. The initial condition $\x_0$ is a Gaussian random variable with mean $\bm{\mu}_{\x}$ and covariance $\bm{\Sigma}_{\x}>0$.
+
+It is assumed that the DNDR at time $t$ can be characterized by the variable $\bm\phi_t$ (maybe including the shape, size, position, etc. of the DNDR) and is specified as $\mathcal{R}(\bm\phi_t)$. The dynamic characteristic model is formulated as:
+\begin{equation} \label{eq:DCM} % observation-denied region model
+\bm\phi_{t+1} = g(\bm\phi_t) + \bm\varepsilon_t
+\end{equation}
+where $\bm\phi_{t}\in\mathbb{R}^r$ is the characteristic variable,  $\bm{\varepsilon}_t\in\mathbb{R}^r$ is a Gaussian white noise with zero mean and covariance $\bm{\Psi}>0$, and $g(\cdot):\mathbb{R}^r\mapsto\mathbb{R}^r$ is a nonlinear function. The initial condition $\bm\phi_0$ is a Gaussian random variable with mean $\bm{\mu}_{\bm\phi}$ and covariance $\bm{\Sigma}_{\bm\phi}>0$.
+
+The model of the observation data is described as:
+\begin{equation} \label{eq:OM} % observation model
+\y_t = h(\x_t) + \bm{v}_t
+\end{equation}
+where $\y_t\in\mathbb{R}^m$ is the data variable, and $h(\cdot):\mathbb{R}^n\mapsto\mathbb{R}^m$ is a nonlinear function. $\bm{v}_t\in\mathbb{R}^m$ is the unknown SDHTN, which is given as:
+$$
+p(\bm{v}_t) \sim \gamma_t\mathcal{N}(\bm{v}_t;\bm{0},\bm{R}) + (1-\gamma_t)\tilde{p}(\bm{v}_t)
+% p(\bm{v}_t) \sim (1-\gamma_t)\mathcal{N}(\bm{v}_t;\bm{0},\bm{R}) + \gamma_t\tilde{p}(\bm{v}_t)
+$$
+where $\mathcal{N}(\bm{v}_t;\bm{0},\bm{R})$ is the Gaussian distribution with zero mean and covariance $\bm{R}>0$, $\tilde{p}(\bm{v}_t)$ denotes the distribution of outliers, and $\gamma_t\in\{0,1\}$ is a binary variable as follows: 
+\begin{equation} \label{eq:gamma}
+\gamma_t = \begin{cases}
+0, & \x_t \in \mathcal{R}(\bm\phi_t) \\
+1, & \x_t \notin \mathcal{R}(\bm\phi_t)
+\end{cases} \fs
+\end{equation}
+If the state at time $t$ lies within the DNDR $\mathcal{R}(\bm\phi_t)$, then $\gamma_t=0$, rendering the observation drowned out by elevated noise. In this paper, the outlier distribution $\tilde{p}(\bm{v}_t)$ is modeled by $\mathcal{N}(\bm{v}_t;\bm{0},\tilde{\bm{R}})$ where $\tilde{\bm{R}}=\bm{R}/\lambda_t$. The outlier coefficient $\lambda_t$ is a scalar random variable with mean $0<\E{\lambda_t}\ll1$, indicating that DNDRs usually amplify the observation noise. The statistical properties of $\lambda_t$ are modeled by a mixture of Gamma distributions:
+\begin{equation} \label{eq:outlier-coe-pdf}
+    p(\lambda_t) = \sum_{k=1}^K\pi_k\Gamma(\lambda_t;\alpha_k,\beta_k)
+\end{equation}
+where $\Gamma(\cdot;\alpha_k,\beta_k)$ represents the Gamma distribution with shape parameter $\alpha_k$ and rate parameter $\beta_k$, $K$ denotes the number of Gamma mixture components, and $\pi_k$ stands for the mixing weights of the $k$th component, satisfying $\pi_k\geq0$ and $\sum_{k=1}^K\pi_k=1$.
+
+\begin{assumption} \label{A1}
+The initial conditions $\x_0$ and $\bm\phi_0$ are mutually independent.
+\end{assumption}
+
+\begin{assumption} \label{A2}
+For each time $t$, the state noise $\bm{w}_t$, the characteristic noise $\bm{\varepsilon}_t$, and the observation noise $\bm{v}_t$ are mutually independent.
+\end{assumption}
+
+\begin{assumption} \label{A3}
+The outlier coefficient $\lambda_t$ is independent of state $\x_s$ and characteristic $\bm\phi_s$ ($\forall s>0$), as well as $\lambda_s$ ($\forall s\neq t$).
+\end{assumption}
+
+\begin{assumption} \label{A4}
+For an arbitrary vector $\x\in\mathbb{R}^{n}$, the process function $f(\cdot)$ satisfies
+$$
+\Vert f(\x)\Vert \leq \alpha\Vert\x\Vert+\beta 
+$$
+where $0\leq\alpha<1$ and $\beta>0$.
+\end{assumption}
+
+\begin{assumption} \label{A5}
+The $L_2$-norm of the process noise $\bm{w}_t$ is bounded, i.e.,
+$$
+\Vert\bm{w}_t\Vert < \nu
+$$
+where $0<\nu<\infty$ is a finite constant.
+\end{assumption}
+
+Since the state and the characteristic of the DNDR obey independent Markov processes respectively, we treat them as a single variable $\z_t\coloneqq[\x_t^\top,\bm\phi_t^\top]^\top$ with the following transition equation:
+\begin{equation} \label{eq:z-transition-1}
+    \z_{t+1} = \begin{bmatrix}
+        f(\x_t) \\
+        g(\bm\phi_t)
+    \end{bmatrix} + \begin{bmatrix}
+        \bm{w}_t \\
+        \bm\varepsilon_t
+    \end{bmatrix} \fs
+\end{equation}
+By defining $\overline{f}(\z_t)\coloneqq[f(\x_t)^\top,g(\bm\phi_t)^\top]^\top$ and $\bm\eta_t\coloneqq[\bm{w}_t^\top,\bm\varepsilon_t^\top]^\top$, \eqref{eq:z-transition-1} can be written as
+\begin{equation} \label{eq:z-transition-2}
+    \z_{t+1} = \overline{f}(\z_t) + \bm\eta_t \fs
+\end{equation}
+Based on Assumption \ref{A2}, $\bm\eta_t\in\mathbb{R}^{\overline{n}}$ where $\overline{n}=n+r$ is a Gaussian white noise with zero mean and covariance $\overline{\bm{Q}}>0$ where $\overline{\bm{Q}}$ is an augmented matrix:
+$$
+\overline{\bm{Q}} = \begin{bmatrix}
+    \bm{Q} & \bm{0} \\
+    \bm{0} & \bm{\Psi}
+\end{bmatrix} \fs
+$$
+Correspondingly, the initial value $\z_0$ is a Gaussian random variable with mean $\bm\mu=[\bm\mu_\x^\top,\bm\mu_{\bm\phi}^\top]^\top$ and covariance $\bm\Sigma>0$ where $\bm\Sigma=\diag{\bm\Sigma_\x,\bm\Sigma_{\bm\phi}}$.
+
+For simplicity of presentation, we denote all unknown variables as a hidden variable $\bm\theta_t\coloneqq\{\x_t,\bm\phi_t,\lambda_t\}$, and we denote the observation data sequence as $\y_{1:t}\coloneqq\{\y_1,\cdots,\y_t\}$.
+
+
+\subsection{Information Entropy and Kullback-Leibler Divergence} \label{sec:KLD}
+In information theory, the entropy of a random variable quantifies the average uncertainty or information associated with its potential states. Claude Shannon defined the entropy of a random variable $X$ distributed with $p$ as
+$$
+H(p) = \E{I(X)} = -\int{p(x)\log p(x)}\,\mathrm{d}x
+$$
+in \cite{shannon1948mathematical}, where $I(X) = -\log{p(X)}$ represents the information content of $X$.
+Following this, the cross-entropy between two probability distributions $p$ and $q$, defined over the same set of events, is given by 
+$$
+H(p, q) = \E[p]{-\log q(X)} = -\int{p(x)\log{q(x)}}\,\mathrm{d}x \cm 
+$$  
+which represents the average number of bits required to encode an event when using a coding scheme optimized for an {\it unnatural} distribution $q$ instead of the {\it true} distribution $p$.
+
+Based on these concepts, Kullback-Leibler (KL) divergence (also called relative entropy) is a type of statistical distance that measures how much an unnatural probability distribution $q$ is different from a true probability distribution $p$. Mathematically, it is defined as:
+$$
+D_{\rm KL}(p\Vert q) = \E[p]{\log\frac{p(X)}{q(X)}} = \int{p(x)\log\frac{p(x)}{q(x)}}\,\mathrm{d}x \fs
+$$
+Alternatively, the KL divergence can be expressed in terms of entropy and cross-entropy as
+$$
+D_{\rm KL}(p\Vert q) = H(p,q) - H(p) \cm
+$$
+highlighting its interpretation as a measure of how far the distribution $q$ is from the distribution $p$.
+
+% \begin{remark}
+% It is noted that the KL-divergence is non-symmetric, i.e.
+% $$
+% D_{\rm KL}(p\Vert q) \neq D_{\rm KL}(q\Vert p) \fs
+% $$    
+% \end{remark}
+
+
+\subsection{Objective}
+Our objective is to select an approximate probability distribution $q$ from a family of tractable probability distributions $\mathcal{Q}$. Each $q(\bm\theta_t)\in\mathcal{Q}$ serves as a candidate approximation of the true posterior distribution $p(\bm\theta_t|\y_{1:t})$, and our goal is to seek the one that minimizes the KL divergence. This can be formulated as the following optimization problem:
+\begin{equation}
+    \hat{q}(\bm\theta_t) = \argmin{q(\bm\theta_t)\in\mathcal{Q}}D_{\rm KL}(q(\bm\theta_t)\Vert p(\bm\theta_t|\y_{1:t})) \fs
+\end{equation}
+In other words, we aim to find an approximation that is closest to the true posterior while remaining computationally feasible.
+
+
+\section{Main Results} \label{sec:main}
+In this section, we will derive the filtering algorithm through variational inference and importance sampling techniques. Some features of the proposed filter will be discussed subsequently.
+
+\subsection{Development of the Variational Praticle Filter}
+Our objective is to find the Minimum Mean-Square Error (MMSE) estimate of the true state based on historical observation data. This requires minimizing the conditional mean-square error between the true state $\bm\theta_t$ and its estimate $\hat{\bm\theta}_t$ as follows: 
+\begin{problem} \label{prob:MMSE}
+Given observations $\y_{1:t}$, the MMSE estimate of the state $\bm\theta_t$ is given by:
+\begin{equation*}
+    \hat{\bm\theta}_t^{\rm MMSE} = \argmin{\hat{\bm\theta}_t}\E{\Vert\bm\theta_t-\hat{\bm\theta}_t\Vert^2|\y_{1:t}} \cm
+\end{equation*}
+which is equivalent to computing the conditional expectation:
+\begin{equation*}
+    \hat{\bm\theta}_t^{\rm MMSE} = \E{\bm\theta_t|\y_{1:t}} \fs
+\end{equation*}
+\end{problem}
+
+However, computing the conditional expectation of $\bm\theta_t$ requires integrating over the posterior distribution:
+\begin{equation} \label{eq:estimate-MMSE}
+    \hat{\bm\theta}_t = \int{\bm\theta_tp(\bm\theta_t|\y_{1:t})}\,\mathrm{d}\bm\theta_t \fs
+\end{equation}
+To evaluate this integral, we first derive the posterior distribution $p(\bm\theta_t|\y_{1:t})$. According to the Bayesian conditional probability formula, we have
+\begin{equation} \label{eq:p(theta|y)}
+    p(\bm\theta_t|\y_{1:t}) = \frac{p(\bm\theta_t,\y_{1:t})}{p(\y_{1:t})} \fs
+\end{equation}
+The numerator of \eqref{eq:p(theta|y)} can be expanded via the total probability formula by marginalizing over $\theta_{t-1}$:
+$$
+p(\bm\theta_t,\y_{1:t}) = \int p(\bm\theta_t,\bm\theta_{t-1},\y_t,\y_{1:t-1})\,\mathrm{d}\bm\theta_{t-1}
+$$
+where
+\begin{equation*}
+\begin{split}
+    &p(\bm\theta_t,\bm\theta_{t-1},\y_t,\y_{1:t-1}) \\
+    % &\quad= p(\y_t|\bm\theta_t,\bm\theta_{t-1},\y_{1:t-1})p(\bm\theta_t|\bm\theta_{t-1},\y_{1:t-1})\\
+    % &\qquad\times p(\bm\theta_{t-1}|\y_{1:t-1})p(\y_{1:t-1}) \\
+    &\quad= p(\y_t|\bm\theta_t)p(\bm\theta_t|\bm\theta_{t-1})p(\bm\theta_{t-1}|\y_{1:t-1})p(\y_{1:t-1}) \fs
+\end{split}
+\end{equation*}
+Thus the joint density function of the hidden variable $\bm\theta_t$ and observation data $\y_{1:t}$ can be written as
+\begin{equation} \label{eq:joint-pdf}
+\begin{split}
+    p(\bm\theta_t,\y_{1:t})
+    &= p(\y_{1:t-1})p(\y_t|\bm\theta_t)\\
+    &\quad\times\int p(\bm\theta_t|\bm\theta_{t-1})p(\bm\theta_{t-1}|\y_{1:t-1})\,\mathrm{d}\bm\theta_{t-1} \fs
+\end{split}
+\end{equation}
+According to the Markov properties from model \eqref{eq:z-transition-2} and independence from Assumption \ref{A3}, we obtain
+\begin{equation} \label{eq:transition-pdf}
+\begin{split}
+    p(\bm\theta_t|\bm\theta_{t-1}) &= p(\z_t,\lambda_t|\z_{t-1},\lambda_{t-1}) \\
+    &= p(\z_t|\z_{t-1},\lambda_t,\lambda_{t-1}) p(\lambda_t|\z_{t-1},\lambda_{t-1}) \\
+    &= p(\z_t|\z_{t-1})p(\lambda_t) \fs
+\end{split}
+\end{equation}
+Substituting \eqref{eq:transition-pdf} into \eqref{eq:joint-pdf}, the posterior density can be formulated as
+\begin{equation*}
+\begin{split}
+    p(\bm\theta_t|\y_{1:t}) &= \frac{p(\y_{1:t-1})}{p(\y_{1:t})}p(\y_t|\z_t,\lambda_t)p(\lambda_t)\\
+    &\quad\times\int{p(\z_t|\z_{t-1})p(\bm\theta_{t-1}|\y_{1:t-1})}\,\mathrm{d}\bm\theta_{t-1} \fs
+\end{split}
+\end{equation*}
+Denote the integral term $\int{p(\z_t|\z_{t-1})p(\bm\theta_{t-1}|\y_{1:t-1})}\mathrm{d}\bm\theta_{t-1}$ as $p^-_{t-1}(\z_t)$, which means the predictive distribution of $\z_t$ given $\y_{1:t-1}$. Then, we obtain
+\begin{equation} \label{eq:posterior}
+    p(\bm\theta_t|\y_{1:t}) \propto p(\y_t|\z_t,\lambda_t)p(\lambda_t)p^-_{t-1}(\z_t) \fs
+\end{equation}
+
+It is noteworthy that obtaining the analytical expression for the integral in $p^-_{t-1}(\z_t)$ is intractable due to the nonlinearity of the function $\overline{f}(\cdot)$ and the coupling among hidden variables in the posterior probability $p(\bm\theta_{t-1}|\y_{1:t-1})$ at the previous time step. Subsequently, obtaining the MMSE estimate becomes difficult, and it is necessary to find an alternative strategy to tackle this problem.
+
+An intuitive approach might involve replacing the intractable posterior $p(\z_t|\y_{1:t})$ with a certain tractable distribution $q(\z_t)$ approximately. This approximate distribution is known as the variational distribution, while the set of variational distributions that share a tractable structure is designated as the variational family. One criterion for selecting the variational distribution is the KL divergence introduced in Section \ref{sec:KLD}. By minimizing the KL divergence between the candidate variational distributions and the posterior distribution, we can determine an appropriate function $\hat{q}(\z_t)$ to approximately describe the probability distribution of the hidden random variable $\bm\theta_t$ under the condition of $\y_{1:t}$. Consequently, the research trajectory can be refocused on solving the following problem:
+\begin{problem} \label{prob:KLD}
+Given observations $\y_{1:t}$, the optimal variational distribution in the minimum KL-divergence sense is
+\begin{equation*}
+    \hat{q}(\bm\theta_t) = \argmin{q(\bm\theta_t)\in\mathcal{Q}}D_{\rm KL}(q(\bm\theta_t)\Vert p(\bm\theta_t|\y_{1:t}))
+\end{equation*}
+where $\mathcal{Q}$ is the variational family and each $q(\bm\theta_t)\in\mathcal{Q}$ is a candidate variational distribution. Then the estimate of state $\bm\theta_t$ is given by:
+\begin{equation*}
+    \hat{\bm\theta}_t = \E[\hat{q}]{\bm\theta_t|\y_{1:t}} \fs
+\end{equation*}
+\end{problem}
+
+\begin{remark}
+    Rather than directly deriving the MMSE estimator (Problem \ref{prob:MMSE}), we strategically reformulate the task as KL-divergence minimization (Problem \ref{prob:KLD}). Reframing the problem space converts intractable integration into a computationally feasible optimization process.
+\end{remark}
+
+We introduce the {\it mean-field theory}\cite{blei2017variational} to construct the variational family. The mean-field theory assumes that components of the hidden variable are mutually independent. Therefore, we have the following assumption.
+\begin{assumption} \label{assump:mean-field}
+The variational distribution has the mean-field structure, i.e.,
+\begin{equation} \label{eq:mean-field}
+    q(\bm\theta_t) = q(\z_t)q(\lambda_t) \fs
+\end{equation}    
+\end{assumption}
+
+\begin{remark}    
+    Generally, in the context of VI, the variational distribution $q(\bm\theta_t)$ is assumed to be not conditioned on the observation data \cite{ganguly2021introduction}. From this perspective, it implies that $\lambda_t$ is independent of the augmented variable $\z_t$, supporting the validity of Assumption \ref{assump:mean-field}.
+\end{remark}
+
+Applying the mean-field family and minimizing the KL divergence $D_{\rm KL}(q(\bm\theta_t)\Vert p(\bm\theta_t|\y_{1:t}))$, the following results are derived:
+\begin{theorem} \label{thm:MFVI} % mean-field variational inference
+Given observations $\y_{1:t}$, the variational distributions in \eqref{eq:mean-field} satisfy:
+\begin{align*}
+    q(\z_t) &\propto \e{\E[q(\lambda_t)]{\log{p(\bm\theta_t,\y_{1:t})}}}\cm \\ 
+    q(\lambda_t) &\propto \e{\E[q(\z_t)]{\log{p(\bm\theta_t,\y_{1:t})}}}\fs
+\end{align*}
+\end{theorem}
+\begin{IEEEproof}
+    For the proof, please refer to \cite{blei2017variational}.
+\end{IEEEproof}
+
+In this paper, $q(\z_t)$ is computed as $q^{(\ell)}(\z_t)$ at the $\ell$th iteration based on $q^{(\ell-1)}(\lambda_t)$, and $q(\lambda_t)$ is computed as $q^{(\ell)}(\lambda_t)$ at the $\ell$th iteration based on $q^{(\ell)}(\z_t)$. Overall, the optimal variational distribution minimizing the KL divergence can be obtained by alternating the following steps:
+\begin{align}
+    q^{(\ell)}(\z_t) &\propto \e{\E[q^{(\ell-1)}(\lambda_t)]{\log{p(\bm\theta_t|\y_{1:t})}}}\cm \label{eq:q(z)} \\
+    q^{(\ell)}(\lambda_t) &\propto \e{\E[q^{(\ell)}(\z_t)]{\log{p(\bm\theta_t|\y_{1:t})}}}\cm \label{eq:q(lambda)}
+\end{align}
+until the Evidence Lower Bound (ELBO) converges\cite{blei2017variational}. By denoting the optimal variational distribution as $\hat{q}(\bm\theta_t)=\hat{q}(\bm\z_t)\hat{q}(\lambda_t)$, the estimate of the state $\hat\x_t$ can be obtained by
+% $$ % Typesetting 1
+% \begin{bmatrix}
+%     \hat\x_t\\
+%     \hat{\bm\phi}_t
+% \end{bmatrix} = \hat\z_t = \int{\z_t\hat{q}(\z_t)}\,\mathrm{d}\z_t \fs
+% $$
+$$ % Typesetting 2
+\hat\z_t = \begin{bmatrix}
+    \hat\x_t\\
+    \hat{\bm\phi}_t
+\end{bmatrix} = \int{\z_t\hat{q}(\z_t)}\,\mathrm{d}\z_t \fs
+$$
+
+
+Naturelly, we adopt the prior distribution $p(\lambda_t)$ as the initial condition of variational inference at time $k$:
+$$
+q^{(0)}(\lambda_t) = \sum_{k=1}^K\pi_{t,k}^{(0)}\Gamma(\lambda_t;\alpha_{t,k}^{(0)},\beta_{t,k}^{(0)})
+$$
+where $\pi_{t,k}^{(0)}=\pi_k$, $\alpha_{t,k}^{(0)}=\alpha_k$ and $\beta_{t,k}^{(0)}=\beta_k$. Since it is expressed as a Gamma mixture function, it is reasonable to assume that $q^{(\ell)}(\lambda_t)$ (for $\ell>0$) is formulated in the same way, as later proved in Proposition \ref{prop:q(lambda)}. Under this assumption, we can derive the expression for \eqref{eq:q(lambda)} and \eqref{eq:q(z)}. The resulting formulations are summarized in the following two propositions.
+
+\begin{proposition} \label{prop:q(z)}
+At time $t$, given observation $\y_t$ and particles $\z_t^i\sim p^-_{t-1}(\z_t)$ where $\z_t^i=\{\x_t^i,\bm\phi_t^i\}$ for $i=1,\dots,N$, suppose that the variational distribution $q^{(\ell)}(\lambda_t)$ takes the form 
+$$q^{(\ell-1)}(\lambda_t)=\sum_{k=1}^K\pi_{t,k}^{(\ell-1)}\Gamma(\lambda_t;\alpha_{t,k}^{(\ell-1)},\beta_{t,k}^{(\ell-1)})\cm$$
+then \eqref{eq:q(z)} is formulated as a weighted sum of Dirac delta functions, i.e.,
+\begin{equation} \label{eq:q(l)(z)}
+    q^{(\ell)}(\z_t) = \sum_{i=1}^{N}\varpi_t^{i,(\ell)}\delta(\z_t-\z_t^i) \fs
+\end{equation}
+Herein, the normalized weights are given by
+$$
+\varpi_t^{i,(\ell)}=\frac{\omega_t^{i,(\ell)}}{\sum_{j=1}^N\omega_t^{j,(\ell)}}
+$$
+with $\omega^{i,(\ell)}_t=\exp\{\zeta^{i,(\ell)}_t\}$ where
+\begin{equation} \label{eq:weights}
+    \zeta^{i,(\ell)}_t = \frac{m}{2}c_t^{(\ell-1)}\tilde\gamma_t^i-\frac{1}{2}(1+\tilde\gamma_t^id_t^{(\ell-1)})\Vert\y_t-h(\x_t^i)\Vert^2_{\bm{R}^{-1}}
+\end{equation}
+%% 排版1
+% \begin{equation} \label{eq:weight}
+% \begin{split}
+%     \omega^{i,(\ell)}_t = \exp\Big\{\frac{m}{2}c_t^{(\ell-1)}\tilde\gamma_t^i - \frac{1}{2}&(1+\tilde\gamma_t^id_t^{(\ell-1)})\\
+%     &\times\Vert\y_t-h(\x_t^i)\Vert^2_{\bm{R}^{-1}}\Big\}
+% \end{split}
+% \end{equation}
+% 排版2
+% \begin{equation} \label{eq:weight}
+% \begin{split}
+%     \omega^{i,(\ell)}_t = \exp\Big\{&\frac{m}{2}c_t^{(\ell-1)}\tilde\gamma_t^i\\
+%     &- \frac{1}{2}(1+\tilde\gamma_t^id_t^{(\ell-1)})\Vert\y_t-h(\x_t^i)\Vert^2_{\bm{R}^{-1}}\Big\}
+% \end{split}
+% \end{equation}
+with
+\begin{equation} \label{eq:~gamma}
+    \tilde\gamma_t^i = \begin{cases}
+        1, & \x_t^i\in\mathcal{R}(\bm\phi_t^{(i)}) \\
+        0, & \x_t^i\notin\mathcal{R}(\bm\phi_t^{(i)}) 
+    \end{cases} \fs
+\end{equation}
+and
+\begin{align}
+    c_t^{(\ell-1)} &= \sum_{k=1}^K\pi_{t,k}^{(\ell-1)}\left(\psi(\alpha_{t,k}^{(\ell-1)})-\log\beta_{t,k}^{(\ell-1)}\right)\cm \label{eq:c}\\
+    d_t^{(\ell-1)} &= \sum_{k=1}^K\pi_{t,k}^{(\ell-1)}\frac{\alpha_{t,k}^{(\ell-1)}}{\beta_{t,k}^{(\ell-1)}}-1\fs \label{eq:d}
+\end{align}
+In this paper, $\psi(\cdot)$ denotes the {\it digamma function}.
+\end{proposition}
+\begin{IEEEproof}
+    The proof can be seen in Appendix \ref{app:proof-q(z)}.
+\end{IEEEproof}
+
+\begin{proposition} \label{prop:q(lambda)}
+    At time $t$, given observation $\y_t$, suppose that the variational distribution of $\z_t$ takes the form given by \eqref{eq:q(l)(z)} in Proposition \ref{prop:q(z)} where $\z_t^i\sim p^-_{t-1}(\z_t)$ for $i=1,\dots,N$, then \eqref{eq:q(lambda)} is formulated as a Gamma mixture distribution, i.e.,
+    \begin{equation}
+        q^{(\ell)}(\lambda_t) = \sum_{i=k}^K\pi_t^{k,(\ell)}\Gamma(\lambda_t;\alpha_t^{k,(\ell)},\beta_t^{k,(\ell)}) \fs
+    \end{equation}
+    Herein, the updated shape and rate parameters are given by $\alpha_t^{k,(\ell)}=\alpha_k+a_t^{(\ell)}$ and $\beta_t^{k,(\ell)}=\beta_k+b_t^{(\ell)}$ with
+    \begin{align}
+        a_t^{(\ell)} &= \frac{m}{2}\sum_{i=1}^N\varpi_t^{i,(\ell)}\tilde\gamma_t^i\cm \label{eq:a}\\ 
+        b_t^{(\ell)} &= \frac{1}{2}\sum_{i=1}^N\varpi_t^{i,(\ell)}\tilde\gamma_t^i\Vert\y_t-h(\x_t^i)\Vert^2_{\bm{R}^{-1}} \label{eq:b}
+    \end{align}
+    where $\tilde\gamma_t^i$ is defined in \eqref{eq:~gamma}. The updated weights are given by
+    \begin{equation} \label{eq:pi}
+        \pi_t^{k,(\ell)} = \frac{\pi_kC_{t,k}^{(\ell)}}{\sum_{s=1}^K\pi_sC_{t,s}^{(\ell)}}
+    \end{equation}
+    where
+    $$
+    C_{t,k}^{(\ell)} = \frac{\beta_k^{\alpha_k}}{(\beta_t^{k,(\ell)})^{\alpha_t^{k,(\ell)}}}\frac{\Gamma(\alpha_t^{k,(\ell)})}{\Gamma(\alpha_k)} \fs
+    $$
+\end{proposition}
+\begin{IEEEproof}
+    The proof can be seen in Appendix \ref{app:proof-q(lambda)}.
+\end{IEEEproof}
+
+It is worth noting that the shape and rate parameters of the Gamma distribution must be positive. Simultaneously, the weights of $q^{(\ell)}(\lambda_t)$ should satisfy $\sum_{k=1}^K\pi_t^{k,(\ell)}=1$ and $\pi_t^{k,(\ell)}>0$. Here is a theorem to ensure that the updated $q^{(\ell)}(\lambda_t)$ in Proposition \ref{prop:q(lambda)} remains a distribution of the Gamma mixture.
+\begin{theorem} \label{thm:GMM} % Gamma Mixture Model
+    Let $q^{(\ell)}(\lambda_t)$ be the variational distribution defined in Proposition \ref{prop:q(lambda)}. Then, for each $k=1,\dots,K$, the shape and rate parameters satisfy
+    $$ \alpha_t^{k,(\ell)}>0 \text{~and~} \beta_t^{k,(\ell)}>0\cm $$
+    respectively, and the corresponding weight satisfies
+    $$ \pi_t^{k,(\ell)} > 0\fs $$
+    % Let $q^{(\ell)}(\lambda_t)$ be the variational distribution defined in Proposition \ref{prop:q(lambda)}. Then, for each $k=1,\dots,K$, the shape and rate parameters satisfy $\alpha_t^{k,(\ell)}>0$ and $\beta_t^{k,(\ell)}>0$, respectively, and the corresponding weight satisfies $\pi_t^{k,(\ell)}>0$.
+\end{theorem}
+%% Proof --------------------------------------------------
+\begin{IEEEproof}
+The proof can be seen in Appendix \ref{app:thm-GMM}.
+\end{IEEEproof}
+
+Combined with the initial condition and Proposition \ref{prop:q(z)}-\ref{prop:q(lambda)}, we develop a variational particle filter as shown in Algorithm \ref{alg:VPF}.
+\begin{algorithm}[htbp] 
+\label{alg:VPF}
+\caption{Variational Particle Filter}
+\begin{algorithmic}[1]
+\Require Variational distribution $q(\z_{t-1}|\y_{1:t-1})$ at last time step, observation $\y_t$, and number of particles $N$.
+\Ensure Estimate $\hat\x_t$.
+% Sample
+\For{$i = 1$ to $N$}
+    \State Sample $\z_t^i$ from $\sum_{i=1}^N\varpi_{t-1}^i\mathcal{N}(\z_t;\overline{f}(\z_{t-1}^i),\overline{\bm{Q}})$\;
+\EndFor
+% Initialization
+\State $\ell \gets 0$\;
+% \State {\bf Initialization} 
+\For{$i = k$ to $K$}
+    \State Set $\pi_t^{k,(\ell)}\gets\pi_k$, $\alpha_t^{k,(\ell)}\gets\alpha_k$, $\beta_t^{k,(\ell)}\gets\beta_k$\;
+\EndFor
+\While{the ELBO has not converged}
+    \State Calculate $c_t^{(\ell-1)}$ and $d_t^{(\ell-1)}$ defined in \eqref{eq:c} and \eqref{eq:d}\;
+    \For{$i = 1$ to $N$}
+        \State Calculate $\omega_t^{i,(\ell)}$ based on $c_t^{(\ell-1)}$ and $d_t^{(\ell-1)}$ as \eqref{eq:weights}\;
+    \EndFor
+    \For{$i = 1$ to $N$}
+        \State Set $\varpi_t^{i,(\ell)} \gets \omega_t^{i,(\ell)} / \sum_{j=1}^N\omega_t^{j,(\ell)}$\;
+    \EndFor
+    \State $q^{(\ell)}(\z_t) \gets \sum_{i=1}^N\varpi_t^{i,(\ell)}\delta(\z_t-\z_t^i)$\;
+    \State Calculate $a_t^{(\ell)}$ and $b_t^{(\ell)}$ defined in \eqref{eq:a} and \eqref{eq:b}\;
+    \For{$k = 1$ to $K$}
+        \State Set $\alpha_t^{k,(\ell)}\gets\alpha_k+a_t^{(\ell)}$, $\beta_t^{k,(\ell)}\gets\beta_k+b_t^{(\ell)}$\;
+        \State Calculate $\pi_t^{k,(\ell)}$ defined in \eqref{eq:pi}\;
+    \EndFor
+    \State $q^{(\ell)}(\lambda_t) \gets \sum_{k=1}^K\pi_t^{k,(\ell)}\Gamma(\lambda_t;\alpha_t^{k,(\ell)},\beta_t^{k,(\ell)})$\;
+    \State Estimate $\x_t^{(\ell)} = \sum_{i=1}^N\varpi_t^{i,(\ell)}\x_t^i$\;\label{line:estimate}
+    \State $\ell \gets \ell+1$\;
+    \If{$\ell\geq L_{\rm max}$}
+    \State break
+    \EndIf
+\EndWhile
+\State \Return $\hat{\x}_t=\x_t^{(\ell)}$\;
+\end{algorithmic}
+\end{algorithm}
+
+In this algorithm, the filter initially draws $N$ particles from the approximate prior distribution $p(\z_t|\y_{1:t-1})$. Subsequently, based on newly arrived observation data $\y_t$, the algorithm performs variational iterations until convergence. Prior to the iterative process, the prior distribution of $\lambda_t$ is utilized to initialize the variational distribution $q^{(0)}(\lambda_t)$. At each iteration, the variational distributions $q^{(\ell)}(\z_t)$ and $q^{(\ell)}(\lambda_t)$ are updated alternately, where each distribution is optimized while keeping the other fixed. Finally, the estimate of the state is obtained by the empirical expectation with respect to the converged variational distribution.
+
+
+\subsection{Discussion of the Proposed Algorithm}
+In this section, some features of the proposed VPF algorithm are discussed.
+
+\subsubsection{Similarity with Kalman-Type Filters} % Kalman相似性
+The proposed VPF is composed of two parts. The sampling part generates particles at the current time step using the IS-approximated prior PDF $p(\z_t|\y_{1:t-1})$, and the iteration part approximates the posterior PDF $p(\z_t|\y_{1:t})$, which are analogous to the prediction and correction steps in traditional Kalman-type filters, respectively. Furthermore, at each time step, the final variational distribution after multiple iterations retains the same form. Overall, the proposed VPF is similar to Kalman-type filters in terms of its prediction-correction structure and recursive nature.
+
+\subsubsection{Form Invariance} % 形式不变性
+Throughout the variational iteration process, the mathematical forms of the variational distributions demonstrate structural invariance across successive iterations. Specifically, both $q^{(\ell)}(\z_t)$ and $q^{(\ell)}(\lambda_t)$ are observed to maintain identical mathematical forms as those from the previous iteration, namely $q^{(\ell-1)}(\z_t)$ and $q^{(\ell-1)}(\lambda_t)$, respectively. In more detail,
+\begin{itemize}
+    \item $q^{(\ell)}(\z_t)$ retains the form of an empirical measure;
+    \item $q^{(\ell)}(\lambda_t)$ retains an analytically tractable closed-form expression.
+\end{itemize}
+Such form invariance crucially enables stable progression of the iterative optimization by ensuring computational consistency between consecutive updates.
+
+\subsubsection{Explainability} % 可解释性
+At the $\ell$th iteration, the algorithm alternately computes $q^{(\ell)}(\lambda_t)$ and $q^{(\ell)}(\z_t)$. According to the sifting property of the Dirac delta function, the update of $q^{(\ell)}(\z_t)$ is equivalent to computing two updated variational distributions as follows:
+\begin{equation*}
+\begin{split}
+    q^{(\ell)}(\z_t) &= \sum_{i=1}^N\varpi_t^{i,(\ell)}\delta(\z_t-\z_t^i) \\
+    &= \left(\sum_{i=1}^N\varpi_{\x,t}^{i,(\ell)}\delta(\x_t-\x_t^i)\right)\left(\sum_{i=1}^N\varpi_{\bm\phi,t}^{i,(\ell)}\delta(\bm\phi_t-\bm\phi_t^i)\right) \\
+    &\eqqcolon q^{(\ell)}(\x_t)q^{(\ell)}(\bm\phi_t)
+\end{split}
+\end{equation*}
+where $\varpi_{\x,t}^{i,(\ell)}\varpi_{\bm\phi,t}^{i,(\ell)}=\varpi_t^{i,(\ell)}$.
+In other words, each iteration updates the approximate PDFs of hidden variables $\lambda_t$, $\bm\phi_t$ and the state $\x_t$ while fixing the others. Specifically, the variable $\lambda_t$ can be regarded as the communication feature of the DNDR, which affects the quality of the measurement signals, while the variable $\bm\phi_t$ can be regarded as the dynamically changing spatial feature of the DNDR. Based on the updated PDFs for the DNDR's communication and spatial features, the posterior distribution of the state $\x_t$ is evaluated, resembling state estimation in environments with complete knowledge. This demonstrates the explainability of the proposed VPF.
+
+
+\section{Performance Analysis} \label{sec:analysis}
+In this section, we will demonstrate the stability of the proposed filter and analyze the computational complexity of Algorithm \ref{alg:VPF}.
+
+\subsection{Stability}
+The stability of the estimator is a significant criterion for evaluating its long-term performance. A common approach to assess stability is through the Mean Squared Error (MSE):
+$$
+\mathrm{MSE}_t \coloneqq \E{\Vert\x_t-\hat\x_t\Vert^2} \fs
+$$
+An estimator is considered stable if its MSE remains bounded as time tends to infinity; otherwise, it is deemed unstable. Accordingly, we investigate the asymptotic behavior of MSE over an infinite time scale.
+
+The MSE quantifies the expected deviation between the estimate and the true state. Naturally, the accuracy of the estimation depends on the gap between the variational distribution and the true posterior distribution, which is depicted by KL-divergence in this paper. The KL-divergence between $\hat{q}(\x_t)$ and $p(\x_t|\y_{1:t})$ can be written as
+\begin{equation*}
+\begin{split}
+    D_{\rm KL}(\hat{q}\Vert p) &= \int{\hat{q}(\x_t)\log\frac{\hat{q}(\x_t)}{p(\x_t|\y_{1:t})}}\,\mathrm{d}\x_t \\
+    % &= \int{\sum_{i=1}^N\varpi_t^i\delta(\x_t-\x_t^i)\log\frac{\sum_{i=1}^N\varpi_t^i\delta(\x_t-\x_t^i)}{p(\x_t|\y_{1:t})}}\,\mathrm{d}\x_t \\
+    &= \sum_{i=1}^N\varpi_t^i\log\frac{\varpi_t^i}{p(\x_t^i|\y_{1:t})} \leq \log{\sum_{i=1}^N\frac{(\varpi_t^i)^2}{p(\x_t^i|\y_{1:t})}} \\
+\end{split}
+\end{equation*}
+where the last line follows from Jensen's Inequality. Since $\sum_{i=1}^N\varpi_t^i=1$, we have
+$$
+\sum_{i=1}^N\frac{(\varpi_t^i)^2}{p(\x_t^i|\y_{1:t})} \leq \frac{1}{p(\x_t^{i_{\rm m}}|\y_{1:t})}
+$$
+where $i_{\rm m}=\arg\min_{i}p(\x_t^i|\y_{1:t})$.
+
+Denote the support of $p(\x_t|\y_{1:t})$ as $\Omega_t$ and the support of $\hat{q}(\x_t)$ as $\Omega_t'$. Based on the {\it zero-forcing} property (i.e., $\hat{q}$ under-estimating $p$) of VI \cite{murphy2012machine}, it is evident that $\Omega_t'\subseteq\Omega_t$. Accordingly, the fact that
+% $$\{\x_t^{i_{\rm m}}\in\Omega_t'\} \Rightarrow \{\x_t^{i_{\rm m}}\in\Omega_t\}$$
+$$\x_t^{i_{\rm m}}\in\Omega_t' \Rightarrow \x_t^{i_{\rm m}}\in\Omega_t$$
+ensures that $p(\x_t^{i_{\rm m}}|\y_{1:t})>0$ holds for any $\y_{1:t}$. This implies that $D_{\rm KL}(\hat{q}\Vert p)<\infty$. Building upon this fact, we present the following lemma.
+\begin{lemma} \label{lem:KLD}
+For any $\y_{1:t}$, there always exists a constant $0<\kappa<\infty$ such that
+$$
+D_{\rm KL}(\hat{q}(\x_t)\Vert p(\x_t|\y_{1:t})) \leq \kappa \fs
+$$
+\end{lemma}
+
+Moreover, under Assumption \ref{A4} and \ref{A5}, we establish the following lemma, which shows that the state space is ultimately confined within a sphere of fixed radius.
+\begin{lemma} \label{lem:x-sup}
+Given $\Vert\x_0\Vert<\infty$, the $L_2$-norm of the state vector $\x_t$ is bounded by a positive constant as time tends to infinity, i.e., 
+$$ \limsup_{t\rightarrow\infty}\Vert\x_t\Vert \leq R $$
+where $R = \frac{\beta+\nu}{1-\alpha}$ and $0<R< \infty$. 
+\end{lemma}
+\begin{IEEEproof}
+    The proof can be seen in Appendix \ref{app:lem-x-sup}.
+\end{IEEEproof}
+
+Due to the independence between $\x_t$ and $\bm\phi_t$, sampling $\x_t^i$ as part of $\{\x_t^i, \bm\phi_t^i\}$ from the joint distribution $\mathcal{N}(\z_t; \overline{f}(\z_{t-1}^i), \overline{\bm{Q}})$ is equivalent to sampling $\x_t^i$ directly from the marginal distribution $\mathcal{N}(\x_t; f(\x_{t-1}^i), \bm{Q})$. As a result, the generation of the $i$th sample at time $t$ can be described as follows:
+$$
+\x_t^i = f(\x_{t-1}^i) + \bm{w}_{t-1}^i \cm
+$$
+which is consistent with the state transition process. Hence, we can derive the following corollary from Lemma \ref{lem:x-sup}.
+\begin{corollary} \label{cor:xi-sup}
+Given $\Vert\x_0^i\Vert<\infty$ for $i=1,\dots,N$, the $L_2$-norm of the sample vector $\x_t^i$ is bounded by a positive constant as time tends to infinity, i.e., 
+$$ \limsup_{t\rightarrow\infty}\Vert\x_t^i\Vert \leq R $$
+where $0<R<\infty$ is defined in \ref{lem:x-sup}. 
+\end{corollary}
+
+Building on the above preliminaries, the following theorem establishes the stability of the proposed estimator.
+\begin{theorem} \label{thm:stability}
+Given $\Vert\x_0^i\Vert<\infty$ for $i=1,\dots,N$ and $\Vert\x_0\Vert<\infty$, the proposed VPF is stable in the sense that the mean squared estimation error remains bounded as time tends to infinity, i.e.,
+$$
+\lim_{t\rightarrow\infty}\E{\Vert\x_t-\hat\x_t\Vert^2} < \bar{M}
+$$
+where
+$$
+\bar{M} = 2R^2\left(1 + R\sqrt{\frac{2^\frac{5}{2}\pi^{\frac{n}{2}}\kappa^\frac{1}{2}}{\Gamma(\frac{n}{2}+1)}}\right) < \infty \fs
+$$
+\end{theorem}
+\begin{IEEEproof}
+    The proof can be seen in Appendix \ref{app:thm-stability}.
+\end{IEEEproof}
+
+This theorem demonstrates the stability of the proposed filter, ensuring that the estimation error stays controlled even as time tends to infinity, which guarantees the long-term reliability of the filtering process. Such stability is of particular importance in practical engineering applications, where systems often operate over extended time horizons and sustained accuracy is critical. The ability to provide theoretical assurance against error divergence significantly enhances the robustness and applicability of the proposed method in real-world scenarios.
+
+\subsection{Computational Complexity}
+The computational complexity of matrix operations is characterized as follows: i) multiplying an $m\times n$ and an $n\times p$ matrix requires $\mathcal{O}(nmp)$ (for general $m$, $n$, $p$), ii) multiplying two $n\times n$ matrices requires $\mathcal{O}(n^3)$, and iii) adding two $m\times n$ matrices requires $\mathcal{O}(mn)$. Additionally, the computational complexity of computing the transpose and inverse of an $n\times n$ matrix demands $\mathcal{O}(n^2)$ and $\mathcal{O}(n^3)$, respectively.
+
+Based on these preliminaries, we consider the computational complexity of Algorithm \ref{alg:VPF}. The sampling step performs $N$ operations, with a computational cost of $\mathcal{O}(N)$. At each iteration, calculating $c_t^{(\ell-1)}$ and $d_t^{(\ell-1)}$ requires $\mathcal{O}(K)$. The calculation of $\omega_t^{i,(\ell)}$ for $k=1,\dots,N$ involves $N$ matrix multiplications, each with $\mathcal{O}(\overline{n}^2)$ complexity. Normalizing the weights requires $\mathcal{O}(N)$. Calculating $a_t^{(\ell)}$ and $b_t^{(\ell)}$ requires $\mathcal{O}(N)$, while calculating all the $\alpha_t^{k,(\ell)}$, $\beta_t^{k,(\ell)}$ and $\pi_t^{k,(\ell)}$ for $k=1,\dots,K$ requires $\mathcal{O}(K)$. The iteration process terminates after up to $L_{\rm max}$ iterations.
+
+The number of particles in IS is typically on the order of $1\times10^3$\cite{schon2005marginalized}, whereas both the number of Gamma mixture components and the maximum number of iterations are typically on the order of single-digit\cite{zhu2021adaptive}. Therefore, it is reasonable to make the following assumption:
+\begin{assumption}
+    Both the number of Gamma mixture components and the maximum number of iterations are much smaller than the number of particles, i.e., $K\ll N$ and $L_{\rm max}\ll N$.
+\end{assumption}
+Under this assumption, the computational complexity of the VPF can be derived as:
+\begin{equation*}
+\begin{split}
+    \mathcal{T}_{\rm VPF} &= \mathcal{O}(N)+L_{\rm max}(\mathcal{O}(K)+\mathcal{O}(N\cdot\overline{n}^2)\\
+    &\quad+ \mathcal{O}(N)+\mathcal{O}(N)+\mathcal{O}(3K))=\mathcal{O}(N\cdot\overline{n}^2) \fs
+\end{split}
+\end{equation*}
+% where we have used the fact that constants and lower-order terms are absorbed by the big-$\mathcal{O}$ notation.
+
+\begin{remark}
+    The proposed VPF has the same order of computational complexity as PF. This is primarily because the most computationally intensive operations in the algorithm involve generating particles and calculating $\tilde\gamma_t^i$ and $\Vert\y_t - h(\x_t^i)\Vert^2_{\bm{R}^{-1}}$. Despite the iterative process, these operations are performed only once per time step, which explains why the overall computational complexity remains at this order of magnitude.  
+\end{remark}
+
+\section{Experiment Results} \label{sec:experiment}
+The proposed filter was validated with the help of a target localization synthesis dataset that provides 249 positions and velocities, measurement data obtained from the radar sensor. The Constant Turn Rate and Velocity (CTRV) model is employed to describe the dynamics of the target. The state space is defined by $\x_t = [x_t,y_t,v,\psi_t,\omega]$, where $x_t$ and $y_t$ represent the 2D position coordinates, $v$ is the constant velocity, $\psi_t$ is the yaw angle at time $t$, and $\omega$ is the constant turn rate. The state transition equation is as follows: 
+\begin{equation*}
+\begin{split}
+    &\x_{t+1}= \\
+    & \begin{bmatrix} 
+        x_t+\frac{v}{\omega}\sin(\psi_t+\omega\Delta t)-\frac{v}{\omega}\sin(\psi_t)\\
+        y_t-\frac{v}{\omega}\cos(\psi_t+\omega\Delta t)+\frac{v}{\omega}\cos(\psi_t)\\
+        v\\
+        \psi_t+\omega\Delta t\\
+        \omega
+    \end{bmatrix} + \begin{bmatrix}
+        \frac{1}{2}\Delta t^2a_t\cos\psi_t\\
+        \frac{1}{2}\Delta t^2a_t\sin\psi_t\\
+        \Delta t a_t\\
+        \frac{1}{2}\Delta t^2\dot{\omega}_t\\
+        \Delta t\dot{\omega}_t\\
+    \end{bmatrix}
+\end{split}
+\end{equation*}
+where $\Delta t$ is the time interval between times $t$ and $t+1$. The radar sensor measures the range (distance to target), the directional angle (horizontal bearing relative to boresight) and the radial velocity (target speed along the line of sight of the sensor). The measurement equation is given by:
+\begin{equation*}
+    h(\x_t) = \begin{bmatrix}
+        \sqrt{x_t^2+y_t^2}\\
+        \arctan_2(x_t,y_t)\\
+        \frac{x_tv\cos\psi_t+y_tv\sin\psi_t}{\sqrt{x_t^2+y_t^2}}
+    \end{bmatrix}
+\end{equation*}
+where the $\arctan_2$ function computes the directional angle of a point $(x,y)$ in Cartesian coordinates, resolving quadrant ambiguity of standard $\arctan$. It ensures full-range angular accuracy $(-\pi,\pi]$ and robustly handles edge cases (e.g., $x=0$).
+
+The process noises, including the acceleration $a_t$ and the angular acceleration $\dot\omega_t$, are zero-mean Gaussian white noise sequences with standard deviations $\sigma_a=1.0$ and $\sigma_{\dot\omega}=0.3$, respectively. The measurement noise, from the radar sensor's inherent errors, is modeled as a zero-mean Gaussian white noise sequence with a covariance matrix $\bm{R}=\diag{[0.09, 0.0009, 0.09]}$. The initial value $\x_0$ obeys Gaussian distribution with mean $\bm{\mu}_{\x} = [0.86,0.60,5.2,3.5\times 10^{-4},0.0]^\top$ and covariance $\bm{\Sigma}_{\x} = \diag{[0.09,0.09,0.1,3\times 10^{-4},0.01]}$.
+
+The DNDR is modeled as a circle with center $(x_t',y_t')$ and radius $r_t$ at time $t$. The spatiotemporal evolution of the DNDR's center position is governed by the Constant Velocity (CV) model. The DNDR's characteristic vector is defined as $\bm\phi_t=[x_t',y_t',v_x,v_y,r_t]$, where $v_x$ and $v_y$ represent the constant velocities along the $x$- and $y$-axes, respectively. The dynamic equation of the DNDR's characteristic is as follows:
+\begin{equation*}
+    \bm\phi_{t+1} = \begin{bmatrix} 
+        x_t'+v_x\Delta t\\ y_t'+v_y\Delta t\\ v_x\\ v_y\\ r_t
+    \end{bmatrix} + \begin{bmatrix}
+        \frac{1}{2}\Delta t^2a^x_t\\
+        \frac{1}{2}\Delta t^2a^y_t\\
+        \Delta t a^x_t\\
+        \Delta t a^y_t\\
+        a^r_t\\
+    \end{bmatrix}
+\end{equation*}
+where the noise comes from the accelerations $a^x_t$ and $a^y_t$, as well as the $a^r_t$, which are zero-mean Gaussian white noise sequences with standard deviations $\sigma_x=0.3$, $\sigma_y=0.3$ and $\sigma_r=0.1$, respectively. 
+The initial value $\bm\phi_0$ has mean $\bm{\mu}_{\bm\phi}=[20.0,20.-2.0,-1.0,4.0]^\top$ and covariance $\bm{\Sigma}_{\bm\phi}=\diag{[0.09,0.09,0.25,0.25,0.01]}$. Under this scenario, the indicator variable can be written as:
+$$
+\gamma_t = \begin{cases}
+0, & \sqrt{(x_t-x_t')^2+(y_t-y_t')^2}\leq r_t\} \\
+1, & {\rm otherwise}
+\end{cases} \fs
+$$
+When $\gamma_t=0$, the target enters the DNDR, and the noise covariance matrix becomes $\tilde{\bm{R}}=\bm{R}/\lambda_t$. To validate the capability of the GGM to fit real value, the true outlier coefficient is given by $\lambda_t=0.01$, while the shape parameters and rate parameters of the Gamma mixture distribution are set as $\alpha_1=10,\alpha_2=10,\alpha_3=10,\alpha_4=10$ and $\beta_1=10,\beta_2=100,\beta_3=1000,\beta_4=10000$. 
+
+The number of particles is set to $N = 1000$. The maximum iteration number is set to $L_{\rm max}=10$, as well as the iteration termination tolerance set to $\epsilon=1\times10^{-4}$.
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.95\linewidth]{img/trajectory.eps}
+    \caption{The true trajectory and the corresponding estimated trajectories of EKF, PF and VPF.}
+    \label{fig:trajectory}
+\end{figure}
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=1\linewidth]{img/comparison.eps}
+    \caption{The actual state and the corresponding estimation of VPF.}
+    \label{fig:comparison}
+\end{figure}
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.9\linewidth]{img/error.eps}
+    \caption{The position estimation errors of the target obtained by EKF, PF, and VPF.}
+    \label{fig:error}
+\end{figure}
+
+The results of the experiment are depicted in Figs.~\ref{fig:trajectory}-\ref{fig:error}. The trajectories of the target (i.e., the $1$st and $2$nd components of $\x_t$) and the corresponding estimated trajectories of PF and the proposed VPF are presented in Fig.~\ref{fig:trajectory} on a 2D plane. The gray-shaded area denotes the DNDR, whose color intensity increases when the system state enters this region. Moreover, the position components of the target states and their estimates are depicted in Fig.~\ref{fig:comparison}. To illustrate the filtering performance, we introduce the position error between estimates and true states as:
+$$
+e_t^\mathrm{P} = \sqrt{(\x_t(1)-\hat{\x}_t(1))^2+(\x_t(2)-\hat{\x}_t(2))^2}
+$$
+The position errors of the proposed VPF compared to baseline filters are illustrated in Fig.~\ref{fig:error}.
+
+It can be seen that the target enters the DNDR during the time intervals of $108<t<123$ and $201<t<208$. In this scenario, the EKF and the standard PF can hardly track the true state accurately due to observations corrupted by noise. In contrast, the proposed VPF demonstrates superior filtering performance. It effectively resists noise interference and tracks the true trajectory with reasonable accuracy, which ensures robustness for state estimation.
+
+\section{Conclusion} \label{sec:conclusion}
+This paper has addressed the critical challenge of state estimation in nonlinear discrete systems operating within DNDRs, where observations are corrupted by the SDHTN. To mitigate the adverse effects of outlier observations caused by high noise levels in specific regions, we proposed a novel VPF framework that synergistically combines the VI theory with the IS technique. The key innovation lies in the formulation of a state-dependent GGM model to characterize the heavy-tailed observation noise, effectively capturing the dynamic coupling between system states and noise statistics. By constructing a joint hidden variable, the proposed VPF iteratively refines state estimates and noise parameters through variational updates under the mean-field assumption. Theoretical guarantees of the VPF's stability were established, and complexity analysis confirmed that the algorithm preserves the scalability of standard PF approaches. Experimental validation on a target tracking task demonstrated significant improvements in estimation accuracy over conventional methods, particularly in scenarios where targets intermittently traverse DNDRs. Future work will focus on extending this framework to distributed multi-sensor systems and investigating adaptive mechanisms for online learning of DNDR characteristics under time-varying environmental conditions.
+
+
+\begin{appendices}
+\section{Proof of Proposition \ref{prop:q(z)}} \label{app:proof-q(z)}
+Using the posterior probability in \eqref{eq:posterior} gives
+\begin{align} \label{eq:propto-z}
+    q^{(\ell)}(\z_t) &\propto \e{\E[q^{(\ell-1)}(\lambda_t)]{\log{p(\bm\theta_t|\y_{1:t})}}} \nonumber\\
+    &\propto \e{\E[q^{(\ell-1)}(\lambda_t)]{\log{p(\y_t|\z_t,\lambda_t)p(\lambda_t)p^-_{t-1}(\z_t)}}} \nonumber\\
+    &= \e{\E[q^{(\ell-1)}(\lambda_t)]{\log{p(\y_t|\z_t,\lambda_t)p^-_{t-1}(\z_t)}}} \nonumber\\
+    &\quad\times \underbrace{\e{\E[q^{(\ell-1)}(\lambda_t)]{\log{p(\lambda_t)}}}}_{\rm Constant} \\
+    &\propto \e{\E[q^{(\ell-1)}(\lambda_t)]{\log{p(\y_t|\z_t,\lambda_t)p^-_{t-1}(\z_t)}}} \nonumber\\
+    &= \e{\E[q^{(\ell-1)}(\lambda_t)]{\log{p(\y_t|\z_t,\lambda_t)}}}p^-_{t-1}(\z_t)\fs \nonumber
+\end{align}
+
+Firstly, based on the observation model \eqref{eq:OM}, the likelihood function is given by:
+\begin{equation*}
+\begin{split}
+    p(\y_t|\z_t,\lambda_t) &= \gamma_t\mathcal{N}(\y_t;h(\x_t),\bm{R})+(1-\gamma_t)\mathcal{N}(\y_t;h(\x_t),\tilde{\bm{R}}) \\
+    &= \mathcal{N}(\y_t;h(\x_t),(\gamma_t+\tfrac{1-\gamma_t}{\lambda_t})\bm{R})
+\end{split}
+\end{equation*}
+where $\gamma_t$ defined in \eqref{eq:gamma} depends on $\x_t$ and $\bm\phi_t$, that is $\z_t$. Denote $\sigma_t\coloneqq\gamma_t+(1-\gamma_t)/\lambda_t$, we obtain
+\begin{equation*}
+\begin{split}
+    \log{p(\y_t|\z_t,\lambda_t)} &= \log\mathcal{N}(\y_t;h(\x_t),(\gamma_t+\tfrac{1-\gamma_t}{\lambda_t})\bm{R}) \\
+    &= -\frac{m}{2}\log{\sigma_t} - \frac{1}{2\sigma_t}\Vert\y_t-h(\x_t)\Vert^2_{\bm{R}^{-1}} + \mathcal{C}_1
+\end{split}
+\end{equation*}
+where $\mathcal{C}_1$ is the constant independent of variables $\z_t$ and $\lambda_t$. For analytical convenience, we introduce $\tilde\gamma_t\coloneqq1-\gamma_t$. It is clear that $\log\sigma_t$ can be written as
+$$
+\log\sigma_t = \begin{cases}
+-\log\lambda_t, & \x_t \in \mathcal{R}(\bm\phi_t) \\
+0, & \x_t \notin \mathcal{R}(\bm\phi_t)
+\end{cases} \cm
+$$
+which is equivalent to $-\tilde\gamma_t\log\lambda_t$. Simultaneously, $1/\sigma_t$ can be written as
+$$
+\frac{1}{\sigma_t} = \begin{cases}
+\lambda_t, & \x_t \in \mathcal{R}(\bm\phi_t) \\
+1, & \x_t \notin \mathcal{R}(\bm\phi_t)
+\end{cases} \cm
+$$
+which is equivalent to $1-\tilde\gamma_t+\tilde\gamma_t\lambda_t$. Therefore, the log-likelihood probability is expressed as
+\begin{align}
+\label{eq:log-likelihood}
+    \log{p(\y_t|\z_t,\lambda_t)} &= \frac{m}{2}\tilde\gamma_t\log\lambda_t  \\
+    &\quad- \frac{1}{2}(1-\tilde\gamma_t+\tilde\gamma_t\lambda_t)\Vert\y_t-h(\x_t)\Vert^2_{\bm{R}^{-1}} + \mathcal{C}_1 \fs \nonumber
+\end{align}
+According to the formulation of $q^{(\ell-1)}$ assumed in Proposition \ref{prop:q(z)}, the expectation of $\log{p(\y_t|\z_t,\lambda_t)}$ is derived by
+\begin{equation*}
+\begin{split}
+    &\E[q^{(\ell-1)}(\lambda_t)]{\log{p(\y_t|\z_t,\lambda_t)}}\\
+    &= \int{q^{(\ell-1)}(\lambda_t)\log{p(\y_t|\z_t,\lambda_t)}}\mathrm{d}\lambda_t \\
+    &= \frac{m}{2}\tilde\gamma_t\left(\sum_{k=1}^K\pi_{t,k}^{(\ell-1)}\mathbb{E}^{(\ell-1)}[\log\lambda_t]\right) \\
+    &\quad- \frac{1}{2}\left(1+\tilde\gamma_t\bigg(\sum_{k=1}^K\pi_{t,k}^{(\ell-1)}\mathbb{E}^{(\ell-1)}[\lambda_t]-1\bigg)\right)\\
+    &\qquad\times \Vert\y_t-h(\x_t)\Vert^2_{\bm{R}^{-1}} + \mathcal{C}_1 \fs
+\end{split}
+\end{equation*}
+Denote
+\begin{equation*}
+\begin{split}
+    c_t^{(\ell-1)} &= \sum_{k=1}^K\pi_{t,k}^{(\ell-1)}\mathbb{E}^{(\ell-1)}[\log\lambda_t]\\
+    &= \sum_{k=1}^K\pi_{t,k}^{(\ell-1)}\left(\psi(\alpha_{t,k}^{(\ell-1)})-\log\beta_{t,k}^{(\ell-1)}\right) \cm\\
+    d_t^{(\ell-1)} &= \sum_{k=1}^K\pi_{t,k}^{(\ell-1)}\mathbb{E}^{(\ell-1)}[\lambda_t]-1 = \sum_{k=1}^K\pi_{t,k}^{(\ell-1)}\frac{\alpha_{t,k}^{(\ell-1)}}{\beta_{t,k}^{(\ell-1)}}-1
+\end{split}
+\end{equation*}
+where $\psi(\cdot)$ is the digamma function. Then we obtain
+\begin{equation*}
+\begin{split}
+    &\E[q^{(\ell-1)}(\lambda_t)]{\log{p(\y_t|\z_t,\lambda_t)}} \\
+    &\quad= \frac{m}{2}\tilde\gamma_tc_t^{(\ell-1)} - \frac{1}{2}(1+\tilde\gamma_td_t^{(\ell-1)})\Vert\y_t-h(\x_t)\Vert^2_{\bm{R}^{-1}} + \mathcal{C}_1 \fs
+\end{split}
+\end{equation*}
+
+Now we consider the prediction term $p^-_{t-1}(\z_t)$. The posterior probability of the previous time, $p(\bm\theta_{t-1}|\y_{1:t-1})$, is approximated by the variational distribution $\hat{q}(\theta_{t-1})$, that is,
+$$
+p(\bm\theta_{t-1}|\y_{1:t-1}) \approx \hat{q}(\bm\theta_{t-1}) \fs
+$$
+Under Assumption \ref{assump:mean-field}, $p^-_{t-1}(\z_t)$ can be formulated as
+$$
+p^-_{t-1}(\z_t) \approx \int{p(\z_t|\z_{t-1})\hat{q}(\z_{t-1})}\,\mathrm{d}\z_{t-1} \fs
+$$
+Using the IS technique, the variational distribution of $\z_{t-1}$ should be in the following form:
+\begin{equation} \label{eq:var_distribution}
+    \hat{q}(\z_{t-1}) = \sum_{i=1}^N\varpi_{t-1}^i\delta(\z_{t-1}-\z_{t-1}^i)    
+\end{equation}
+where $N$ denotes the sampling number and $\z_{t-1}^i$ denotes the $i$th sample from the proposal distribution. Substituting \eqref{eq:var_distribution} into \eqref{eq:posterior}, we obtain
+$$
+p^-_{t-1}(\z_t) \approx \sum_{i=1}^N\varpi_{t-1}^ip(\z_t|\z_{t-1}^i) \fs
+$$
+It can be seen that
+\begin{equation*}
+    p(\z_t|\z_{t-1}) = \mathcal{N}(\z_t;\overline{f}(\z_{t-1}),\overline{\bm{Q}}) \fs
+\end{equation*}
+Consequently,
+$$
+p^-_{t-1}(\z_t) \approx \sum_{i=1}^N\varpi_{t-1}^i\mathcal{N}(\z_t;\overline{f}(\z_{t-1}^i),\overline{\bm{Q}}) \fs
+$$
+
+By defining
+$$
+\rho^{(\ell)}(\z_t) \coloneqq \e{\E[q^{(\ell-1)}(\lambda_t)]{\log{p(\y_t|\z_t,\lambda_t)}}}p^-_{t-1}(\z_t) \cm
+$$
+the variational distribution can be expressed as 
+$$
+q^{(\ell)}(\z_t) = \frac{\rho^{(\ell)}(\z_t)}{\mathcal{Z}^{(\ell)}_t}
+$$
+where $\mathcal{Z}^{(\ell)}_t$ is a normalization constant:
+$$
+\mathcal{Z}^{(\ell)}_t = \int{\rho^{(\ell)}(\z_t)}\mathrm{d}\z_t \fs
+$$
+By introducing an importance density $r(\z_t)$ from which it is easy to sample, we have the IS identity and constant as following:
+\begin{align}
+    q^{(\ell)}(\z_t) &= \frac{\omega^{(\ell)}(\z_t)r(\z_t)}{\mathcal{Z}^{(\ell)}_t}\cm \label{eq:IS}\\ 
+    \mathcal{Z}^{(\ell)}_t &= \int{\omega^{(\ell)}(\z_t)}r(\z_t)\mathrm{d}\z_t \label{eq:Z}
+\end{align}
+where $\omega^{(\ell)}(\z_t)$ is the unnormalised weight function
+$$
+\omega^{(\ell)}(\z_t) = \frac{\rho^{(\ell)}(\z_t)}{r(\z_t)} \fs
+$$
+We draw $N$ independent samples $\z_t^i\sim r(\z_t)$ for $i=1,\dots,N$. The Monte Carlo approximation of $r(\z_t)$ can be obtained from the empirical measure of $\z_t^i$:
+$$
+r(\z_t) \approx \frac{1}{N}\sum_{i=1}^N\delta(\z_t-\z_t^i) \fs
+$$
+With this approximation, \eqref{eq:IS}-\eqref{eq:Z} can be formulated as
+$$
+\mathcal{Z}^{(\ell)}_t \approx \frac{1}{N}\sum_{i=1}^N\omega^{(\ell)}(\z_t^i)
+$$
+and
+$$
+q^{(\ell)}(\z_t) \approx \sum_{i=1}^N\varpi_t^{i,(\ell)}\delta(\z_t-\z_t^i)
+$$
+where
+$$
+\varpi_t^{i,(\ell)} = \frac{\omega^{(\ell)}(\z_t^i)}{\sum_{j=1}^N\omega^{(\ell)}(\z_t^j)} \fs
+$$
+
+A natural selection of the proposal distribution $r(\z_t)$ is the prediction distribution $p_{t-1}^-(\z_t)$, which is a Gaussian mixture distribution that is easy to sample from. With 
+$$r(\z_t) = p_{t-1}^-(\z_t)\cm$$
+the unnormalized weight function takes the form 
+\begin{equation*}
+\begin{split}
+    % \omega^{(\ell)}(\z_t) &= \e{\E[q^{(\ell-1)}(\lambda_t)]{\log{p(\y_t|\z_t,\lambda_t)}}} \\
+    % &\propto \exp\{\tfrac{m}{2}\tilde\gamma_tc_t^{(\ell-1)} - \tfrac{1}{2}(1+\tilde\gamma_td_t^{(\ell-1)})\\
+    % &\times\Vert\y_t-h(\x_t)\Vert^2_{\bm{R}^{-1}}\} \cm
+    &~\quad\omega^{(\ell)}(\z_t) \\
+    &= \e{\E[q^{(\ell-1)}(\lambda_t)]{\log{p(\y_t|\z_t,\lambda_t)}}} \\
+    &\propto \exp\{\tfrac{m}{2}\tilde\gamma_tc_t^{(\ell-1)} - \tfrac{1}{2}(1+\tilde\gamma_td_t^{(\ell-1)})\Vert\y_t-h(\x_t)\Vert^2_{\bm{R}^{-1}}\} \cm
+\end{split}
+\end{equation*}
+and the normalized weight for the $i$th particle can be written as
+$$
+\varpi_t^{i,(\ell)} = \frac{\omega_t^{i,(\ell)}}{\sum_{j=1}^N\omega_t^{j,(\ell)}} \fs
+$$
+where $\omega_t^{i,(\ell)}\coloneqq\omega^{(\ell)}(\z_t^i)$. The proof is complete.
+
+
+\section{Proof of Proposition \ref{prop:q(lambda)}} \label{app:proof-q(lambda)}
+Similarly to \eqref{eq:propto-z}, we derive
+\begin{equation} \label{eq:propto-lambda}
+\begin{split}
+    q^{(\ell)}(\lambda_t) \propto \e{\E[q^{(\ell)}(\z_t)]{\log{p(\y_t|\z_t,\lambda_t)}}}p(\lambda_t) \fs
+\end{split}
+\end{equation}
+Using \eqref{eq:log-likelihood}, the expectation of the likelihood probabilty is given by
+\begin{equation*}
+\begin{split}
+    &\E[q^{(\ell)}(\z_t)]{\log{p(\y_t|\z_t,\lambda_t)}} \\
+    &= \int{q^{(\ell)}(\z_t)\log{p(\y_t|\z_t,\lambda_t)}}\mathrm{d}\z_t \\
+    &= \sum_{i=1}^N\varpi_t^{i,(\ell)}\log{p(\y_t|\z_t^i,\lambda_t)}\\
+    &= \left(\frac{m}{2}\sum_{i=1}^N\varpi_t^{i,(\ell)}\tilde\gamma_t^i\right)\log\lambda_t \\
+    &\quad- \left(\frac{1}{2}\sum_{i=1}^N\varpi_t^{i,(\ell)}\tilde\gamma_t^i\Vert\y_t-h(\x_t^i)\Vert^2_{\bm{R}^{-1}}\right)\lambda_t + \mathcal{C}_2 \\
+    &= a_t^{(\ell)}\log\lambda_t - b_t^{(\ell)}\lambda_t + \mathcal{C}_2
+\end{split}
+\end{equation*}
+where $\tilde\gamma_t^i$, $a_t^{(\ell)}$ and $b_t^{(\ell)}$ are defined as \eqref{eq:~gamma}, \eqref{eq:a} and \eqref{eq:b}, and $\mathcal{C}_2$ is the constant irrelevant to $\lambda_t$.
+Rewriting the exponential term of \eqref{eq:propto-lambda} as the function of $\lambda_t$ and omitting the rest terms without $\lambda_t$, we obtain
+\begin{equation} \label{eq:exp-lambda}
+    \e{\E[q^{(\ell)}(\z_t)]{\log{p(\y_t|\z_t,\lambda_t)}}} = \lambda_t^{a_t^{(\ell)}}e^{-b_t^{(\ell)}\lambda_t} \fs    
+\end{equation}
+
+Substituting \eqref{eq:exp-lambda} into \eqref{eq:propto-lambda} yields
+\begin{equation*}
+\begin{split}
+    q^{(\ell)}(\lambda_t) &\propto \e{\E[q^{(\ell-1)}(\z_t)]{\log{p(\y_t|\z_t,\lambda_t)}}}p(\lambda_t) \\
+    &= \lambda_t^{a_t^{(\ell-1)}}e^{-b_t^{(\ell-1)}\lambda_t}\sum_{k=1}^K\pi_k\frac{\beta_k^{\alpha_k}}{\Gamma(\alpha_k)}\lambda_t^{\alpha_k-1}e^{-\beta_k\lambda_t} \\
+    &= \sum_{k=1}^K\pi_kC_{t,k}^{(\ell)}\Gamma(\lambda_t;\alpha_t^{k,(\ell)},\beta_t^{k,(\ell)})
+\end{split}
+\end{equation*}
+where $\alpha_t^{k,(\ell)}$ and $\beta_t^{k,(\ell)}$ are defined as in Proposition \ref{prop:q(lambda)} and $C_{t,k}^{(\ell)}$ denotes the normalization factor:
+$$
+C_{t,k}^{(\ell)} = \frac{\beta_k^{\alpha_k}}{(\beta_t^{k,(\ell)})^{\alpha_t^{k,(\ell)}}}\frac{\Gamma(\alpha_t^{k,(\ell)})}{\Gamma(\alpha_k)} \fs
+$$
+Then by normalizing the weights, we obtain
+$$
+q^{(\ell)}(\lambda_t) \propto \sum_{k=1}^K\pi_t^{k,(\ell)}\Gamma(\lambda_t;\alpha_t^{k,(\ell)},\beta_t^{k,(\ell)})
+$$
+where
+$$
+\pi_t^{k,(\ell)} = \frac{\pi_kC_{t,k}^{(\ell)}}{\sum_{s=1}^K\pi_sC_{t,s}^{(\ell)}} \cm
+$$
+which completes the proof.
+
+\section{Proof of Theorem \ref{thm:GMM}} \label{app:thm-GMM} % Gamma Mixture Model
+Since $m>0$, $\gamma_t^i\in\{0,1\}$, and $\varpi_t^{i,(\ell)}\geq0$ according to Proposition \ref{prop:q(z)}, we have $a_t^{(\ell)}\geq0$. Furthermore, since $\bm{R}$ is a positive definite matrix, $\Vert\y_t-h(\x_t^i)\Vert^2_{\bm{R}^{-1}}>0$, implying that $b_t^{(\ell)}>0$. Therefore, $\alpha_t^{k,(\ell)}=\alpha_k+a_t^{(\ell)}>0$, and $\beta_t^{k,(\ell)}=\beta_k+b_t^{(\ell)}>0$. Building upon this, it is evident that $C_{t,k}^{(\ell)}>0$, implying that $\pi_t^{k,(\ell)}>0$. The proof is then complete.
+
+\section{Proof of Lemma \ref{lem:x-sup}} \label{app:lem-x-sup}
+According to Assumption \ref{A4} and \ref{A5}, we can derive that
+\begin{equation*}
+\begin{split}
+    \Vert\x_t\Vert &= \Vert f(\x_{t-1})+\bm{w}_{t-1}\Vert \\
+    &\leq \Vert f(\x_{t-1})\Vert+\Vert\bm{w}_{t-1}\Vert \\
+    &\leq \alpha\Vert\x_{t-1}\Vert+\beta+\nu \\
+    &\leq \dots \\
+    &\leq \alpha^t\Vert\x_0\Vert+(\beta+\nu)\sum_{n=0}^{t-1}\alpha^n \fs
+\end{split}
+\end{equation*}
+Denote $R_t \coloneqq \alpha^t\Vert\x_0\Vert+(\beta+\nu)\sum_{n=0}^{t-1}\alpha^n$. Therefore, we find that $R_t$ is an upper bound of $\Vert\x_t\Vert$'s supremum, i.e.,
+$$
+\sup\Vert\x_t\Vert \leq R_t \fs
+$$
+Given $\Vert\x_0\Vert<\infty$, the upper bound approaches a constant as time tends to infinity:
+\begin{equation*}
+\begin{split}
+    \limsup_{t\rightarrow\infty}\Vert\x_t\Vert &\leq \lim_{t\rightarrow\infty}R_t \\
+    &= \lim_{t\rightarrow\infty}\left(\alpha^t\Vert\x_0\Vert+(\beta+\nu)\frac{1-\alpha^t}{1-\alpha}\right) \\
+    &= \frac{\beta+\nu}{1-\alpha} \eqqcolon R \fs
+\end{split}
+\end{equation*}
+
+\section{Proof of Theorem \ref{thm:stability}} \label{app:thm-stability}
+Using the Law of Total Expectation, the MSE can be expressed as a nested expectation:
+\begin{equation} \label{eq:E[e]}
+    \E{\Vert\x_t-\hat\x_t\Vert^2} = \E{\E{\Vert\x_t-\hat\x_t\Vert^2|\y_{1:t}}} \fs
+\end{equation}
+First, we consider the inner conditional expectation.
+
+Define the conditional MSE as
+$$
+\bar{e}_t \coloneqq \E{\Vert\x_t-\hat\x_t\Vert^2|\y_{1:t}} \cm
+$$
+and the variational MSE as
+$$
+\bar{e}_t' \coloneqq \E[\hat{q}(\x_t)]{\Vert\x_t-\hat\x_t\Vert^2} \fs
+$$
+Then the divergence between the conditional and variational MSE is
+$$
+\Delta_t \coloneqq \bar{e}_t-\bar{e}_t' = \int_{\Omega_t}{(p(\x_t|\y_{1:t})-\hat{q}(\x_t))\Vert\x_t-\hat\x_t\Vert^2}\,\mathrm{d}\x_t
+$$
+where $\Omega_t$ is the support of the true posterior $p(\x_t|\y_{1:t})$. Based on the Cauchy-Schwarz Inequality, we obtain
+\begin{equation} \label{eq:cauchy-schwarz}
+    \Delta_t \leq \sqrt{\int_{\Omega_t}{|p(\x_t|\y_{1:t})-\hat{q}(\x_t)|^2}\,\mathrm{d}\x_t}\sqrt{\int_{\Omega_t}{\Vert\x_t-\hat\x_t\Vert^4}\,\mathrm{d}\x_t} \fs 
+\end{equation}
+
+Since $0<p(\x_t|\y_{1:t})<1$ and $0<\hat{q}(\x_t)<1$, we have $0\leq|p(\x_t|\y_{1:t})-\hat{q}(\x_t)|<1$ and consequently $|p(\x_t|\y_{1:t})-\hat{q}(\x_t)|^2<|p(\x_t|\y_{1:t})-\hat{q}(\x_t)|$. Therefore, the first integral term of \eqref{eq:cauchy-schwarz} is no greater than the total variation distance between $p$ and $\hat{q}$, that is,
+$$
+\int_{\Omega_t}{|p(\x_t|\y_{1:t})-\hat{q}(\x_t)|^2}\,\mathrm{d}\x_t < V(\hat{q},p)
+$$
+where
+$$
+V(\hat{q},p) \coloneqq \int_{\Omega_t}{|\hat{q}(\x_t)-p(\x_t|\y_{1:t})|}\,\mathrm{d}\x_t \fs
+$$
+By combining Pinsker's Inequality:
+$$
+D_{\rm KL}(\hat{q}\Vert p) \geq \frac{1}{2}V^2(\hat{q},p)
+$$
+with the conclusion given in Lemma \ref{lem:KLD}, we obtain
+\begin{equation} \label{eq:pinsker}
+    \sqrt{\int_{\Omega_t}{|p(\x_t|\y_{1:t})-\hat{q}(\x_t)|^2}\,\mathrm{d}\x_t} < (2\kappa)^\frac{1}{4}
+\end{equation}
+
+Consider the second integral term of \eqref{eq:cauchy-schwarz}. As Line \ref{line:estimate} of Algorithm \ref{alg:VPF}, the estimation error can be written as
+$$
+\x_t-\hat\x_t = \x_t-\sum_{i=1}^N\varpi_t^i\x_t^i = \sum_{i=1}^N\varpi_t^i(\x_t-\x_t^i) \cm
+$$
+and the square error satisfies
+\begin{equation*}
+\begin{split}
+    % \Vert\x_t-\hat\x_t\Vert^2 &= \Vert\sum_{i=1}^N\varpi_t^i(\x_t-\x_t^i)\Vert^2 \\
+    \Vert\x_t-\hat\x_t\Vert^2 &= \Big\Vert\sum_{i=1}^N\varpi_t^i(\x_t-\x_t^i)\Big\Vert^2\\
+    % &\leq \left(\sum_{i=1}^N\varpi_t^i\Vert\x_t-\x_t^i\Vert\right)^2 \\
+    &\leq \Big(\sum_{i=1}^N\varpi_t^i(\Vert\x_t\Vert+\Vert\x_t^i\Vert)\Big)^2 \\
+    &\leq \Big(\sup\Vert\x_t\Vert+\sup\Vert\x_t^i\Vert\Big)^2 \fs
+\end{split}
+\end{equation*}
+Thus, we have
+\begin{equation*}
+\begin{split}
+    \sqrt{\int_{\Omega_t}{\Vert\x_t-\hat\x_t\Vert^4}\,\mathrm{d}\x_t} &\leq \sqrt{(\sup\Vert\x_t\Vert+\sup\Vert\x_t^i\Vert)^4\int_{\Omega_t}\,\mathrm{d}\x_t} \\
+    &= (\sup\Vert\x_t\Vert+\sup\Vert\x_t^i\Vert)^2\sqrt{\mathrm{Vol}(\Omega_t)}
+\end{split}
+\end{equation*}
+where $\mathrm{Vol}(\cdot)$ denotes the volume of a certain space. Substituting the above inequality and \eqref{eq:pinsker} into \eqref{eq:cauchy-schwarz}, we obtain 
+\begin{equation} \label{ineq1}
+    \Delta_t < (2\kappa)^\frac{1}{4}(\sup\Vert\x_t\Vert+\sup\Vert\x_t^i\Vert)^2\sqrt{\mathrm{Vol}(\Omega_t)} \fs
+\end{equation}
+
+Now consider the upper bound of the variational MSE. It is noted that
+\begin{equation*}
+\begin{split}
+    \bar{e}_t' &= \int_{\Omega_t}{\hat{q}(\x_t)\Vert\x_t-\hat\x_t\Vert^2}\,\mathrm{d}\x_t \\
+    &= \int_{\Omega_t}{\sum_{k=1}^N\varpi_t^k\delta(\x_t-\x_t^k)\Big\Vert\sum_{i=1}^N\varpi_t^i(\x_t-\x_t^i)\Big\Vert^2}\,\mathrm{d}\x_t \\
+    &= \sum_{i=1}^N\sum_{j=1}^N\sum_{k=1}^N\varpi_t^i\varpi_t^j\varpi_t^k(\x_t^k-\x_t^i)^\top(\x_t^k-\x_t^j) \\
+    &= \frac{1}{2}\sum_{i=1}^N\sum_{j=1}^N\varpi_t^i\varpi_t^j\Vert\x_t^i-\x_t^j\Vert^2 \fs
+\end{split}
+\end{equation*}
+Applying the Triangle Inequality, we conclude that
+\begin{equation} \label{ineq2}
+\begin{split}
+    \bar{e}_t' &\leq \frac{1}{2}\sum_{i=1}^N\sum_{j=1}^N\varpi_t^i\varpi_t^j(\Vert\x_t^i\Vert+\Vert\x_t^j\Vert)^2 \\
+    &\leq \frac{1}{2}(\sup\Vert\x_t^i\Vert+\sup\Vert\x_t^j\Vert)^2 \fs
+\end{split}
+\end{equation}
+
+Combining \eqref{ineq1} and \eqref{ineq2} yields 
+$$
+\bar{e}_t < M_t
+$$
+where
+\begin{equation*}
+\begin{split}
+    M_t ={}& \frac{1}{2}(\sup\Vert\x_t^i\Vert+\sup\Vert\x_t^j\Vert)^2 \\
+    &+ (2\kappa)^\frac{1}{4}(\sup\Vert\x_t\Vert+\sup\Vert\x_t^i\Vert)^2\sqrt{\mathrm{Vol}(\Omega_t)} \fs
+\end{split}
+\end{equation*}
+According to Lemma \ref{lem:x-sup} and Corollary \ref{cor:xi-sup}, we know that the limits of $\sup\Vert\x_t\Vert$ and $\sup\Vert\x_t^i\Vert$ exist. Otherwise, supposing that the Hausdorff limit of the support $\Omega_t$ exists and satisfies
+$$
+\lim_{t\rightarrow\infty}\Omega_t = \Omega \cm
+$$
+it follows that
+$$
+\Omega \subseteq \mathcal{B}_R \coloneqq \{\x\in\mathbb{R}^n\mid \Vert\x\Vert\leq R\}
+$$
+where $\mathcal{B}_R$ is the closed ball of radius $R$. Therefore, as time tends to infinity, we have
+\begin{equation*}
+\begin{split}
+    \lim_{t\rightarrow\infty}M_t ={}& (2\kappa)^\frac{1}{4}(\limsup_{t\rightarrow\infty}\Vert\x_t\Vert+\limsup_{t\rightarrow\infty}\Vert\x_t^i\Vert)^2 \\
+    &\times \sqrt{\lim_{t\rightarrow\infty}\mathrm{Vol}(\Omega_t)} + \frac{1}{2}(2\limsup_{t\rightarrow\infty}\Vert\x_t^i\Vert)^2\\
+    \leq{}& 2R^2 + (2\kappa)^\frac{1}{4}4R^2\sqrt{\mathrm{Vol}(\mathcal{B}_R)} \\
+    ={}& 2R^2\left(1 + R\sqrt{\frac{2^\frac{5}{2}\pi^{\frac{n}{2}}\kappa^\frac{1}{2}}{\Gamma(\frac{n}{2}+1)}}\right) \eqqcolon \bar{M}
+\end{split}
+\end{equation*}
+where $R$ has been defined in Lemma \ref{lem:x-sup} and $\Gamma(\cdot)$ is the gamma function. Thus, we can derive that
+$$
+\lim_{t\rightarrow\infty}\bar{e}_t < \lim_{t\rightarrow\infty}M_t \leq \bar{M} \fs
+$$
+It is clear that $\bar{M}$ is a finite constant. According to \eqref{eq:E[e]}, the interested MSE is the expectation of $\bar{e}_t$. Therefore, we have
+$$
+\lim_{t\rightarrow\infty}\E{\Vert\x_t-\hat\x_t\Vert^2} = \E{\lim_{t\rightarrow\infty}\bar{e}_t} < \bar{M} < \infty \cm
+$$
+which completes the proof.
+
+\end{appendices}
+
+\bibliographystyle{IEEEtran}
+\bibliography{ref}
+
+% \vspace{-1cm}
+\begin{IEEEbiography}[{\includegraphics[width=1in,height=1.25in,clip,keepaspectratio]{img/Photo_Yao_Nie.eps}}]
+{\bf Yao Nie} received the B.S. degree in engineering from the Department of Computer Science and Technology, Tongji University, Shanghai, China, in 2022. He is currently working toward the Ph.D. degree in computer science and technology at Tongji University, Shanghai, China. His general research interests are in topics related to filtering theory and stochastic dynamical systems.
+\end{IEEEbiography}
+
+% \vspace{-1cm}
+\begin{IEEEbiography}[{\includegraphics[width=1in,height=1.25in,clip,keepaspectratio]{img/Photo_Zidong_Wang.eps}}]
+{\bf Zidong Wang} (SM'03-F'14) received the B.Sc.~degree in mathematics in 1986 from Suzhou University, Suzhou, China, and the M.Sc.~degree in applied mathematics in 1990 and the Ph.D.~degree in electrical engineering in 1994, both from Nanjing University of Science and Technology, Nanjing, China.
+
+He is currently Professor of Dynamical Systems and Computing in the Department of Computer Science, Brunel University London, U.K. From 1990 to 2002, he held teaching and research appointments in universities in China, Germany, and the UK. Prof. Wang's research interests include dynamical systems, signal processing, bioinformatics, control theory, and applications. He has published a number of papers in international journals. He is a holder of the Alexander von Humboldt Research Fellowship of Germany, the JSPS Research Fellowship of Japan, and the William Mong Visiting Research Fellowship of Hong Kong.
+
+Prof.~Wang serves (or has served) as the Editor-in-Chief for {\it International Journal of Systems Science}, the Editor-in-Chief for {\it Neurocomputing}, the Editor-in-Chief for {\it Systems Science \& Control Engineering}, and an Associate Editor for 12 international journals including IEEE Transactions on Automatic Control, IEEE Transactions on Control Systems Technology, IEEE Transactions on Neural Networks, IEEE Transactions on Signal Processing, and IEEE Transactions on Systems, Man, and Cybernetics-Part C. He is a Member of the Academia Europaea, a Member of the European Academy of Sciences and Arts, an Academician of the International Academy for Systems and Cybernetic Sciences, a Fellow of the IEEE, a Fellow of the Royal Statistical Society, and a member of program committee for many international conferences.
+\end{IEEEbiography}
+
+% \vspace{-1cm}
+\begin{IEEEbiography}[{\includegraphics[width=1in,height=1.25in,clip,keepaspectratio]{img/Photo_Qinyuan_Liu.eps}}]
+{\bf Qinyuan Liu} received the B.Eng. degree in measurement and control technology and instrumentation from Huazhong University of Science and Technology, Wuhan, China, in 2022, and the Ph.D. degree in control science and engineering from Tsinghua University, Beijing, China, in 2017.
+
+He is currently a Professor in the Department of Computer Science and Technology, Tongji University, Shanghai, China. From Jul.~2015 to Sep.~2016, he was a Research Assistant in the Department of Electronic \& Computer Engineering, Hong Kong University of Science and Technology, Hong Kong. From Jan.~2016 to Jan.~2017, he was an international researcher in the Department of Computer Science, Brunel University London, UK. His research interests include networked control systems, multi-agent systems, and distributed filtering. He is an active reviewer for many international journals.
+\end{IEEEbiography}
+
+\end{document}

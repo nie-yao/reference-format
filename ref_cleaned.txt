@@ -1,0 +1,6 @@
+\begin{thebibliography}{99}
+
+\bibitem{yang2022optimal}
+L.~Yang, H.~Rao, M.~Lin, Y.~Xu, and P.~Shi, ``Optimal sensor scheduling for remote state estimation with limited bandwidth: a deep reinforcement learning approach," \textit{Information Sciences}, vol.~588, pp.~279--292, 2022.
+
+\end{thebibliography}
