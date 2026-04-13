@@ -6,196 +6,249 @@ Created on Tue May 27 19:15:23 2025
 @author: ynie
 """
 
-import re
 import os
+import sys
 import glob
+import argparse
+import re
+import bibtexparser
+from titlecase import titlecase
+
 
 
 TERM = {'Kalman', 'Markov', 'Bayesian', 'Gaussian'}
-ABBR = {'UAV', 'GPS', 'VB', 'PMU', 'SCADA', 'AMI', 'UWB', 'IMU', 'SOC', 'IMM', 'CPS'}
+ABBR = {'UAV', 'GPS', 'VB', 'PMU', 'UWB', 'IMU', 'SOC', 'IMM', 'CPS', 'DoS'}
 UPPER_WORDS = set.union(TERM, ABBR)
 ORG_NAMES = {"IEEE", "ACM", "CAA", "MIT"}
-LOWER_WORDS = {"of", "in", "on", "for", "the", "a", "an", "and"}
 
-def extract_bibitems(file_path):
-    """
-    从文件中提取所有的bibitem条目
-    
-    Args:
-        filename (str): 文件路径
-    
-    Returns:
-        list: 包含所有bibitem条目的字符串列表
-    """
-    try:
-        # 读取文件内容
-        with open(file_path, 'r', encoding='utf-8') as file:
-            content = file.read()
-        
-        pattern = r'@((?:(?!@).)*)'
-        items = re.findall(pattern, content, re.DOTALL)
-        
-        # 清理每个条目（去除多余的空白字符）
-        cleaned_items = []
-        for item in items:
-            # 去除首尾空白并规范化内部空白
-            cleaned_item = re.sub(r'\s+', ' ', item.strip())
-            cleaned_items.append(cleaned_item)
-        
-        return cleaned_items
-    
-    except FileNotFoundError:
-        print(f"错误：找不到文件 {file_path}")
-        return []
-    except Exception as e:
-        print(f"读取文件时出错：{e}")
-        return []
+BRACE_PATTERN = re.compile(r'\{.*?\}')
+MATH_PATTERN = re.compile(r'\$(?:[^$]|\{[^{}]+\})+\$')
+ACRONYM_PATTERN = re.compile(r'[A-Z]{2,}')
 
+SPECIAL_MATH_MAP = {
+    r'H∞': r'$H_\infty$',
+    r'H1': r'$H_1$',
+    r'H2': r'$H_2$',
+    r'$ H\_$\backslash$infty $': r'$H_\infty$',
+    r'$H\_$\backslash$infty$': r'$H_\infty$',
+}
 
 def extract_main_text(file_path):
-    # 读取论文内容
-    with open(file_path, 'r', encoding='utf-8') as file:
-        content = file.read()
+    """
+    Extract the main text content from a file.
 
-    return content
+    Args:
+        file_path (str): Path to the input file.
+    """
+    try:
+        # Read file content
+        with open(file_path, 'r', encoding='utf-8') as f:
+            content = f.read()
 
-def parse_bibtex_entry(s):
-    # 使用正则表达式匹配 entry 类型（如 article, book 等）和 label
-    entry_match = re.search(r'@?([a-zA-Z]+)\{([^,]+),', s)
-    if not entry_match:
-        raise ValueError("Invalid BibTeX entry: expected '@entry{label,' format.")
-    entry_type = entry_match.group(1).strip()
-    label = entry_match.group(2).strip()
-
-    # 使用正则表达式匹配所有键值对
-    pattern = re.compile(r'(\w+)\s*=\s*\{((?:[^{}]|\{(?:[^{}]|\{[^{}]*\})*\})*)\}')
-    matches = pattern.findall(s)
-
-    # 构建结果字典
-    result = {
-        'type': entry_type,  # 新增 entry_type 字段（如 'article', 'book'）
-        'label': label,
-    }
-
-    for key, value in matches:
-        result[key.strip()] = value.strip()
-        
-    # 处理作者
-    result['author'] = format_authors(result['author'])
-    # 处理题目
-    result['title'] = format_title(result['title'])
-    # 处理期刊名
-    if result['type'] == 'article':
-        result['journal'] = format_journal(result['journal'])
-    elif result['type'] == 'inproceedings':
-        result['booktitle'] = format_journal(result['booktitle'])
-    elif result['type'] == 'book':
-        result['publisher'] = format_journal(result['publisher'])
-
-    return result
-
-
-def format_title(title):
+        return content
     
+    except FileNotFoundError:
+        print(f"Error: File not found in {file_path}")
+        return []
+    except Exception as e:
+        print(f"Error: {e}")
+        return []
+
+
+def extract_references(file_path):
+    """
+    Extract all bibliography entries from a file.
+
+    Args:
+        file_path (str): Path to the input file.
+
+    Returns:
+        list of str: A list of extracted reference entries as strings.
+    """
+    try:
+        # Read file content
+        with open(file_path, 'r', encoding='utf-8') as f:
+            bib_database = bibtexparser.load(f)
+
+        return bib_database.entries
+    
+    except FileNotFoundError:
+        print(f"Error: File not found in {file_path}")
+        return []
+    except Exception as e:
+        print(f"Error: {e}")
+        return []
+
+
+def format_authors(authors):
+    """
+    Format a BibTeX-style author string into abbreviated names.
+
+    Converts "LastName, FirstName" entries into initials + last name (e.g., "John Smith" -> "J.~Smith") 
+    and joins multiple authors using standard formatting rules.
+
+    Args:
+        authors (str): Author string separated by 'and'.
+
+    Returns:
+        str: Formatted author string.
+
+    Raises:
+        ValueError: If the input is empty, without <,>, or contains <others>.
+    """
+    if not authors or not authors.strip():
+        raise ValueError(f"Author list is empty")
+    
+    # Step 1: Split the input string into individual authors using 'and'
+    authors = [a.strip() for a in authors.split(' and ')]
+    
+    formatted_authors = []
+    for author in authors:
+        # Handle the special 'others' keyword
+        if author == 'others':
+            raise ValueError(f"The 'others' keyword is currently not supported")  # 'et al.'?
+            
+        # Split the author's name by ',' to separate last name and first name(s)
+        # Expected format from BibTeX: "LastName, FirstName"
+        parts = [p.strip() for p in author.split(',')]
+        if len(parts) != 2:
+            raise ValueError(f"Invalid author format: '{author}', Expected 'LastName, FirstName>'")
+        
+        # Format the last name: Capitalize the first letter, lowercase the rest
+        last_name = parts[0].capitalize()
+        
+        # Format the first name(s): Abbreviate
+        first_names = parts[1].replace('-', ' ').split()  # Replace hyphens, and split
+        first_names = [f"{name[0].upper()}." for name in first_names]  # Convert each first/middle name to its initial
+
+        # Combine initials and last name with a non-breaking space (~)
+        # Example output: T.~Ba\c{s}ar
+        formatted_name = '~'.join(first_names + [last_name])
+        formatted_authors.append(formatted_name)
+    
+    # Step 3: Merge all formatted authors into a single final string    
+    if len(formatted_authors) == 1:  # For 1 author, use "A"
+        return formatted_authors[0], authors
+    elif len(formatted_authors) == 2:  # For 2 authors, use "A and B"
+        return f"{formatted_authors[0]} and {formatted_authors[1]}", authors
+    else:  # For 3 or more authors, use "A, B, and C" (Oxford comma format)
+        return ', '.join(formatted_authors[:-1]) + ', and ' + formatted_authors[-1], authors
+        
+    
+def format_title(title):
+    """
+    Format a title string into sentence case with special handling.
+
+    Preserves brace-protected text, LaTeX math expressions,
+    predefined acronyms and proper nouns, while converting other words to sentence case.
+
+    Args:
+        title (str): Input title string.
+
+    Returns:
+        str: Formatted title string.
+    """
+
+    # Replace special symbols globally before tokenization, e.g., H∞ -> $H_\\infty$
+    for bad_str, good_str in SPECIAL_MATH_MAP.items():
+        title = title.replace(bad_str, good_str)
+
     words = title.split()
     formatted_words = []
     
     for i, word in enumerate(words):
-        # 检查是否是数学公式（如 $H_2$）
-        if re.search(r'\$(?:[^$]|\{[^{}]+\})+\$', word):
+        # Rule 1: Handle brace protection {...}
+        # If a word contains braces, remove them and preserve the original casing
+        if BRACE_PATTERN.search(word):
+            clean_word = re.sub(r'[{}]', '', word)
+            formatted_words.append(clean_word)
+            continue
+
+        # Rule 2: Protect LaTeX math formulas (e.g., $H_2$)
+        if MATH_PATTERN.search(word):
             formatted_words.append(word)
             continue
         
-        # 检查是否是专有名词
+        # Rule 3: Protect domain-specific acronyms and proper nouns (e.g., UAV, Kalman)
         if any(substring in word for substring in UPPER_WORDS):
             formatted_words.append(word)
-            print(word)
             continue
         
-        # 处理第一个单词（首字母大写，其余小写）
-        if i == 0:
-            formatted_word = word[0].upper() + word[1:].lower()
+        # Rule 3.5: Auto-protect acronyms (e.g., ECO-DKF, LSTM)
+        if ACRONYM_PATTERN.search(word):
+            formatted_words.append(word)
+            print(f"  [Title Acronym] Preserving: {word}")
+            continue
+
+        # Rule 4: Apply Sentence Case formatting
+        # Capitalize the first word, OR the word immediately following a colon/punctuation
+        if i == 0 or (i > 0 and words[i-1].endswith((':', '?', '!'))):
+            formatted_words.append(word.capitalize())
         else:
-            formatted_word = word.lower()
-        
-        formatted_words.append(formatted_word)
-    
-    return ' '.join(formatted_words)
-
-
-def format_authors(author_str):
-    # Step 1: 用 'and' 分割成多个作者
-    authors = [a.strip() for a in author_str.split(' and ')]
-    
-    formatted_authors = []
-    for author in authors:
-        if author == 'others':
-            formatted_authors.append(author)
-            continue
-            
-        # Step 2: 用 ',' 分割姓和名
-        parts = [p.strip() for p in author.split(',')]
-        if not parts:
-            continue
-        
-        # 姓（首字母大写，其余小写）
-        last_name = parts[0]
-        if last_name:
-            last_name = last_name[0].upper() + last_name[1:].lower()
-        
-        # 名（缩写为首字母加 '.'）
-        first_names = parts[1].replace('-', ' ')
-        first_names = [a.strip() for a in first_names.split(' ')]
-        for i, name in enumerate(first_names):
-            first_names[i] = name[0].upper() + '.'
-        
-        # 组合：名缩写~姓（如 T.~Ba{\c{s}}ar）
-        formatted_name = '~'.join(first_names + [last_name])
-        formatted_authors.append(formatted_name)
-    
-    # Step 3: 合并所有作者
-    if not formatted_authors:
-        return ""
-    
-    if len(formatted_authors) == 1:
-        return formatted_authors[0]
-    elif formatted_authors[-1] == 'others':
-        return ', '.join(formatted_authors[:-1]) + ' et al.'
-    else:
-        return ', '.join(formatted_authors[:-1]) + ', and ' + formatted_authors[-1]
-
-
-def format_journal(str):
-    
-    words = str.split()
-    formatted_words = []
-    
-    for word in words:
-        # 检查是否是组织名
-        if any(substring in word for substring in ORG_NAMES):
-            formatted_words.append(word.upper())
-            continue
-        
-        # arXiv
-        if 'arxiv' in word.lower():
-            formatted_word = re.sub(r"arxiv", "arXiv", word, flags=re.IGNORECASE)
-            formatted_words.append(formatted_word)
-            continue
-        
-        # 介词、冠词
-        if word in LOWER_WORDS:
             formatted_words.append(word.lower())
-            continue
-        
-        # 首字母大写，其余小写
-        formatted_word = word[0].upper() + word[1:].lower()
-        
-        formatted_words.append(formatted_word)
     
     return ' '.join(formatted_words)
 
+    
+def format_journal(journal_name):
+    def custom_callback(word, **kwargs):
+        # Rule 1: Handle Organization Names (e.g., IEEE, ACM)
+        if any(org in word.upper() for org in ORG_NAMES):
+            return word.upper()
+        
+        # Rule 2: Handle arXiv (e.g., arXiv:2101.12345)
+        if 'arxiv' in word.lower():
+            return re.sub(r"arxiv", "arXiv", word, flags=re.IGNORECASE)
+        
+        # Rule 3: Handle specific technical abbreviations (Optional)
+        # If the word is already all caps and long, keep it (e.g., SCADA)
+        if ACRONYM_PATTERN.search(word):
+            print(f"  [Journal Acronym] Preserving: {word}")
+            return word
+            
+        return None
 
-def process_single_bibitem(bibitem):
+    # titlecase will automatically handle LOWER_WORDS logic
+    return titlecase(journal_name, callback=custom_callback)
+
+
+def format_booktitle(booktitle_name):
+    def custom_callback(word, **kwargs):
+        # Rule 1: Handle Organization Names (e.g., IEEE, ACM)
+        if any(org in word.upper() for org in ORG_NAMES):
+            return word.upper()
+        
+        # Rule 3: Handle specific technical abbreviations (Optional)
+        # If the word is already all caps and long, keep it (e.g., SCADA)
+        if ACRONYM_PATTERN.search(word):
+            print(f"  [Booktitle Acronym] Preserving: {word}")
+            return word
+            
+        return None
+
+    # titlecase will automatically handle LOWER_WORDS logic
+    return titlecase(booktitle_name, callback=custom_callback)
+
+
+def format_publisher(publisher_name):
+    def custom_callback(word, **kwargs):
+        # Rule 1: Handle Organization Names (e.g., IEEE, ACM)
+        if any(org in word.upper() for org in ORG_NAMES):
+            return word.upper()
+        
+        # Rule 3: Handle specific technical abbreviations (Optional)
+        # If the word is already all caps and long, keep it (e.g., SCADA)
+        if ACRONYM_PATTERN.search(word):
+            print(f"  [Publisher Acronym] Preserving: {word}")
+            return word
+            
+        return None
+
+    # titlecase will automatically handle LOWER_WORDS logic
+    return titlecase(publisher_name, callback=custom_callback)
+
+def format_bib_entry(entry):
+    
     """
     处理单个bibitem条目的函数（占位符）
     
@@ -215,180 +268,259 @@ def process_single_bibitem(bibitem):
         等等
     """
     
-    # 字符串转为字典
-    bibitem = parse_bibtex_entry(bibitem)
+    # Handle the specific entry type and identifiers
+    if 'ENTRYTYPE' not in entry:
+        raise ValueError("Missing 'ENTRYTYPE' field in entry")   
     
-    bib_info = ''
+    entry_type = entry.get('ENTRYTYPE').lower()
+
+    if 'author' not in entry:
+        raise ValueError("Missing author field")
+
+    if 'title' not in entry:
+        raise ValueError("Missing title field")
     
-    # 添加标签
-    bib_info += '\\bibitem'
-    bib_info += '{' + bibitem['label'] + '}'
-    bib_info += '\n'
+    if entry_type == 'article' and 'journal' not in entry:
+        raise ValueError(f"Missing <journal> field in <article> entry")
     
-    # 添加作者
-    bib_info += bibitem['author'] + ', '
+    if entry_type == 'inproceedings' and 'booktitle' not in entry:
+        raise ValueError(f"Missing <booktitle> field in <inproceedings> entry")
     
-    # 添加题目
-    bib_info += bibitem['title'] + ', '
-    # bib_info += '``' + bibitem['title'] + '," '
+    if entry_type == 'book' and 'publisher' not in entry:
+        raise ValueError(f"Missing <publisher> field in <book> entry")
     
-    # 添加刊名、会议名
-    if bibitem['type'] == 'article':
-        bib_info += '\\textit{' + bibitem['journal'] + '}'
-    elif bibitem['type'] == 'inproceedings':
-        bib_info += '\\textit{' + bibitem['booktitle'] + '}'
-    elif bibitem['type'] == 'book' or bibitem['type'] == 'misc':
-        bib_info += '\\textit{' + bibitem['publisher'] + '}'
-    bib_info += ', '
+    if entry_type != 'article' and entry_type != 'inproceedings' and entry_type != 'book':
+        print('!!!')
+        print(entry)
     
-    #添加其他信息
-    if "volume" in bibitem:
-        bib_info += 'vol.~' + bibitem['volume'] + ', '
-    if "number" in bibitem:
-        bib_info += 'no.~' + bibitem['number'] + ', '
-    if "pages" in bibitem:
-        bib_info += 'pp.~' + bibitem['pages'] + ', '
-    if "year" in bibitem:
-        bib_info += bibitem['year'] + '.'
+    authors, entry['author'] = format_authors(entry['author'])
+    entry['title'] = format_title(entry['title'])
     
-    return {'code': bib_info, 'meta': bibitem}
+    if 'journal' in entry: entry['journal'] = format_journal(entry['journal'])
+    if 'booktitle' in entry: entry['booktitle'] = format_booktitle(entry['booktitle'])
+    if 'publisher' in entry: entry['publisher'] = format_publisher(entry['publisher'])
+    
+    ## Start building the LaTeX code
+    label = entry.get('ID', 'unknown_id')
+    bib_code = f"\\bibitem{{{label}}}\n"
+    
+    bib_code += authors + ', '
+    bib_code += entry['title'] + ', '
+    # bib_code += "``" + bibitem['title'] + ",''"
+
+    if entry_type == 'article':
+        bib_code += f"\\emph{{{entry['journal']}}}, "
+    elif entry_type == 'inproceedings':
+        bib_code += f"\\emph{{{entry['booktitle']}}}, "
+    elif entry_type == 'book':
+        bib_code += f"\\emph{{{entry['publisher']}}}, "  
+    
+    # Collect other metadata
+    details = []
+    if 'volume' in entry: 
+        details.append(f"vol.~{entry['volume']}")
+    if 'number' in entry: 
+        details.append(f"no.~{entry['number']}")
+    if 'pages' in entry: 
+        if '-' in entry['pages']:  # If the field contains a hyphen, treat it as a page range (e.g., 123--145)
+            entry['pages'] = re.sub(r'\s*-+\s*', '--', entry['pages'])
+            details.append(f"pp.~{entry['pages']}")
+        else:  # Otherwise, treat it as a single article number (e.g., 123456)
+            details.append(f"Art.~no.~{entry['pages']}")
+    if 'year' in entry: 
+        details.append(entry['year'])
+    
+    bib_code += ", ".join(details) + "."
+    
+    return {'code': bib_code, 'meta': entry}
 
 
-def sort_bibitems(bibitems_list):
+def deduplicate(bibitems_list):
+    seen_titles = set()
+    unique_list = []
+    removed_list = []
     
-    def extract_surname(author_str):
-        """
-        从作者字符串中提取姓氏
-        
-        参数:
-        author_str -- 作者字符串，格式如 "Z.~Zhang" 或 "Zhang, Z."
-        
-        返回:
-        姓氏字符串
-        """
-        # 处理空字符串
-        if not author_str:
-            return ""
-        
-        # 获取第一个作者（逗号分隔的第一个部分）
-        if ',' in author_str:
-            first_author = author_str.split(',')[0].strip()
+    for entry in bibitems_list:
+        raw_title = entry.get('meta', {}).get('title')
+        normalized_title = re.sub(r'\W+', '', str(raw_title).lower())
+
+        if normalized_title not in seen_titles:
+            seen_titles.add(normalized_title)
+            unique_list.append(entry)
         else:
-            first_author = author_str.strip()
-        
-        # 提取姓氏（最后一个单词）
-        parts = first_author.split('~')
-        if not parts:
-            return ""
-        surname = parts[-1]
-        
-        # 移除可能的标点符号
-        return surname.strip('.').strip()
+            removed_list.append(entry)
+
+            max_len = 100
+            short_title = raw_title[:max_len] + "..." if len(raw_title) > max_len else raw_title
+            print(f"  [Deduplicate] Removed: {short_title}")
     
-    # 多级排序
+    return unique_list, removed_list
+
+
+def sort(bibitems_list):
+    
+    def extract_surname(authors):
+        """
+        Extract the surname from the author list.
+        
+        Args:
+            authors (list): List of author strings in "LastName, FirstName" format.
+        
+        Returns:
+            str: Normalized surname string for sorting.
+        """
+        
+        # Get the first author from the list
+        first_author = authors[0]
+        
+        # Extract the surname (in BibTeX format, the surname always precedes the comma, e.g., Zhang, San)
+        surname = first_author.split(',')[0]
+
+        # Cleanup: Remove non-alphabetic characters (e.g., LaTeX symbols like \c{s} or spaces)
+        clean_surname = re.sub(r'[^a-zA-Z]', '', surname)
+        
+        return clean_surname.lower()
+    
+    def extract_year(year_data):
+        """Defensively extract the year to prevent crashes from formats like '2026a' or 'in press'."""
+        match = re.search(r'\d{4}', str(year_data))
+        return int(match.group()) if match else 9999
+    
+    # Perform multi-level sorting
     return sorted(
         bibitems_list,
         key=lambda x: (
-            # 1. 按姓氏排序
-            extract_surname(x.get('meta', {}).get('author', '')).lower(),
-            # 2. 按出版年份排序（年份小的在前）
-            int(x.get('meta', {}).get('year', 0))
+            # 1. Sort by the first author's surname
+            extract_surname(x.get('meta', {}).get('author')),
+            # 2. For the same surname, sort by publication year (older references first)
+            extract_year(x.get('meta', {}).get('year', ''))
         )
     )
 
 
 def remove_uncited(content, bibitems_list):
+    """
+    Precisely extracts citation keys from LaTeX content using regex 
+    and removes bibliography entries that are not cited.
+    """
 
-    for i, bibitem in enumerate(bibitems_list):
-        label = bibitem['meta']['label']
-        if label not in content:
-            bibitems_list.pop(i)
+    # Step 1: Extract citation keys from LaTeX using Regex
+    # Matches \cite{...}, \citep{...}, \citet{...}, etc., and captures the content inside braces.
+    # [a-zA-Z]* allows for variations like \cite, \citet, \citep, \citeauthor, etc.
+    cite_matches = re.findall(r'\\cite[a-zA-Z]*\{([^}]+)\}', content)
     
-    # title_groups = defaultdict(list)
-    # for item in bibitems_list:
-    #     title = item['meta']['title']
-    #     title_groups[title].append(item)
+    # Use a set to store all cited labels for O(1) lookup speed
+    cited_labels = set()
+    for match_group in cite_matches:
+        # Handle multiple citations in one command, e.g., \cite{Lee2026, Wang2025}
+        for label in match_group.split(','):
+            cited_labels.add(label.strip())
+            
+    # Step 2: Safely filter the bibliography list
+    filtered_list = []
     
-    # # 找出所有有重复 title 的组
-    # duplicates = {title: items for title, items in title_groups.items() if len(items) > 1}
+    print("\n--- [Uncited Check] ---")
+    for bibitem in bibitems_list:
+        label = bibitem.get('ID')
+        
+        if label in cited_labels:
+            filtered_list.append(bibitem)
+        else:
+            print(f"  [Uncited] Removed: {label}")
+            
+    return filtered_list
     
-    # print(duplicates)
-    
-    return bibitems_list
-    
-
-def remove_duplicates(bibitems_list):
-    seen_titles = set()
-    unique_list = []
-    
-    for item in bibitems_list:
-        title = item.get('meta', {}).get('title')
-        if title not in seen_titles:
-            seen_titles.add(title)
-            unique_list.append(item)
-    
-    return unique_list
 
 
 if __name__ == "__main__":
-    import sys
     
-    argv = sys.argv[1:]
-    print(argv)
-    # if len(sys.argv) != 2:
-    #     print("Usage: python rename.py <directory>")
-    #     sys.exit(1)
+    # Initialize the argument parser
+    parser = argparse.ArgumentParser(description="Parse content from TeX and Bib files.")
     
-    # directory = sys.argv[1]
-    # if not os.path.isdir(directory):
-    #     print(f"Error: {directory} is not a valid directory")
-    #     sys.exit(1)
+    # Define command-line arguments
+    parser.add_argument('-t', '--tex', type=str, help='Path to the target .tex file')
+    parser.add_argument('-b', '--bib', type=str, help='Path to the target .bib file')
+    parser.add_argument('-ru', '--remove-uncited', action='store_true', help='Remove bibliography entries not cited in the TeX file')
+    
+    args = parser.parse_args()
+    
+    # Assign to descriptive variables
+    tex_file_path = args.tex
+    bib_file_path = args.bib
 
-    main_path = glob.glob('*.tex')[0]
-    main_text = extract_main_text(main_path)
+    # Fallback logic: If no .bib file is provided via arguments, search the current directory
+    if not bib_file_path:
+        bib_files = glob.glob('*.bib')
+        if bib_files:
+            bib_file_path = bib_files[0]
+        else:
+            print("Error: No .bib file specified via -b/--bib, and no default .bib file found in the current directory.")
+            sys.exit(1)
 
-    bib_path = glob.glob('*.bib')[0]
-    bibitems = extract_bibitems(bib_path)
+    # Fallback logic: If no .tex file is provided via arguments, search the current directory
+    if not tex_file_path:
+        tex_files = glob.glob('*.tex')
+        if tex_files:
+            tex_file_path = tex_files[0]
+        else:
+            tex_file_path = None
+            if args.remove_uncited:
+                print("Error: The -ru/--remove-uncited flag requires a .tex file, but none was provided or found in the current directory.")
+                sys.exit(1)
+            else:
+                print("Warning: No .tex file found. Features requiring main text (like unused citation removal) will be disabled.")
+            
+    # Output the resolved paths for user confirmation
+    print(f"Using BIB file: {bib_file_path}")
+    if tex_file_path:
+        print(f"Using TEX file: {tex_file_path}")
+
+    # Execute extraction using the resolved paths
+    reference_list = extract_references(bib_file_path)
+    if tex_file_path:
+        tex_content = extract_main_text(tex_file_path)
     
-    processed_results = []
+    formatted_results = []
     
-    print(f"开始处理 {len(bibitems)} 个bibitem条目...")
+    print(f"Processing {len(reference_list)} bibliography entries...")
     
-    for i, bibitem in enumerate(bibitems, 1):
+    for i, raw_entry in enumerate(reference_list, 1):
         try:
-            # 调用处理函数处理单个条目
-            processed_result = process_single_bibitem(bibitem)
-            processed_results.append(processed_result)
+            formatted_entry = format_bib_entry(raw_entry)
+            formatted_results.append(formatted_entry)
                 
         except Exception as e:
-            print(f"处理第 {i} 个条目时出错: {e}")
-            # 可以选择跳过错误条目或添加错误标记
-            processed_results.append(f"ERROR: {bibitem}")
+            # Log the error and skip this entry
+            print(f"Error processing reference #{i:2}: {e}")
+            continue
     
-    print(f"格式化完成。共处理 {len(processed_results)} 个条目。")
+    print(f"Formatting complete. Processed {len(formatted_results)} entries in total.")
 
-    processed_results = remove_duplicates(processed_results)
-    print(f"已删除重复的条目！剩余 {len(processed_results)} 个条目。")
+    deduplicated_results, _ = deduplicate(formatted_results)
+    print(f"Duplicates removed. {len(deduplicated_results)} unique entries remaining.")
 
-    processed_results = sort_bibitems(processed_results)
-    print("排序完成。")
+    sorted_results = sort(deduplicated_results)
+    print("Sorting completed.")
+    final_results = sorted_results
     
-    if '-rd' in argv:
-        processed_results = remove_uncited(main_text, processed_results)
-        print(f"已删除未引用的条目！剩余 {len(processed_results)} 个条目。")
+    if args.remove_uncited and tex_content:
+        final_results = remove_uncited(tex_content, final_results)
+        print(f"Uncited entries removed. {len(final_results)} valid entries remaining.")
     
-    name, ext = os.path.splitext(bib_path)
-    output_path = f"{name}_cleaned.txt"
-    with open(output_path, 'w', encoding='utf-8') as f:
-        # 写入文件头
+    name, ext = os.path.splitext(bib_file_path)
+    save_path = f"{name}_formatted.txt"
+    with open(save_path, 'w', encoding='utf-8') as f:
+        # Write the header
         f.write("\\begin{thebibliography}{99}\n\n")
         
-        # 写入列表条目，中间用空行隔开
-        for item in processed_results:
-            f.write(item['code'])
-            f.write("\n\n")
+        # Write each entry, separated by a blank line
+        for item in final_results:
+            f.write(f"{item['code']}\n\n")
         
-        # 写入文件尾
+        # Write the footer
         f.write("\\end{thebibliography}")
+    
+    print("Task Completed Successfully!")
+    print(f"Output saved to: {os.path.abspath(save_path)}")
         
         

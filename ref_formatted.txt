@@ -1,0 +1,126 @@
+\begin{thebibliography}{99}
+
+\bibitem{abdulkarem2020wireless}
+M.~Abdulkarem, K.~Samsudin, F.~Z.~Rokhani, and M.~F.~A rasid, Wireless sensor network for structural health monitoring: A contemporary review of technologies, challenges, and future direction, \emph{Structural Health Monitoring}, vol.~19, no.~3, pp.~693--735, 2020.
+
+\bibitem{abooshahab2021distributed}
+M.~A.~Abooshahab and M.~Hovd, Distributed $H_\infty$ filtering for linear and nonlinear systems, \emph{2021 IEEE Conference on Control Technology and Applications (CCTA)}, pp.~685--692, 2021.
+
+\bibitem{asad2024distributed}
+M.~Asad, M.~Rehan, C.~K.~Ahn, M.~Tufail, and A.~Basit, Distributed $H_\infty$ state and parameter estimation over wireless sensor networks under energy constraints, \emph{IEEE Transactions on Network Science and Engineering}, vol.~11, no.~3, pp.~2976--2988, 2024.
+
+\bibitem{caballero2017distributed}
+R.~Caballero-{\'a}guila, A.~Hermoso-carazo, and J.~Linares-p{\'e}rez, Distributed fusion filters from uncertain measured outputs in sensor networks with random packet losses, \emph{Information Fusion}, vol.~34, pp.~70--79, 2017.
+
+\bibitem{chen2009filter}
+H.~Chen, A.~B.~Gershman, and S.~Shahbazpanahi, Filter-and-forward distributed beamforming in relay networks with frequency selective fading, \emph{IEEE Transactions on Signal Processing}, vol.~58, no.~3, pp.~1251--1262, 2009.
+
+\bibitem{coates2004distributed}
+M.~Coates, Distributed particle filters for sensor networks, \emph{Proceedings of the 3rd International Symposium on Information Processing in Sensor Networks}, pp.~99--107, 2004.
+
+\bibitem{dai2024event}
+D.~Dai, J.~Li, Y.~Song, and F.~Yang, Event-based recursive filtering for nonlinear bias-corrupted systems with amplify-and-forward relays, \emph{Systems Science \& Control Engineering}, vol.~12, no.~1, Art.~no.~2332419, 2024.
+
+\bibitem{das2015distributed}
+S.~Das and J.~M.~Moura, Distributed Kalman filtering with dynamic observations consensus, \emph{IEEE Transactions on Signal Processing}, vol.~63, no.~17, pp.~4458--4473, 2015.
+
+\bibitem{elov2025intelligent}
+B.~Elov, A.~Dauletov, Y.~Sucharitha, F.~Khalilova, M.~Latipova, and M.~Abdullayeva, An intelligent traffic management of vehicles using deep learning approach in smart cities, \emph{2025 3rd International Conference on Integrated Circuits and Communication Systems (ICICACS)}, pp.~1--5, 2025.
+
+\bibitem{fareed2009relay}
+M.~M.~Fareed and M.~Uysal, On relay selection for decode-and-forward relaying, \emph{IEEE Transactions on Wireless Communications}, vol.~8, no.~7, Art.~no.~3341, 2009.
+
+\bibitem{hao2019distributed}
+G.~Hao and S.~Sun, Distributed fusion cubature Kalman filters for nonlinear systems, \emph{International Journal of Robust and Nonlinear Control}, vol.~29, no.~17, pp.~5979--5991, 2019.
+
+\bibitem{holland2006experimental}
+M.~M.~Holland, R.~G.~Aures, and W.~B.~Heinzelman, Experimental investigation of radio performance in wireless sensor networks, \emph{2006 2nd IEEE Workshop on Wireless Mesh Networks}, pp.~140--150, 2006.
+
+\bibitem{hu2020survey}
+Z.~Hu, J.~Hu, and G.~Yang, A survey on distributed filtering, estimation and fusion for nonlinear systems with communication constraints: New advances and prospects, \emph{Systems Science \& Control Engineering}, vol.~8, no.~1, pp.~189--205, 2020.
+
+\bibitem{jia2025reputation}
+C.~Jia, Z.~Wang, J.~Hu, and H.~Dong, Reputation-based distributed filtering over sensor networks subject to stochastic nonlinearity and network-induced quantization, \emph{IEEE Transactions on Network Science and Engineering}, 2025.
+
+\bibitem{kuang2025quadratic}
+Z.~Kuang, S.~Wang, Y.~Zheng, Y.~Liao, D.~Lin, S.~Liu, and S.~Peng, Quadratic filtering for linear stochastic non-Gaussian systems under false data injection attacks, \emph{Signal Processing}, vol.~230, Art.~no.~109855, 2025.
+
+\bibitem{li2025cubature}
+J.~Li, Z.~Wang, and J.~Hu, Cubature Kalman fusion filtering under stochastic communication protocol: Tackling dynamical bias, scheduling probability and channel noise, \emph{Information Fusion}, vol.~113, Art.~no.~102610, 2025.
+
+\bibitem{li2026recursive}
+Q.~Li and M.~Gao, Recursive filtering for complex networks with filter-and-forward relays subject to fading channels, \emph{International Journal of Network Dynamics and Intelligence}, vol.~5, no.~1, Art.~no.~2, 2026.
+
+\bibitem{liu2024optimal}
+X.~Liu and C.~Han, Optimal filtering for NCSs with amplify-and-forward relays, \emph{2024 3rd Conference on Fully Actuated System Theory and Applications (FASTA)}, pp.~97--102, 2024.
+
+\bibitem{liu2025nonlinear}
+Z.~Liu, C.~P.~Bechlioulis, J.~Huang, and C.~Wen, Nonlinear dynamic surface control for a class of uncertain systems with novel nonlinear filters, \emph{IEEE Transactions on Automatic Control}, 2025.
+
+\bibitem{lu2025resilient}
+F.~Lu, Y.~Shen, J.~Sun, and H.~Wang, Resilient recursive state estimation for nonlinear systems with decode-and-forward relays, \emph{2025 7th International Conference on Information Science, Electrical and Automation Engineering (ISEAE)}, pp.~646--651, 2025.
+
+\bibitem{merino1992topics}
+D.~I.~Merino, Topics in matrix analysis, \emph{The Johns Hopkins University}, 1992.
+
+\bibitem{muniz2023revolutionizing}
+R.~D.~F.~Muniz and A.~C.~F.~Thomaz, Revolutionizing industrial automation with wireless sensor networks, \emph{Big Data and Computing Visions}, vol.~3, no.~3, pp.~76--83, 2023.
+
+\bibitem{nguyen2026robust}
+D.~V.~Nguyen, H.~Zhao, J.~Hu, and X.~Li, Robust distributed extended Kalman filter based on adaptive multikernel mixture maximum correntropy for Non-Gaussian systems, \emph{IEEE Transactions on Reliability}, vol.~75, pp.~694--708, 2026.
+
+\bibitem{qian2022distributed}
+W.~Qian, D.~Lu, S.~Guo, and Y.~Zhao, Distributed state estimation for mixed delays system over sensor networks with multichannel random attacks and Markov switching topology, \emph{IEEE Transactions on Neural Networks and Learning Systems}, vol.~35, no.~6, pp.~8623--8637, 2022.
+
+\bibitem{ramos2022resilient}
+G.~Ramos, D.~Silvestre, and A.~P.~Aguiar, A resilient continuous-time consensus method using a switching topology, \emph{Systems \& Control Letters}, vol.~169, Art.~no.~105381, 2022.
+
+\bibitem{ramos2023discrete}
+G.~Ramos, D.~Silvestre, and C.~Silvestre, A discrete-time reputation-based resilient consensus algorithm for synchronous or asynchronous communications, \emph{IEEE Transactions on Automatic Control}, vol.~69, no.~1, pp.~543--550, 2023.
+
+\bibitem{salahshoor2008centralized}
+K.~Salahshoor, M.~Mosallaei, and M.~Bayat, Centralized and decentralized process and sensor fault monitoring using data fusion based on adaptive extended Kalman filter algorithm, \emph{Measurement}, vol.~41, no.~10, pp.~1059--1076, 2008.
+
+\bibitem{sebastian2023eco}
+E.~Sebasti{\'a}n, E.~Montijano, and C.~Sag{\"u}{\'e}s, ECO-DKF: Event-triggered and certifiable optimal distributed Kalman filter under unknown correlations, \emph{IEEE Transactions on Automatic Control}, vol.~69, no.~4, pp.~2613--2620, 2023.
+
+\bibitem{shao2024distributed}
+T.~Shao, Distributed consensus Kalman filtering for asynchronous multi-rate sensor networks, \emph{Signal, Image and Video Processing}, vol.~18, no.~8, pp.~6419--6429, 2024.
+
+\bibitem{shi2025recursive}
+M.~Shi, L.~Ma, and X.~Yi, Recursive state estimation for complex networks with energy harvesting constraints and decode-and-forward relays, \emph{IEEE Transactions on Systems, Man, and Cybernetics: Systems}, 2025.
+
+\bibitem{song2023maximum}
+W.~Song, Z.~Wang, Z.~Li, Q.~L.~Han, and D.~Yue, Maximum correntropy filtering for complex networks with uncertain dynamical bias: Enabling componentwise event-triggered transmission, \emph{IEEE Transactions on Neural Networks and Learning Systems}, vol.~35, no.~12, pp.~17330--17343, 2023.
+
+\bibitem{tao2023simultaneous}
+S.~Tao, J.~Chen, B.~Zhou, and H.~Zhang, Simultaneous robust state and sensor fault estimation of autonomous vehicle via synthesized design of dynamic and learning observers, \emph{IEEE Transactions on Vehicular Technology}, vol.~73, no.~2, pp.~1753--1764, 2023.
+
+\bibitem{wang2023survey}
+Y.~A.~Wang, B.~Shen, L.~Zou, and Q.~L.~Han, A survey on recent advances in distributed filtering over sensor networks subject to communication constraints, \emph{International Journal of Network Dynamics and Intelligence}, vol.~2, no.~2, Art.~no.~100007, 2023.
+
+\bibitem{wang2024quadratic}
+S.~Wang, Z.~Wang, Q.~Liu, H.~Dong, and H.~Liu, Quadratic filtering for linear stochastic systems with dynamical bias under amplify-and-forward relays: Dealing with non-Gaussian noises, \emph{Automatica}, vol.~167, Art.~no.~111724, 2024.
+
+\bibitem{wang2025moving}
+Y.~Wang and H.~Liu, Moving horizon estimation with filter-and-forward full-duplex relay, \emph{2025 Information Science Frontier Forum and the Academic Conference on Information Security and Intelligent Control (ISF)}, pp.~35--40, 2025.
+
+\bibitem{xie1996output}
+L.~Xie, Output feedback $H_\infty$ control of systems with parameter uncertainty, \emph{International Journal of Control}, vol.~63, no.~4, pp.~741--750, 1996.
+
+\bibitem{xing2024transmission}
+W.~Xing, J.~Zhang, X.~Zhao, H.~Liu, and S.~Li, Transmission schedule for remote state estimation in CPSs with two-hop networks in presence of an eavesdropper, \emph{IEEE Control Systems Letters}, vol.~8, pp.~2517--2522, 2024.
+
+\bibitem{xing2024transmission}
+W.~Xing and X.~Zhao, Transmission scheduling for remote state estimation in CPSs with two-hop networks subject to DoS attacks, \emph{IEEE/ACM Transactions on Networking}, vol.~32, no.~6, pp.~5388--5398, 2024.
+
+\bibitem{xu2026distributed}
+X.~Xu, K.~Xiu, W.~Wang, and J.~Chu, Distributed maximum correntropy Kalman filtering for stochastic discrete time system: A encoding-decoding-based approach, \emph{Journal of the Franklin Institute}, Art.~no.~108498, 2026.
+
+\bibitem{zhang2025attack}
+S.~Zhang, L.~Miao, and X.~Zhao, DoS attack schedules for remote state estimation in CPSs with two-hop relay networks under round-robin protocol, \emph{IEEE/CAA Journal of Automatica Sinica}, vol.~12, no.~7, pp.~1513--1515, 2025.
+
+\bibitem{zhao2006improving}
+Y.~Zhao, R.~Adve, and T.~J.~Lim, Improving amplify-and-forward relay networks: Optimal power allocation versus selection, \emph{2006 IEEE International Symposium on Information Theory}, pp.~1234--1238, 2006.
+
+\end{thebibliography}
