@@ -1,7 +1,7 @@
 import bibtexparser
 import re
-import os
-from format import BibliographyFormatter
+from core.bibliography.formatter import BibliographyFormatter
+
 
 class BibliographyManager:
     """
@@ -11,6 +11,23 @@ class BibliographyManager:
         self.formatter = formatter or BibliographyFormatter()
         self.entries = []
         self.content = ''
+        self.errors = []
+        self.stats = {
+            'loaded_entries': 0,
+            'formatted_entries': 0,
+            'removed_duplicates': 0,
+            'removed_uncited': 0,
+        }
+
+    def _add_error(self, stage, message, entry_index=None):
+        error = {
+            'stage': stage,
+            'message': str(message),
+        }
+        if entry_index is not None:
+            error['entry_index'] = entry_index
+        self.errors.append(error)
+        return error
 
     def load_main_text(self, file_path):
         """
@@ -24,9 +41,11 @@ class BibliographyManager:
                 self.content = f.read()
 
         except FileNotFoundError:
-            print(f"Error: File not found in {file_path}")
+            error = self._add_error('load_main_text', f"File not found in {file_path}")
+            print(f"Error: {error['message']}")
         except Exception as e:
-            print(f"Error: {e}")
+            error = self._add_error('load_main_text', e)
+            print(f"Error: {error['message']}")
     
     def load_references(self, file_path):
         """
@@ -42,12 +61,15 @@ class BibliographyManager:
             with open(file_path, 'r', encoding='utf-8') as f:
                 bib_database = bibtexparser.load(f)
             self.entries = bib_database.entries
+            self.stats['loaded_entries'] = len(self.entries)
             print(f"Processing {len(self.entries)} bibliography entries...")
         
         except FileNotFoundError:
-            print(f"Error: File not found in {file_path}")
+            error = self._add_error('load_references', f"File not found in {file_path}")
+            print(f"Error: {error['message']}")
         except Exception as e:
-            print(f"Error: {e}")
+            error = self._add_error('load_references', e)
+            print(f"Error: {error['message']}")
 
     def format_all(self):
         formatted_list = []
@@ -57,9 +79,11 @@ class BibliographyManager:
                 formatted_entry = self.formatter.format(raw_entry)
                 formatted_list.append(formatted_entry)
             except Exception as e:
-                print(f"Error processing reference #{i:2}: {e}")
+                error = self._add_error('format_all', e, entry_index=i)
+                print(f"Error processing reference #{i:2}: {error['message']}")
         
         self.entries = formatted_list
+        self.stats['formatted_entries'] = len(formatted_list)
         print(f"Formatting complete. Processed {len(formatted_list)} entries in total.")
 
     def deduplicate(self):
@@ -79,6 +103,7 @@ class BibliographyManager:
                 print(f"  [Deduplicate] Removed: {short_title}")
         
         self.entries = unique_list
+        self.stats['removed_duplicates'] = len(removed_list)
         print(f"Duplicates removed. {len(unique_list)} unique entries remaining.")
 
     def sort(self):
@@ -118,18 +143,20 @@ class BibliographyManager:
         print("Starting uncited check...")
         
         filtered_list = []
+        removed_count = 0
         for entry in self.entries:
             label = entry['meta']['ID']
             if label in cited_labels:
                 filtered_list.append(entry)
             else:
+                removed_count += 1
                 print(f"  [Uncited] Removed: {label}")
                 
         self.entries = filtered_list
+        self.stats['removed_uncited'] = removed_count
         print(f"Uncited entries removed. {len(filtered_list)} valid entries remaining.")
 
-    def save_to_file(self):
-        save_path = f"reference_formatted.txt"
+    def save_to_file(self, save_path="reference_formatted.txt"):
         
         with open(save_path, 'w', encoding='utf-8') as f:
             f.write("\\begin{thebibliography}{99}\n\n")
@@ -141,3 +168,13 @@ class BibliographyManager:
     
     def get_bibnumber(self):
         return len(self.entries)
+
+    def get_error_count(self):
+        return len(self.errors)
+
+    def get_stats(self):
+        return {
+            **self.stats,
+            'final_entries': len(self.entries),
+            'error_count': self.get_error_count(),
+        }

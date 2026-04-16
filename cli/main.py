@@ -1,8 +1,15 @@
+import glob
 import os
 import sys
-import glob
 import argparse
-from manage import BibliographyManager
+from pathlib import Path
+
+
+ROOT_DIR = Path(__file__).resolve().parent.parent
+if str(ROOT_DIR) not in sys.path:
+    sys.path.insert(0, str(ROOT_DIR))
+
+from core.bibliography import BibliographyManager
 
 
 if __name__ == "__main__":

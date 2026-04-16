@@ -257,4 +257,3 @@ class BibliographyFormatter:
         
         bib_code += ", ".join(details) + "."
         return {'code': bib_code, 'meta': self.meta}
-
