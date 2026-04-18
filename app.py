@@ -8,11 +8,12 @@ from fastapi.staticfiles import StaticFiles
 import uvicorn
 
 from api.routes import router
+from runtime_paths import get_static_dir
 from services.bibliography_service import ProcessingError
 
 
 BASE_DIR = Path(__file__).resolve().parent
-STATIC_DIR = BASE_DIR / "static"
+STATIC_DIR = get_static_dir()
 
 app = FastAPI(title="BibTeX to LaTeX Formatter")
 STATIC_DIR.mkdir(exist_ok=True)

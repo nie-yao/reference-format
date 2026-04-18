@@ -3,9 +3,12 @@ from __future__ import annotations
 import shutil
 import sys
 import uuid
+from io import BytesIO
 from dataclasses import dataclass
 from pathlib import Path
 from typing import BinaryIO, Optional
+
+from runtime_paths import get_jobs_root
 
 
 ROOT_DIR = Path(__file__).resolve().parent.parent
@@ -28,33 +31,45 @@ class ProcessingError(Exception):
 
 class BibliographyProcessingService:
     def __init__(self, jobs_root: Optional[Path] = None):
-        self.jobs_root = jobs_root or (ROOT_DIR / ".web_jobs")
+        self.jobs_root = jobs_root or get_jobs_root()
         self.jobs_root.mkdir(parents=True, exist_ok=True)
 
     def process(
         self,
-        bib_stream: BinaryIO,
-        bib_filename: str,
+        bib_stream: Optional[BinaryIO] = None,
+        bib_filename: Optional[str] = None,
+        bib_text: Optional[str] = None,
         tex_stream: Optional[BinaryIO] = None,
         tex_filename: Optional[str] = None,
+        tex_text: Optional[str] = None,
         options: Optional[ProcessOptions] = None,
     ) -> dict:
         options = options or ProcessOptions()
-
-        if options.remove_uncited and tex_stream is None:
-            raise ProcessingError("Remove uncited requires an uploaded .tex file.")
+        self._validate_inputs(
+            bib_stream=bib_stream,
+            bib_text=bib_text,
+            tex_stream=tex_stream,
+            tex_text=tex_text,
+            remove_uncited=options.remove_uncited,
+        )
 
         job_id = uuid.uuid4().hex
         job_dir = self.jobs_root / job_id
         job_dir.mkdir(parents=True, exist_ok=True)
 
         bib_path = job_dir / self._safe_name(bib_filename, "references.bib")
-        tex_path = job_dir / self._safe_name(tex_filename, "main.tex") if tex_stream else None
+        tex_path = job_dir / self._safe_name(tex_filename, "main.tex") if (tex_stream or tex_text) else None
         output_path = job_dir / "reference_formatted.txt"
 
-        self._write_upload(bib_stream, bib_path)
+        if bib_stream:
+            self._write_upload(bib_stream, bib_path)
+        elif bib_text is not None:
+            self._write_text(bib_text, bib_path)
+
         if tex_stream and tex_path:
             self._write_upload(tex_stream, tex_path)
+        elif tex_text is not None and tex_path:
+            self._write_text(tex_text, tex_path)
 
         manager = BibliographyManager()
         manager.load_references(str(bib_path))
@@ -106,6 +121,34 @@ class BibliographyProcessingService:
         return Path(filename).name or fallback
 
     @staticmethod
+    def _validate_inputs(
+        bib_stream: Optional[BinaryIO],
+        bib_text: Optional[str],
+        tex_stream: Optional[BinaryIO],
+        tex_text: Optional[str],
+        remove_uncited: bool,
+    ) -> None:
+        has_bib_file = bib_stream is not None
+        has_bib_text = bool((bib_text or "").strip())
+        has_tex_file = tex_stream is not None
+        has_tex_text = bool((tex_text or "").strip())
+
+        if has_bib_file and has_bib_text:
+            raise ProcessingError("Choose either a .bib file or pasted BibTeX text, not both.")
+        if not has_bib_file and not has_bib_text:
+            raise ProcessingError("Please upload a .bib file or paste BibTeX text.")
+
+        if has_tex_file and has_tex_text:
+            raise ProcessingError("Choose either a .tex file or pasted TeX text, not both.")
+
+        if remove_uncited and not (has_tex_file or has_tex_text):
+            raise ProcessingError("Remove uncited requires a .tex file or pasted TeX text.")
+
+    @staticmethod
     def _write_upload(stream: BinaryIO, destination: Path) -> None:
         with destination.open("wb") as target:
             shutil.copyfileobj(stream, target)
+
+    @staticmethod
+    def _write_text(content: str, destination: Path) -> None:
+        destination.write_text(content, encoding="utf-8")

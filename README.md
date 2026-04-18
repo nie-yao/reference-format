@@ -20,6 +20,33 @@ uv run python app.py
 
 Then open [http://127.0.0.1:8000](http://127.0.0.1:8000).
 
+## Run on Windows
+
+- Double-click `install_and_start.bat` the first time to create `.venv`, install dependencies, and launch the app.
+- After that, you can use `start_app.bat` for one-click startup.
+
+## Build a Windows executable
+
+1. Install dependencies in your environment.
+2. Build the app:
+
+```bash
+python build_windows.py --mode onedir
+```
+
+For a single-file executable:
+
+```bash
+python build_windows.py --mode onefile
+```
+
+After the build finishes:
+
+- `dist/BibTeXFormatter/` contains the one-directory app
+- or `dist/BibTeXFormatter.exe` contains the single-file app
+
+The packaged app starts the local FastAPI server and opens the browser automatically.
+
 ## Available API endpoints
 
 - `GET /api/health`

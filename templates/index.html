@@ -233,7 +233,7 @@
 
     .layout {
       display: grid;
-      grid-template-columns: 360px minmax(0, 1fr);
+      grid-template-columns: minmax(520px, 0.96fr) minmax(0, 1fr);
       gap: 24px;
       align-items: start;
     }
@@ -267,32 +267,109 @@
       color: var(--text);
     }
 
-    .hint {
-      margin-top: 8px;
+    .field-card {
+      padding: 14px;
+      border-radius: 16px;
+      border: 1px solid var(--line);
+      background: rgba(255, 255, 255, 0.7);
+    }
+
+    .field-card-hint {
+      margin-bottom: 12px;
       color: var(--muted);
-      font-size: 0.9rem;
+      font-size: 0.88rem;
+      line-height: 1.45;
+    }
+
+    .source-switch {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+
+    .source-pill {
+      border: 1px solid rgba(28, 52, 77, 0.12);
+      background: rgba(255, 255, 255, 0.75);
+      color: var(--muted);
+      font-weight: 600;
+      box-shadow: none;
+    }
+
+    .source-pill.active {
+      background: linear-gradient(135deg, var(--accent), var(--accent-strong));
+      color: white;
+      box-shadow: 0 12px 28px rgba(14, 116, 144, 0.18);
+    }
+
+    .field-section + .field-section {
+      margin-top: 14px;
+    }
+
+    .field-caption {
+      display: block;
+      margin-bottom: 8px;
+      color: var(--muted);
+      font-size: 0.88rem;
+      font-weight: 600;
+      letter-spacing: 0.01em;
+    }
+
+    .textarea-input {
+      width: 100%;
+      min-height: 128px;
+      resize: vertical;
+      padding: 12px 14px;
+      border-radius: 14px;
+      border: 1px solid rgba(28, 52, 77, 0.14);
+      background: rgba(255, 255, 255, 0.94);
+      color: var(--text);
+      font: inherit;
+      line-height: 1.5;
+    }
+
+    .textarea-input:disabled,
+    .field input[type="file"]:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .file-selected {
+      margin-top: 8px;
+      font-size: 0.84rem;
+      color: var(--accent-strong);
+      word-break: break-word;
     }
 
     .options {
       display: grid;
-      gap: 12px;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
       margin: 16px 0 24px;
     }
 
     .check {
       display: flex;
       align-items: center;
-      gap: 10px;
-      padding: 12px 14px;
+      justify-content: center;
+      gap: 8px;
+      padding: 11px 12px;
       background: rgba(255, 255, 255, 0.72);
       border: 1px solid var(--line);
       border-radius: 14px;
+      text-align: center;
     }
 
     .check input {
-      width: 18px;
-      height: 18px;
+      width: 16px;
+      height: 16px;
+      margin: 0;
       accent-color: var(--accent);
+    }
+
+    .check span {
+      font-size: 0.93rem;
+      line-height: 1.25;
     }
 
     .actions {
@@ -372,12 +449,25 @@
 
     .stats-grid {
       display: grid;
-      grid-template-columns: repeat(6, minmax(0, 1fr));
+      grid-template-columns: repeat(3, minmax(0, 1fr));
       gap: 12px;
     }
 
     .stats-grid .stat-box {
-      min-height: 116px;
+      min-height: 92px;
+      padding: 14px 16px;
+      border-radius: 16px;
+    }
+
+    .stats-grid .stat-box strong {
+      font-size: 1.25rem;
+      margin-bottom: 4px;
+    }
+
+    .stats-grid .stat-box span {
+      margin-top: 2px;
+      font-size: 0.82rem;
+      line-height: 1.3;
     }
 
     .status {
@@ -488,6 +578,14 @@
         grid-template-columns: 1fr;
       }
 
+      .source-switch {
+        grid-template-columns: 1fr;
+      }
+
+      .options {
+        grid-template-columns: 1fr;
+      }
+
       .toolbar {
         align-items: stretch;
       }
@@ -545,14 +643,94 @@
 
         <div class="field">
           <label for="bib-file">[[ t('bibFile') ]]</label>
-          <input id="bib-file" type="file" accept=".bib" @change="onBibFileChange" />
-          <div class="hint">[[ t('bibFileHint') ]]</div>
+          <div class="field-card">
+            <div class="field-card-hint">[[ t('bibFileHint') ]]</div>
+            <div class="field-section">
+              <div class="source-switch">
+                <button
+                  type="button"
+                  class="source-pill"
+                  :class="{ active: bibSourceMode === 'file' }"
+                  @click="setBibSourceMode('file')"
+                >
+                  [[ t('uploadFile') ]]
+                </button>
+                <button
+                  type="button"
+                  class="source-pill"
+                  :class="{ active: bibSourceMode === 'text' }"
+                  @click="setBibSourceMode('text')"
+                >
+                  [[ t('pasteText') ]]
+                </button>
+              </div>
+              <span class="field-caption">
+                [[ bibSourceMode === 'file' ? t('uploadFileCaption') : t('pasteTextCaption') ]]
+              </span>
+              <input
+                v-if="bibSourceMode === 'file'"
+                id="bib-file"
+                type="file"
+                accept=".bib"
+                @change="onBibFileChange"
+              />
+              <textarea
+                v-else
+                class="textarea-input"
+                v-model="bibText"
+                :placeholder="t('bibTextPlaceholder')"
+              ></textarea>
+              <div v-if="bibSourceMode === 'file' && bibFile" class="file-selected">
+                [[ t('selectedFile') ]]: [[ bibFile.name ]]
+              </div>
+            </div>
+          </div>
         </div>
 
         <div class="field">
           <label for="tex-file">[[ t('texFile') ]]</label>
-          <input id="tex-file" type="file" accept=".tex" @change="onTexFileChange" />
-          <div class="hint">[[ t('texFileHint') ]]</div>
+          <div class="field-card">
+            <div class="field-card-hint">[[ t('texFileHint') ]]</div>
+            <div class="field-section">
+              <div class="source-switch">
+                <button
+                  type="button"
+                  class="source-pill"
+                  :class="{ active: texSourceMode === 'file' }"
+                  @click="setTexSourceMode('file')"
+                >
+                  [[ t('uploadFile') ]]
+                </button>
+                <button
+                  type="button"
+                  class="source-pill"
+                  :class="{ active: texSourceMode === 'text' }"
+                  @click="setTexSourceMode('text')"
+                >
+                  [[ t('pasteText') ]]
+                </button>
+              </div>
+              <span class="field-caption">
+                [[ texSourceMode === 'file' ? t('uploadFileCaption') : t('pasteTextCaption') ]]
+              </span>
+              <input
+                v-if="texSourceMode === 'file'"
+                id="tex-file"
+                type="file"
+                accept=".tex"
+                @change="onTexFileChange"
+              />
+              <textarea
+                v-else
+                class="textarea-input"
+                v-model="texText"
+                :placeholder="t('texTextPlaceholder')"
+              ></textarea>
+              <div v-if="texSourceMode === 'file' && texFile" class="file-selected">
+                [[ t('selectedFile') ]]: [[ texFile.name ]]
+              </div>
+            </div>
+          </div>
         </div>
 
         <div class="options">
@@ -565,7 +743,7 @@
             <span>[[ t('sort') ]]</span>
           </label>
           <label class="check">
-            <input type="checkbox" v-model="form.remove_uncited" :disabled="!texFile" />
+            <input type="checkbox" v-model="form.remove_uncited" :disabled="!hasTexSource" />
             <span>[[ t('removeUncited') ]]</span>
           </label>
         </div>
@@ -611,6 +789,10 @@
             <span>[[ t('entriesFormatted') ]]</span>
           </div>
           <div class="stat-box">
+            <strong>[[ stats.error_count || errors.length || 0 ]]</strong>
+            <span>[[ t('errorsReported') ]]</span>
+          </div>
+          <div class="stat-box">
             <strong>[[ stats.final_entries || 0 ]]</strong>
             <span>[[ t('remainingReferences') ]]</span>
           </div>
@@ -621,10 +803,6 @@
           <div class="stat-box">
             <strong>[[ stats.removed_uncited || 0 ]]</strong>
             <span>[[ t('removedAsUncited') ]]</span>
-          </div>
-          <div class="stat-box">
-            <strong>[[ stats.error_count || errors.length || 0 ]]</strong>
-            <span>[[ t('errorsReported') ]]</span>
           </div>
         </div>
 
@@ -661,8 +839,12 @@
         return {
           currentLanguage: 'zh',
           loading: false,
+          bibSourceMode: 'file',
           bibFile: null,
+          bibText: '',
+          texSourceMode: 'file',
           texFile: null,
+          texText: '',
           form: {
             deduplicate: true,
             sort: true,
@@ -688,9 +870,18 @@
               catButtonLabel: '播放小猫动画',
               uploadAndOptions: '上传与选项',
               bibFile: 'Bib 文件',
-              bibFileHint: '必选。这是文献数据库源文件。',
+              bibFileHint: '必选。你可以上传 .bib 文件，或者直接粘贴 BibTeX 内容。',
               texFile: 'TeX 文件',
-              texFileHint: '可选。若需要删除未引用条目，请上传。',
+              texFileHint: '可选。你可以上传 .tex 文件，或者直接粘贴 TeX 内容。',
+              uploadFile: '上传文件',
+              uploadFileCaption: '当前使用文件上传',
+              pasteText: '粘贴文本',
+              pasteTextCaption: '当前使用文本输入',
+              selectedFile: '已选择文件',
+              bibTextPlaceholder: '在这里粘贴 BibTeX 内容...',
+              texTextPlaceholder: '在这里粘贴 TeX 正文内容...',
+              bibExclusiveHint: 'Bib 文件上传与 BibTeX 文本输入二选一，不能同时使用。',
+              texExclusiveHint: 'TeX 文件上传与 TeX 文本输入二选一，不能同时使用。',
               deduplicate: '去重',
               sort: '排序',
               removeUncited: '删除未引用条目',
@@ -712,7 +903,10 @@
               emptyStateDescription: '上传 BibTeX 文件后，点击“开始生成”即可生成 LaTeX 参考文献块。',
               errorDetails: '错误详情',
               chooseBibFirst: '请先选择一个 .bib 文件再开始生成。',
-              removeUncitedNeedsTex: '如果要删除未引用条目，需要同时上传 .tex 文件。',
+              chooseBibSource: '请上传一个 .bib 文件，或粘贴 BibTeX 文本后再开始生成。',
+              bibInputExclusive: 'Bib 文件上传和 BibTeX 文本输入不能同时使用。',
+              texInputExclusive: 'TeX 文件上传和 TeX 文本输入不能同时使用。',
+              removeUncitedNeedsTex: '如果要删除未引用条目，需要上传 .tex 文件或粘贴 TeX 文本。',
               processing: '正在通过现有文献处理流程处理文件...',
               generatedSuccess: '文献结果已生成成功。',
               requestFailed: '请求在服务器返回结果前失败了。',
@@ -730,9 +924,18 @@
               catButtonLabel: 'Play cat animation',
               uploadAndOptions: 'Upload & Options',
               bibFile: 'Bib file',
-              bibFileHint: 'Required. This is the source bibliography database.',
+              bibFileHint: 'Required. Upload a .bib file or paste BibTeX content.',
               texFile: 'TeX file',
-              texFileHint: 'Optional. Upload when you want to remove uncited entries.',
+              texFileHint: 'Optional. Upload a .tex file or paste TeX content.',
+              uploadFile: 'Upload file',
+              uploadFileCaption: 'Using file upload',
+              pasteText: 'Paste text',
+              pasteTextCaption: 'Using text input',
+              selectedFile: 'Selected file',
+              bibTextPlaceholder: 'Paste BibTeX content here...',
+              texTextPlaceholder: 'Paste TeX content here...',
+              bibExclusiveHint: 'Choose either a Bib file upload or pasted BibTeX text, not both.',
+              texExclusiveHint: 'Choose either a TeX file upload or pasted TeX text, not both.',
               deduplicate: 'Deduplicate',
               sort: 'Sort',
               removeUncited: 'Remove uncited entries',
@@ -754,7 +957,10 @@
               emptyStateDescription: 'Upload a BibTeX file and click Generate to create the LaTeX bibliography block.',
               errorDetails: 'Error Details',
               chooseBibFirst: 'Please choose a .bib file before generating.',
-              removeUncitedNeedsTex: 'Removing uncited entries requires an uploaded .tex file.',
+              chooseBibSource: 'Please upload a .bib file or paste BibTeX text before generating.',
+              bibInputExclusive: 'Bib file upload and BibTeX text input cannot be used at the same time.',
+              texInputExclusive: 'TeX file upload and TeX text input cannot be used at the same time.',
+              removeUncitedNeedsTex: 'Removing uncited entries requires a .tex file or pasted TeX text.',
               processing: 'Processing files through the bibliography pipeline...',
               generatedSuccess: 'Bibliography generated successfully.',
               requestFailed: 'The request failed before the server returned a result.',
@@ -776,6 +982,9 @@
       methods: {
         t(key) {
           return this.translations[this.currentLanguage][key] || key;
+        },
+        trimValue(value) {
+          return (value || '').trim();
         },
         async initCatAnimation() {
           const container = this.$refs.catLottie;
@@ -848,22 +1057,61 @@
         toggleLanguage() {
           this.currentLanguage = this.currentLanguage === 'zh' ? 'en' : 'zh';
         },
+        clearBibFileInput() {
+          const bibInput = document.getElementById('bib-file');
+          if (bibInput) bibInput.value = '';
+        },
+        clearTexFileInput() {
+          const texInput = document.getElementById('tex-file');
+          if (texInput) texInput.value = '';
+        },
+        setBibSourceMode(mode) {
+          this.bibSourceMode = mode;
+          if (mode === 'file') {
+            this.bibText = '';
+            return;
+          }
+          this.bibFile = null;
+          this.clearBibFileInput();
+        },
+        setTexSourceMode(mode) {
+          this.texSourceMode = mode;
+          if (mode === 'file') {
+            this.texText = '';
+            if (!this.texFile) {
+              this.form.remove_uncited = false;
+            }
+            return;
+          }
+          this.texFile = null;
+          this.clearTexFileInput();
+        },
         onBibFileChange(event) {
           this.bibFile = event.target.files[0] || null;
         },
         onTexFileChange(event) {
           this.texFile = event.target.files[0] || null;
-          if (!this.texFile) {
+          if (!this.texFile && !this.hasTexText) {
             this.form.remove_uncited = false;
           }
         },
         async submit() {
-          if (!this.bibFile) {
-            this.setMessage(this.t('chooseBibFirst'), 'error');
+          if (!this.hasBibSource) {
+            this.setMessage(this.t('chooseBibSource'), 'error');
             return;
           }
 
-          if (this.form.remove_uncited && !this.texFile) {
+          if (this.hasBibFile && this.hasBibText) {
+            this.setMessage(this.t('bibInputExclusive'), 'error');
+            return;
+          }
+
+          if (this.hasTexFile && this.hasTexText) {
+            this.setMessage(this.t('texInputExclusive'), 'error');
+            return;
+          }
+
+          if (this.form.remove_uncited && !this.hasTexSource) {
             this.setMessage(this.t('removeUncitedNeedsTex'), 'error');
             return;
           }
@@ -872,10 +1120,14 @@
           this.setMessage(this.t('processing'), 'info');
 
           const formData = new FormData();
-          formData.append('bib_file', this.bibFile);
+          if (this.bibFile) {
+            formData.append('bib_file', this.bibFile);
+          }
+          formData.append('bib_text', this.trimValue(this.bibText));
           if (this.texFile) {
             formData.append('tex_file', this.texFile);
           }
+          formData.append('tex_text', this.trimValue(this.texText));
           formData.append('deduplicate', String(this.form.deduplicate));
           formData.append('sort', String(this.form.sort));
           formData.append('remove_uncited', String(this.form.remove_uncited));
@@ -913,8 +1165,12 @@
         },
         resetAll() {
           this.loading = false;
+          this.bibSourceMode = 'file';
           this.bibFile = null;
+          this.bibText = '';
+          this.texSourceMode = 'file';
           this.texFile = null;
+          this.texText = '';
           this.form = {
             deduplicate: true,
             sort: true,
@@ -926,10 +1182,8 @@
           this.errors = [];
           this.message = '';
           this.messageType = 'info';
-          const bibInput = document.getElementById('bib-file');
-          const texInput = document.getElementById('tex-file');
-          if (bibInput) bibInput.value = '';
-          if (texInput) texInput.value = '';
+          this.clearBibFileInput();
+          this.clearTexFileInput();
         },
         async copyResult() {
           if (!this.outputText) {
@@ -964,6 +1218,26 @@
             parts.push(error.message);
           }
           return parts.join(' ');
+        }
+      },
+      computed: {
+        hasBibFile() {
+          return !!this.bibFile;
+        },
+        hasBibText() {
+          return this.trimValue(this.bibText).length > 0;
+        },
+        hasBibSource() {
+          return this.hasBibFile || this.hasBibText;
+        },
+        hasTexFile() {
+          return !!this.texFile;
+        },
+        hasTexText() {
+          return this.trimValue(this.texText).length > 0;
+        },
+        hasTexSource() {
+          return this.hasTexFile || this.hasTexText;
         }
       }
     }).mount('#app');

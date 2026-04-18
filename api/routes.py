@@ -7,6 +7,7 @@ from fastapi import APIRouter, File, Form, HTTPException, Request, UploadFile
 from fastapi.responses import FileResponse, HTMLResponse
 from fastapi.templating import Jinja2Templates
 
+from runtime_paths import get_templates_dir
 from services.bibliography_service import (
     BibliographyProcessingService,
     ProcessOptions,
@@ -15,7 +16,7 @@ from services.bibliography_service import (
 
 
 BASE_DIR = Path(__file__).resolve().parent.parent
-templates = Jinja2Templates(directory=str(BASE_DIR / "templates"))
+templates = Jinja2Templates(directory=str(get_templates_dir()))
 service = BibliographyProcessingService()
 
 router = APIRouter()
@@ -39,16 +40,15 @@ async def health():
 
 @router.post("/api/process")
 async def process_bibliography(
-    bib_file: UploadFile = File(...),
+    bib_file: Optional[UploadFile] = File(None),
+    bib_text: str = Form(""),
     tex_file: Optional[UploadFile] = File(None),
+    tex_text: str = Form(""),
     deduplicate: bool = Form(True),
     sort: bool = Form(True),
     remove_uncited: bool = Form(False),
 ):
-    if not bib_file.filename:
-        raise ProcessingError("Please upload a .bib file.")
-
-    if not bib_file.filename.lower().endswith(".bib"):
+    if bib_file and bib_file.filename and not bib_file.filename.lower().endswith(".bib"):
         raise ProcessingError("The bibliography file must be a .bib file.")
 
     if tex_file and tex_file.filename and not tex_file.filename.lower().endswith(".tex"):
@@ -62,14 +62,17 @@ async def process_bibliography(
 
     try:
         return service.process(
-            bib_stream=bib_file.file,
-            bib_filename=bib_file.filename,
+            bib_stream=bib_file.file if bib_file and bib_file.filename else None,
+            bib_filename=bib_file.filename if bib_file else None,
+            bib_text=bib_text,
             tex_stream=tex_file.file if tex_file else None,
             tex_filename=tex_file.filename if tex_file else None,
+            tex_text=tex_text,
             options=options,
         )
     finally:
-        await bib_file.close()
+        if bib_file:
+            await bib_file.close()
         if tex_file:
             await tex_file.close()
 
